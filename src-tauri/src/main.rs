@@ -368,8 +368,7 @@ async fn generate_medical_note(
         "llama-2-7b-chat.gguf", 
         "llama-2-13b-chat.gguf",
         "mistral-7b-instruct.gguf",
-        "openchat-3.5.gguf",
-        "whisper-tiny.en.gguf"
+        "openchat-3.5.gguf"
     ];
     
     // Get the current working directory to build absolute paths
