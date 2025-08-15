@@ -95,53 +95,59 @@ export class TranscriptionManager {
         }
 
         // Ensure app directory exists
-        const appDataDir = await invoke('ensure_app_directory');
+        try {
+            const appDataDir = await invoke('ensure_app_directory');
 
-        // Convert blob to array buffer and save
-        const audioBuffer = await convertedBlob.arrayBuffer();
-        const uint8Array = new Uint8Array(audioBuffer);
-        const audioPath = `${appDataDir}/recording.wav`;
+            // Convert blob to array buffer and save
+            const audioBuffer = await convertedBlob.arrayBuffer();
+            const uint8Array = new Uint8Array(audioBuffer);
+            // Use OS-specific path separator
+            const isWindows = navigator.userAgent.includes('Windows');
+            const sep = isWindows ? '\\' : '/';
+            const audioPath = `${appDataDir}${sep}recording.wav`;
 
-        await writeFile(audioPath, uint8Array);
+            await writeFile(audioPath, uint8Array);
 
-        // Validate the saved file
-        await invoke('validate_audio_file', { audioPath: audioPath });
+            // Validate the saved file
+            await invoke('validate_audio_file', { audioPath: audioPath });
 
-        // Transcribe the audio
-        const transcriptionResult = await invoke('transcribe_audio', { audioPath: audioPath });
+            // Transcribe the audio
+            const transcriptionResult = await invoke('transcribe_audio', { audioPath: audioPath });
 
-        if (!transcriptionResult.success) {
-            throw new Error(`Transcription failed: ${transcriptionResult.error}`);
+            if (!transcriptionResult.success) {
+                throw new Error(`Transcription failed: ${transcriptionResult.error}`);
+            }
+
+            this.lastTranscript = transcriptionResult.transcript;
+
+            // Reset streamed note before starting
+            this.currentStreamedNote = '';
+
+            // Generate medical note
+            const noteResult = await invoke('generate_medical_note', {
+                transcript: transcriptionResult.transcript,
+                noteType: noteType
+            });
+
+            if (noteResult.success) {
+                // The final note is already set via the note-generation-complete event
+                return {
+                    success: true,
+                    transcript: this.lastTranscript,
+                    medicalNote: this.lastMedicalNote
+                };
+            } else {
+                // Transcription succeeded but note generation failed
+                return {
+                    success: true,
+                    transcript: this.lastTranscript,
+                    medicalNote: null,
+                    noteError: noteResult.error
+                };
+            }
+        } catch (error) {
+            throw new Error(`Transcription process failed: ${error.message}`);
         }
-
-        this.lastTranscript = transcriptionResult.transcript;
-
-        // Reset streamed note before starting
-        this.currentStreamedNote = '';
-
-        // Generate medical note
-        const noteResult = await invoke('generate_medical_note', {
-            transcript: transcriptionResult.transcript,
-            noteType: noteType
-        });
-
-        if (noteResult.success) {
-            // The final note is already set via the note-generation-complete event
-            return {
-                success: true,
-                transcript: this.lastTranscript,
-                medicalNote: this.lastMedicalNote
-            };
-        } else {
-            // Transcription succeeded but note generation failed
-            return {
-                success: true,
-                transcript: this.lastTranscript,
-                medicalNote: null,
-                noteError: noteResult.error
-            };
-        }
-
     }
 
     getLastTranscript() {

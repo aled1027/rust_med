@@ -28,19 +28,19 @@ export class RecordingManager {
     async startRecording(deviceId) {
         try {
             // Enhanced audio constraints for better speech recognition
-            // const audioConstraints = {
-            //     deviceId: deviceId ? { exact: deviceId } : undefined,
-            //     sampleRate: 44100,
-            //     channelCount: 1,
-            //     echoCancellation: true,
-            //     noiseSuppression: true,
-            //     autoGainControl: true,
-            //     latency: 0.01,
-            //     volume: 1.0
-            // };
+            const audioConstraints = {
+                deviceId: deviceId ? { exact: deviceId } : undefined,
+                sampleRate: 44100,
+                channelCount: 1,
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+                latency: 0.01,
+                volume: 1.0
+            };
 
             this.stream = await navigator.mediaDevices.getUserMedia({
-                audio: true
+                audio: audioConstraints
             });
 
             // Prefer WebM format for better quality, will convert to WAV
