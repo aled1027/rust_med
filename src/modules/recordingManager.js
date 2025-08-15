@@ -58,7 +58,6 @@ export class RecordingManager {
                 'audio/aac',
                 'audio/flac'
             ];
-            console.log(MediaRecorder);
 
             this.selectedFormat = null;
             for (const mimeType of supportedFormats) {
