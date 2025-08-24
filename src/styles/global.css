@@ -22,12 +22,18 @@ body {
     max-width: 1200px;
 }
 
+main {
+    margin-block-start: 2rem;
+}
+
 
 h1,
 h2,
 h3 {
     line-height: 1.1;
     margin: 0;
+    margin-block-start: 0.75em;
+    margin-block-end: 0.325em;
 }
 
 a {
@@ -43,8 +49,7 @@ th {
 }
 
 :focus {
-    outline: 2px dotted;
-    outline-offset: 0.25rem;
+    /* use the browser default */
 }
 
 footer {
@@ -71,7 +76,7 @@ textarea {
 }
 
 p {
-    margin-block-start: 1lh;
+    margin-block-start: 1em;
 }
 
 button {
