@@ -1,8 +1,8 @@
 * {
-    --bg-color: white;
+    --bg-color: #F7F5EE;
     --surface-bg-color: rgba(13, 13, 13, 0.02);
     --input-bg-color: rgba(13, 13, 13, 0.02);
-    --color-text: rgba(13, 13, 13, 1);
+    --color-text: rgba(13, 13, 13, .9);
     --color-primary: steelblue;
     --flow-space: 1rem;
 }

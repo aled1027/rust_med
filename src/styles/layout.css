@@ -2,6 +2,8 @@
     display: grid;
     grid-template-columns: 270px auto;
     grid-template-rows: 1fr;
+
+    /* make each section scroll individually */
     height: 100vh;
 
     &>* {
@@ -15,6 +17,6 @@
     }
 
     &>.not-sidebar {
-        /* overflow-y: scroll; */
+        padding-inline: 1rem;
     }
 }
