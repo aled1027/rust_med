@@ -29,12 +29,21 @@
 }
 
 .button:active {
-    transform: scale(99%);
+    scale: 99%;
 }
 
 .button:disabled {
-    filter: grayscale(100%);
     background-color: #ebebeb;
-    color: rgba(13, 13, 13, 1);
+    border: 1px solid rgba(13, 13, 13, 0.7);
+    color: rgba(13, 13, 13, 0.7);
+    filter: grayscale(100%);
     cursor: not-allowed;
+
+    &:hover {
+        filter: grayscale(100%);
+    }
+
+    &:active {
+        scale: 100%;
+    }
 }
