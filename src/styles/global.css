@@ -1,3 +1,170 @@
+* {
+    --bg-color: white;
+    --surface-bg-color: rgba(13, 13, 13, 0.02);
+    --input-bg-color: rgba(13, 13, 13, 0.02);
+    --color-text: rgba(13, 13, 13, 1);
+    --color-primary: steelblue;
+    --flow-space: 1rem;
+}
+
 body {
-    background: red;
+    line-height: 1.4;
+    overflow-x: hidden;
+    font-family: system-ui;
+    background-color: var(--bg-color);
+    color: var(--color-text);
+    padding: 0;
+    font-size: 1rem;
+
+    margin-block: 0;
+    margin-inline: auto;
+    width: calc(100vw - 2rem);
+    max-width: 1200px;
+}
+
+
+h1,
+h2,
+h3 {
+    line-height: 1.1;
+    margin: 0;
+}
+
+a {
+    color: currentColor;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+th {
+    text-align: left;
+}
+
+:focus {
+    outline: 2px dotted;
+    outline-offset: 0.25rem;
+}
+
+footer {
+    height: 30vh;
+}
+
+svg:not([class]) {
+    width: auto;
+    height: 1lh;
+}
+
+svg {
+    flex-shrink: 0;
+}
+
+
+textarea {
+    width: 100%;
+    padding: 0.75em .875em;
+    border: 1px solid var(--color-primary);
+    border-radius: 8px;
+    background-color: var(--surface-bg-color);
+    color: var(--color-text);
+}
+
+p {
+    margin-block-start: 1lh;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+}
+
+/* INPUTS */
+
+/* There's a .flow composition, but this prevents forms from having to have that applied where markup is harder to control in certain systems. It still uses the flow-space variables though to make managing space easier */
+form>*+* {
+    margin-top: var(--flow-space);
+}
+
+:is(input, select, textarea) {
+    accent-color: var(--color-primary);
+}
+
+:is(input:not([type='checkbox'], [type='radio'], [type='color']), select, textarea) {
+    padding: 0.5em 0.8em;
+    border-radius: 4px;
+    border: 1px solid black;
+    color: var(--color-text);
+    background: var(--input-bg-color);
+    width: 100%;
+
+    &::placeholder {
+        color: var(--color-text-light);
+        opacity: 1;
+    }
+}
+
+select.select-light {
+    background: transparent;
+    color: var(--color-text-light3);
+    width: auto;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--color-text-light3);
+    border-radius: 4px;
+}
+
+label {
+    line-height: 1.1;
+    font-weight: 400;
+}
+
+label::after {
+    content: '\A';
+    white-space: pre;
+}
+
+/* Usually label wraps checkbox and radio buttons, so we give ourselves more layout and text-flow control with flex */
+label:has(input) {
+    display: flex;
+    align-items: first baseline;
+    gap: 1rem;
+    font-weight: 400;
+}
+
+label:has(input)+label:has(input) {
+    margin-top: 1rem;
+}
+
+input:disabled {
+    background: var(--color-text-light);
+}
+
+input:disabled,
+label input:disabled+* {
+    cursor: not-allowed;
+}
+
+/* Sets a sensible height if textarea rows attribute is missing */
+textarea:not([rows]) {
+    min-height: 10em;
+}
+
+fieldset {
+    border: 1px solid var(--notebook-border-color);
+    padding: 1rem;
+}
+
+legend {
+    padding-inline: 1rem;
+}
+
+audio {
+    display: block;
+    width: 100%;
+    color: blue;
+    accent-color: red;
+}
+
+.flow>*+* {
+    margin-top: var(--flow-space);
 }

@@ -8,7 +8,6 @@
     <script defer type="module" src="main.js"></script>
   </head>
   <body>
-
     <header>
       <h1>Medical Note Generator</h1>
       <div id="status" class="status">Ready</div>
@@ -23,8 +22,8 @@
         </div>
       </div>
 
-      <!-- Patient Information Section -->
-      <section class="patient-info">
+      <section>
+        <!-- Patient Information Section -->
         <h2>Patient Information</h2>
         <form>
           <div class="input-group">
@@ -39,30 +38,31 @@
             <label for="dob">Date of Birth:</label>
             <input type="date" id="dob" class="patient-input"/>
           </div>
+          <div class="input-group">
+            <label for="note-type">Note Type:</label>
+            <select id="note-type">
+              <option value="soap">SOAP Note</option>
+              <option value="full">Full Note</option>
+            </select>
+          </div>
+          <div>
+            <!-- non-input fields; buttons -->
+            <button id="start-recording-btn" class="btn btn-primary">Start Recording</button>
+            <button id="pause-recording-btn" class="button" disabled>Pause</button>
+            <button id="stop-recording-btn" class="button" data-type="secondary" disabled>Stop Recording</button>
+            <button id="save-note-btn" class="button" disabled>Save Note</button>
+            <div id="recording-dot" class="recording-dot"></div>
+            <span id="recording-txt">Not Recording</span>
+            <div class="waveform-container">
+              <canvas id="waveform" width="400" height="100" style="border: 1px solid steelblue;"></canvas>
+            </div>
+          </div>
         </form>
       </section>
-      <form>
-        <div class="input-group">
-          <label for="note-type">Note Type:</label>
-          <select id="note-type">
-            <option value="soap">SOAP Note</option>
-            <option value="full">Full Note</option>
-          </select>
-        </div>
-        <button id="start-recording-btn" class="btn btn-primary">Start Recording</button>
-        <button id="pause-recording-btn" class="button" disabled>Pause</button>
-        <button id="stop-recording-btn" class="button" data-type="secondary" disabled>Stop Recording</button>
-        <button id="save-note-btn" class="button" disabled>Save Note</button>
-        <div id="recording-dot" class="recording-dot"></div>
-        <span id="recording-txt">Not Recording</span>
-        <div class="waveform-container">
-          <canvas id="waveform" width="400" height="100" style="border: 1px solid steelblue;"></canvas>
-        </div>
-      </form>
 
       <section class="transcript-section">
         <h2>Transcript</h2>
-        <textarea "transcript" placeholder="Transcript will appear here..."></textarea>
+        <textarea id="transcript" placeholder="Transcript will appear here..."></textarea>
       </section>
 
       <section class="medical-note-section">
@@ -71,7 +71,7 @@
           <button class="button">Copy Note</button>
           <p>TODO: why do need to copy the note? Where is it being copied to?</p>
         </div>
-        <textarea id="medicalNote" placeholder="Generated medical note will appear here..."></textarea>
+        <textarea id="medical-note" placeholder="Generated medical note will appear here..."></textarea>
       </section>
       <div class="disclaimer">
         <p>
@@ -94,7 +94,7 @@
           <!-- Model Settings Section -->
           <h3>AI Models</h3>
           <div class="input-group">
-            <label>Transcription Model:</label>
+            <label for="transcription-model">Transcription Model:</label>
             <select id="transcription-model">
               <option value="whisper-tiny">Whisper Tiny (39MB)</option>
               <option value="whisper-small">Whisper Small (244MB)</option>
@@ -104,8 +104,8 @@
           </div>
 
           <div class="input-group">
-            <label>Language Model:</label>
-            <select id="llmModel" class="model-select">
+            <label for="llm-model">Language Model:</label>
+            <select id="llm-model" class="model-select">
               <option value="med_llama">Medical Llama (4GB)</option>
               <option value="llama2-7b">Llama 2 7B (4GB)</option>
               <option value="mistral-7b">Mistral 7B (4GB)</option>
