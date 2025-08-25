@@ -37,7 +37,7 @@ npm install
 
 With that, you're ready to run the application:
 
-The command `npm run dev` when run at the root of the project will run (a) the frontend with `vite build --watch` such that code changes to the frontend are streamed to the `frontend/build` directory and (b) run the tauri app in dev mode with `cargo tauri dev`.
+The command `npm run dev`, when executed at the root of the repo, will run (a) the frontend with `vite build --watch` such that code changes to the frontend are streamed to the `frontend/build` directory and (b) run the tauri app in dev mode with `cargo tauri dev`.
 
 ```bash
 # Be at the root of the repo to start the Tauri project
