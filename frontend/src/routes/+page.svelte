@@ -2,7 +2,6 @@
   import { onMount } from "svelte";
   import Menu from "$lib/components/Menu.svelte";
   import PatientInfoForm from "$lib/components/PatientInfoForm.svelte";
-  import RecordingControls from "$lib/components/RecordingControls.svelte";
   import ResultsDisplay from "$lib/components/ResultsDisplay.svelte";
   import ErrorDisplay from "$lib/components/ErrorDisplay.svelte";
   import { appService } from "$lib/services/appService";
@@ -21,18 +20,6 @@
     showMedicalNote.set(true);
     updateStatus("Ready");
   });
-
-  function handleStartRecording() {
-    appService.startRecording();
-  }
-
-  function handlePauseResume() {
-    appService.pauseResumeRecording();
-  }
-
-  function handleStopRecording() {
-    appService.stopRecording();
-  }
 
   function handleSaveNote() {
     appService.saveNote();
@@ -57,12 +44,6 @@
       <h2 class="mx-auto w-fit">Start a New Note</h2>
 
       <PatientInfoForm />
-
-      <RecordingControls
-        onStartRecording={handleStartRecording}
-        onPauseResume={handlePauseResume}
-        onStopRecording={handleStopRecording}
-      />
     </section>
 
     <ResultsDisplay onSaveNote={handleSaveNote} onCopyNote={handleCopyNote} />
