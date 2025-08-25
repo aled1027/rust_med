@@ -166,43 +166,36 @@ export class AppService {
   }
 
   private async handleTranscription(audioPath: string) {
-    try {
-      updateStatus('Transcribing audio...');
+    updateStatus('Transcribing audio...');
 
-      const tauri = this.getTauriAPI();
-      // Call Tauri transcription
-      const transcriptionResult = await tauri.core.invoke('transcribe_audio', {
-        audioPath: audioPath
+    const tauri = this.getTauriAPI();
+
+    // Call Tauri transcription
+    const transcriptionResult = await tauri.core.invoke('transcribe_audio', {
+      audioPath: audioPath
+    });
+
+    if (transcriptionResult.success) {
+      appState.transcript = transcriptionResult.transcript;
+      appState.lastTranscript = transcriptionResult.transcript;
+
+      updateStatus('Generating medical note...');
+
+      // Generate medical note using Tauri
+      const noteResult = await tauri.core.invoke('generate_medical_note', {
+        transcript: transcriptionResult.transcript,
+        noteType: appState.selectedNoteType
       });
 
-      if (transcriptionResult.success) {
-        appState.transcript = transcriptionResult.transcript;
-        appState.lastTranscript = transcriptionResult.transcript;
-
-        updateStatus('Generating medical note...');
-
-        // Generate medical note using Tauri
-        const noteResult = await tauri.core.invoke('generate_medical_note', {
-          transcript: transcriptionResult.transcript,
-          noteType: appState.selectedNoteType
-        });
-
-        if (noteResult.success) {
-          appState.medicalNote = noteResult.note;
-          appState.lastMedicalNote = noteResult.note;
-          updateStatus('Medical note generated successfully!');
-        } else {
-          throw new Error(noteResult.error || 'Failed to generate medical note');
-        }
+      if (noteResult.success) {
+        appState.medicalNote = noteResult.note;
+        appState.lastMedicalNote = noteResult.note;
+        updateStatus('Medical note generated successfully!');
       } else {
-        throw new Error(transcriptionResult.error || 'Transcription failed');
+        throw new Error(noteResult.error || 'Failed to generate medical note');
       }
-
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      showError(`Transcription failed: ${errorMessage}`);
-      appState.transcript = `Transcription failed: ${errorMessage}`;
-      appState.medicalNote = 'Audio saved successfully, but transcription service failed.';
+    } else {
+      throw new Error(transcriptionResult.error || 'Transcription failed');
     }
   }
 
