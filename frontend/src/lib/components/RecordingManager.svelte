@@ -1,11 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import {
-    isRecording,
-    isPaused,
-    recordingTime,
-    availableMicrophones,
-    selectedMicrophoneId,
+    appState,
     updateStatus,
     showError,
   } from "$lib/stores/app";
@@ -33,10 +29,10 @@
       const audioDevices = devices.filter(
         (device) => device.kind === "audioinput"
       );
-      availableMicrophones.set(audioDevices);
+      appState.availableMicrophones = audioDevices;
 
       if (audioDevices.length > 0) {
-        selectedMicrophoneId.set(audioDevices[0].deviceId);
+        appState.selectedMicrophoneId = audioDevices[0].deviceId;
       }
     } catch (error) {
       console.error("Failed to load microphones:", error);
@@ -46,15 +42,15 @@
 
   async function startRecording() {
     try {
-      if (!$selectedMicrophoneId) {
+      if (!appState.selectedMicrophoneId) {
         showError("No microphone selected");
         return;
       }
 
       const constraints = {
         audio: {
-          deviceId: $selectedMicrophoneId
-            ? { exact: $selectedMicrophoneId }
+          deviceId: appState.selectedMicrophoneId
+            ? { exact: appState.selectedMicrophoneId }
             : undefined,
           echoCancellation: true,
           noiseSuppression: true,
@@ -83,26 +79,26 @@
       };
 
       mediaRecorder.onstart = () => {
-        isRecording.set(true);
-        isPaused.set(false);
-        recordingTime.set(0);
+        appState.isRecording = true;
+        appState.isPaused = false;
+        appState.recordingTime = 0;
         startTimer();
         updateStatus("Recording...");
       };
 
       mediaRecorder.onpause = () => {
-        isPaused.set(true);
+        appState.isPaused = true;
         updateStatus("Recording paused...");
       };
 
       mediaRecorder.onresume = () => {
-        isPaused.set(false);
+        appState.isPaused = false;
         updateStatus("Recording...");
       };
 
       mediaRecorder.onstop = () => {
-        isRecording.set(false);
-        isPaused.set(false);
+        appState.isRecording = false;
+        appState.isPaused = false;
         stopTimer();
         updateStatus("Processing recording...");
       };
@@ -111,7 +107,7 @@
     } catch (error) {
       console.error("Failed to start recording:", error);
       showError("Failed to start recording");
-      isRecording.set(false);
+      appState.isRecording = false;
     }
   }
 
@@ -153,7 +149,7 @@
     }
 
     recordingInterval = setInterval(() => {
-      recordingTime.update((time) => time + 1);
+      appState.recordingTime = appState.recordingTime + 1;
     }, 1000);
   }
 
@@ -164,13 +160,13 @@
     }
 
     if (!pause) {
-      recordingTime.set(0);
+      appState.recordingTime = 0;
     }
   }
 
   function getTimerText(): string {
-    const minutes = Math.floor($recordingTime / 60);
-    const seconds = $recordingTime % 60;
+    const minutes = Math.floor(appState.recordingTime / 60);
+    const seconds = appState.recordingTime % 60;
     return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   }
 
@@ -194,9 +190,9 @@
       clearInterval(recordingInterval);
       recordingInterval = null;
     }
-    recordingTime.set(0);
-    isRecording.set(false);
-    isPaused.set(false);
+    appState.recordingTime = 0;
+    appState.isRecording = false;
+    appState.isPaused = false;
   }
 
   // Expose methods for parent components

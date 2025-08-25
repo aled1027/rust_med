@@ -1,16 +1,6 @@
 <script lang="ts">
-  import { patientInfo, selectedNoteType } from "$lib/stores/app";
+  import { appState } from "$lib/stores/app";
   import { appService } from "$lib/services/appService";
-
-  import {
-    isRecording,
-    isPaused,
-    recordingTime,
-    canStartRecording,
-    canPauseResume,
-    canStopRecording,
-    appStatus,
-  } from "$lib/stores/app";
 
   function formatTime(seconds: number): string {
     const mins = Math.floor(seconds / 60);
@@ -20,22 +10,25 @@
 
   function updateFirstName(event: Event) {
     const target = event.target as HTMLInputElement;
-    patientInfo.update((info) => ({ ...info, firstName: target.value }));
+    appState.patientInfo = { ...appState.patientInfo, firstName: target.value };
   }
 
   function updateLastName(event: Event) {
     const target = event.target as HTMLInputElement;
-    patientInfo.update((info) => ({ ...info, lastName: target.value }));
+    appState.patientInfo = { ...appState.patientInfo, lastName: target.value };
   }
 
   function updateDateOfBirth(event: Event) {
     const target = event.target as HTMLInputElement;
-    patientInfo.update((info) => ({ ...info, dateOfBirth: target.value }));
+    appState.patientInfo = {
+      ...appState.patientInfo,
+      dateOfBirth: target.value,
+    };
   }
 
   function updateNoteType(event: Event) {
     const target = event.target as HTMLSelectElement;
-    selectedNoteType.set(target.value);
+    appState.selectedNoteType = target.value;
   }
 
   function handleStartRecording() {
@@ -58,7 +51,7 @@
       type="text"
       id="first-name"
       placeholder="Enter first name"
-      value={$patientInfo.firstName}
+      value={appState.patientInfo.firstName}
       on:input={updateFirstName}
       required
     />
@@ -70,7 +63,7 @@
       type="text"
       id="last-name"
       placeholder="Enter last name"
-      value={$patientInfo.lastName}
+      value={appState.patientInfo.lastName}
       on:input={updateLastName}
       required
     />
@@ -81,7 +74,7 @@
     <input
       type="date"
       id="dob"
-      value={$patientInfo.dateOfBirth}
+      value={appState.patientInfo.dateOfBirth}
       on:change={updateDateOfBirth}
       required
     />
@@ -91,7 +84,7 @@
     <label for="note-type">Note Type</label>
     <select
       id="note-type"
-      value={$selectedNoteType}
+      value={appState.selectedNoteType}
       on:change={updateNoteType}
       required
     >
@@ -103,11 +96,11 @@
 
 <div class="recording-controls">
   <div class="status-display">
-    <span class="status-text">{$appStatus}</span>
-    {#if $isRecording}
+    <span class="status-text">{appState.appStatus}</span>
+    {#if appState.isRecording}
       <div class="recording-indicator">
         <div class="recording-dot"></div>
-        <span class="recording-time">{formatTime($recordingTime)}</span>
+        <span class="recording-time">{formatTime(appState.recordingTime)}</span>
       </div>
     {/if}
   </div>
@@ -115,11 +108,11 @@
   <div class="control-buttons">
     <button
       class="button start-btn"
-      class:recording={$isRecording}
-      disabled={!$canStartRecording}
+      class:recording={appState.isRecording}
+      disabled={!appState.canStartRecording}
       on:click={handleStartRecording}
     >
-      {#if $isRecording}
+      {#if appState.isRecording}
         Recording...
       {:else}
         Start Recording
@@ -128,11 +121,11 @@
 
     <button
       class="button pause-btn"
-      class:paused={$isPaused}
-      disabled={!$canPauseResume}
+      class:paused={appState.isPaused}
+      disabled={!appState.canPauseResume}
       on:click={handlePauseResume}
     >
-      {#if $isPaused}
+      {#if appState.isPaused}
         Resume
       {:else}
         Pause
@@ -141,7 +134,7 @@
 
     <button
       class="button stop-btn"
-      disabled={!$canStopRecording}
+      disabled={!appState.canStopRecording}
       on:click={handleStopRecording}
     >
       Stop Recording

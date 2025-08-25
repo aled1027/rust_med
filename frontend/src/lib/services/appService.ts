@@ -1,12 +1,5 @@
 import {
-  appStatus,
-  isRecording,
-  isPaused,
-  recordingTime,
-  transcript,
-  medicalNote,
-  lastTranscript,
-  lastMedicalNote,
+  appState,
   updateStatus,
   showError,
   clearResults,
@@ -44,8 +37,8 @@ export class AppService {
       clearResults();
 
       // Clear last results
-      lastTranscript.set('');
-      lastMedicalNote.set('');
+      appState.lastTranscript = '';
+      appState.lastMedicalNote = '';
 
       // For now, we'll simulate recording since we need to handle permissions properly
       this.simulateRecording();
@@ -53,14 +46,14 @@ export class AppService {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       showError(`Failed to start recording: ${errorMessage}`);
-      isRecording.set(false);
+      appState.isRecording = false;
     }
   }
 
   private simulateRecording() {
-    isRecording.set(true);
-    isPaused.set(false);
-    recordingTime.set(0);
+    appState.isRecording = true;
+    appState.isPaused = false;
+    appState.recordingTime = 0;
     this.startTimer();
     updateStatus('Recording... (Simulated)');
 

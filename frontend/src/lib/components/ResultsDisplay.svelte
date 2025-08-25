@@ -1,36 +1,30 @@
 <script lang="ts">
-  import { 
-    transcript, 
-    medicalNote, 
-    showTranscript, 
-    showMedicalNote,
-    canSave 
-  } from '$lib/stores/app';
+  import { appState } from '$lib/stores/app';
 
   export let onSaveNote: () => void;
   export let onCopyNote: () => void;
 
   function toggleTranscript() {
-    showTranscript.update(show => !show);
+    appState.showTranscript = !appState.showTranscript;
   }
 
   function toggleMedicalNote() {
-    showMedicalNote.update(show => !show);
+    appState.showMedicalNote = !appState.showMedicalNote;
   }
 </script>
 
-{#if $transcript || $medicalNote}
+{#if appState.transcript || appState.medicalNote}
   <div class="results-container">
-    {#if $transcript}
+          {#if appState.transcript}
       <section class="result-section">
         <div class="section-header">
           <h2>Transcript</h2>
           <button 
             class="toggle-btn" 
             on:click={toggleTranscript}
-            aria-expanded={$showTranscript}
+            aria-expanded={appState.showTranscript}
           >
-            {#if $showTranscript}
+            {#if appState.showTranscript}
               Hide
             {:else}
               Show
@@ -38,12 +32,12 @@
           </button>
         </div>
         
-        {#if $showTranscript}
+        {#if appState.showTranscript}
           <div class="content-area">
             <textarea
               class="result-textarea"
               readonly
-              value={$transcript}
+              value={appState.transcript}
               placeholder="Transcript will appear here..."
             ></textarea>
           </div>
@@ -51,7 +45,7 @@
       </section>
     {/if}
 
-    {#if $medicalNote}
+    {#if appState.medicalNote}
       <section class="result-section">
         <div class="section-header">
           <h2>Medical Note</h2>
@@ -62,9 +56,9 @@
             <button 
               class="toggle-btn" 
               on:click={toggleMedicalNote}
-              aria-expanded={$showMedicalNote}
+              aria-expanded={appState.showMedicalNote}
             >
-              {#if $showMedicalNote}
+              {#if appState.showMedicalNote}
                 Hide
               {:else}
                 Show
@@ -73,19 +67,19 @@
           </div>
         </div>
         
-        {#if $showMedicalNote}
+        {#if appState.showMedicalNote}
           <div class="content-area">
             <textarea
               class="result-textarea"
               readonly
-              value={$medicalNote}
+              value={appState.medicalNote}
               placeholder="Generated medical note will appear here..."
             ></textarea>
             
             <div class="note-actions">
               <button 
                 class="button save-btn" 
-                disabled={!$canSave}
+                disabled={!appState.canSave}
                 on:click={onSaveNote}
               >
                 Save Note

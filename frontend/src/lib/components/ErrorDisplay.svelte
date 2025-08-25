@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { errorMessage } from '$lib/stores/app';
+  import { appState } from '$lib/stores/app';
 </script>
 
-{#if $errorMessage}
+{#if appState.errorMessage}
   <div class="error-container" role="alert">
     <div class="error-content">
       <span class="error-icon">⚠️</span>
-      <span class="error-text">{$errorMessage}</span>
+      <span class="error-text">{appState.errorMessage}</span>
     </div>
   </div>
 {/if}

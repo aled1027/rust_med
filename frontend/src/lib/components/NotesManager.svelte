@@ -1,7 +1,6 @@
 <script lang="ts">
   import {
-    savedNotes,
-    selectedNote,
+    appState,
     updateStatus,
     showError,
   } from "$lib/stores/app";
@@ -27,7 +26,7 @@
       const storedNotes = localStorage.getItem("medicalNotes");
       if (storedNotes) {
         notes = JSON.parse(storedNotes);
-        savedNotes.set(notes);
+        appState.savedNotes = notes;
 
         if (onNotesUpdate) {
           onNotesUpdate(notes);
@@ -57,7 +56,7 @@
       };
 
       notes.unshift(newNote); // Add to beginning of array
-      savedNotes.set([...notes]);
+      appState.savedNotes = [...notes];
 
       // Save to localStorage (replace with actual Tauri API calls)
       localStorage.setItem("medicalNotes", JSON.stringify(notes));
@@ -81,7 +80,7 @@
     const note = notes.find((n) => n.id === noteId);
     if (note) {
       selectedNoteData = note;
-      selectedNote.set(note);
+      appState.selectedNote = note;
 
       if (onNoteSelected) {
         onNoteSelected(note);
@@ -94,7 +93,7 @@
       const noteIndex = notes.findIndex((n) => n.id === noteId);
       if (noteIndex !== -1) {
         notes.splice(noteIndex, 1);
-        savedNotes.set([...notes]);
+        appState.savedNotes = [...notes];
 
         // Update localStorage
         localStorage.setItem("medicalNotes", JSON.stringify(notes));
@@ -106,7 +105,7 @@
         // Clear selection if deleted note was selected
         if (selectedNoteData && selectedNoteData.id === noteId) {
           selectedNoteData = null;
-          selectedNote.set(null);
+          appState.selectedNote = null;
 
           if (onNoteSelected) {
             onNoteSelected(null);
@@ -203,7 +202,7 @@
       const parsed = JSON.parse(importData);
       if (parsed.notes && Array.isArray(parsed.notes)) {
         notes = parsed.notes;
-        savedNotes.set([...notes]);
+        appState.savedNotes = [...notes];
 
         // Update localStorage
         localStorage.setItem("medicalNotes", JSON.stringify(notes));

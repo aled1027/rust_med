@@ -4,20 +4,7 @@
   import TranscriptionManager from "./TranscriptionManager.svelte";
   import NotesManager from "./NotesManager.svelte";
   import {
-    appStatus,
-    isRecording,
-    isPaused,
-    recordingTime,
-    transcript,
-    medicalNote,
-    lastTranscript,
-    lastMedicalNote,
-    patientInfo,
-    selectedNoteType,
-    canSave,
-    canStartRecording,
-    canPauseResume,
-    canStopRecording,
+    appState,
     updateStatus,
     showError,
     clearResults,
@@ -58,35 +45,35 @@
       (message: string, isText = false) => {
         if (isText) {
           // This is the actual transcription text
-          transcript.set(message);
-          lastTranscript.set(message);
+          appState.transcript = message;
+          appState.lastTranscript = message;
         } else {
           // This is a progress message
-          transcript.set(message);
+          appState.transcript = message;
         }
       }
     );
 
     // Listen for note generation progress
     transcriptionManager.onNoteGenerationProgressCallback((message: string) => {
-      medicalNote.set(message);
+      appState.medicalNote = message;
       if (!message.includes("Generating")) {
-        lastMedicalNote.set(message);
+        appState.lastMedicalNote = message;
       }
     });
 
     // Listen for note generation streaming
     transcriptionManager.onNoteGenerationStreamCallback(
       (streamedNote: string) => {
-        medicalNote.set(streamedNote);
+        appState.medicalNote = streamedNote;
       }
     );
 
     // Listen for note generation completion
     transcriptionManager.onNoteGenerationCompleteCallback(
       (finalNote: string) => {
-        medicalNote.set(finalNote);
-        lastMedicalNote.set(finalNote);
+        appState.medicalNote = finalNote;
+        appState.lastMedicalNote = finalNote;
         updateStatus("Medical note generated successfully!");
       }
     );
@@ -103,14 +90,14 @@
     notesManager.onNoteSelectedCallback((note: any) => {
       if (note) {
         // Display selected note
-        transcript.set(note.transcript);
-        medicalNote.set(note.medicalNote);
-        lastTranscript.set(note.transcript);
-        lastMedicalNote.set(note.medicalNote);
+        appState.transcript = note.transcript;
+        appState.medicalNote = note.medicalNote;
+        appState.lastTranscript = note.transcript;
+        appState.lastMedicalNote = note.medicalNote;
 
         // Update patient info
-        patientInfo.set(note.patientInfo);
-        selectedNoteType.set(note.noteType);
+        appState.patientInfo = note.patientInfo;
+        appState.selectedNoteType = note.noteType;
       }
     });
   }

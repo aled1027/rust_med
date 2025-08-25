@@ -5,19 +5,15 @@
   import ResultsDisplay from "$lib/components/ResultsDisplay.svelte";
   import ErrorDisplay from "$lib/components/ErrorDisplay.svelte";
   import { appService } from "$lib/services/appService";
-  import {
-    showTranscript,
-    showMedicalNote,
-    updateStatus,
-  } from "$lib/stores/app";
+  import { appState, updateStatus } from "$lib/stores/app";
 
   onMount(async () => {
     // Initialize the app service
     await appService.initialize();
 
     // Set initial state
-    showTranscript.set(true);
-    showMedicalNote.set(true);
+    appState.showTranscript = true;
+    appState.showMedicalNote = true;
     updateStatus("Ready");
   });
 

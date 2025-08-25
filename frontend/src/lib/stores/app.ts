@@ -1,95 +1,90 @@
-import { writable, derived } from 'svelte/store';
+// Application state using Svelte 5 runes
+export const appState = {
+    // Application state
+    appStatus: $state('Ready'),
+    isRecording: $state(false),
+    isPaused: $state(false),
+    recordingTime: $state(0),
+    showTranscript: $state(false),
+    showMedicalNote: $state(false),
 
-// Application state stores
-export const appStatus = writable('Ready');
-export const isRecording = writable(false);
-export const isPaused = writable(false);
-export const recordingTime = writable(0);
-export const showTranscript = writable(false);
-export const showMedicalNote = writable(false);
-
-// Patient information stores
-export const patientInfo = writable({
-    firstName: '',
-    lastName: '',
-    dateOfBirth: '2000-12-31'
-});
-
-export const selectedNoteType = writable('soap');
-
-// Results stores
-export const transcript = writable('');
-export const medicalNote = writable('');
-export const lastTranscript = writable('');
-export const lastMedicalNote = writable('');
-
-// Microphone stores
-export const availableMicrophones = writable<MediaDeviceInfo[]>([]);
-export const selectedMicrophoneId = writable('');
-
-// Notes stores
-export const savedNotes = writable<any[]>([]);
-export const selectedNote = writable<any>(null);
-
-// Error store
-export const errorMessage = writable('');
-
-// Derived stores
-export const canSave = derived(
-    [lastTranscript, lastMedicalNote],
-    ([$lastTranscript, $lastMedicalNote]) =>
-        $lastTranscript && $lastMedicalNote
-);
-
-export const canStartRecording = derived(
-    [patientInfo, isRecording],
-    ([$patientInfo, $isRecording]) =>
-        !$isRecording && $patientInfo.firstName && $patientInfo.lastName
-);
-
-export const canPauseResume = derived(
-    [isRecording],
-    ([$isRecording]) => $isRecording
-);
-
-export const canStopRecording = derived(
-    [isRecording],
-    ([$isRecording]) => $isRecording
-);
-
-// Utility functions
-export function updateStatus(status: string) {
-    appStatus.set(status);
-}
-
-export function showError(message: string) {
-    errorMessage.set(message);
-    setTimeout(() => errorMessage.set(''), 5000);
-}
-
-export function clearError() {
-    errorMessage.set('');
-}
-
-export function clearResults() {
-    transcript.set('');
-    medicalNote.set('');
-    showTranscript.set(false);
-    showMedicalNote.set(false);
-}
-
-export function clearPatientInfo() {
-    patientInfo.set({
+    // Patient information
+    patientInfo: $state({
         firstName: '',
         lastName: '',
         dateOfBirth: '2000-12-31'
-    });
+    }),
+
+    selectedNoteType: $state('soap'),
+
+    // Results
+    transcript: $state(''),
+    medicalNote: $state(''),
+    lastTranscript: $state(''),
+    lastMedicalNote: $state(''),
+
+    // Microphone
+    availableMicrophones: $state<MediaDeviceInfo[]>([]),
+    selectedMicrophoneId: $state(''),
+
+    // Notes
+    savedNotes: $state<any[]>([]),
+    selectedNote: $state<any>(null),
+
+    // Error
+    errorMessage: $state(''),
+
+    // Derived values
+    get canSave() {
+        return this.lastTranscript && this.lastMedicalNote;
+    },
+
+    get canStartRecording() {
+        return !this.isRecording && this.patientInfo.firstName && this.patientInfo.lastName;
+    },
+
+    get canPauseResume() {
+        return this.isRecording;
+    },
+
+    get canStopRecording() {
+        return this.isRecording;
+    }
+};
+
+// Utility functions
+export function updateStatus(status: string) {
+    appState.appStatus = status;
+}
+
+export function showError(message: string) {
+    appState.errorMessage = message;
+    setTimeout(() => appState.errorMessage = '', 5000);
+}
+
+export function clearError() {
+    appState.errorMessage = '';
+}
+
+export function clearResults() {
+    appState.transcript = '';
+    appState.medicalNote = '';
+    appState.showTranscript = false;
+    appState.showMedicalNote = false;
+}
+
+export function clearPatientInfo() {
+    appState.patientInfo = {
+        firstName: '',
+        lastName: '',
+        dateOfBirth: '2000-12-31'
+    };
 }
 
 export function reset() {
-    isRecording.set(false);
-    isPaused.set(false);
-    recordingTime.set(0);
+    appState.isRecording = false;
+    appState.isPaused = false;
+    appState.recordingTime = 0;
     clearResults();
     clearError();
     updateStatus('Ready');
@@ -97,21 +92,13 @@ export function reset() {
 
 // Validation functions
 export function validatePatientInfo(): boolean {
-    const info = get(patientInfo) as { firstName: string; lastName: string; dateOfBirth: string };
-    return !!(info.firstName && info.lastName);
+    return !!(appState.patientInfo.firstName && appState.patientInfo.lastName);
 }
 
 export function getPatientInfo() {
-    return get(patientInfo);
+    return appState.patientInfo;
 }
 
 export function getSelectedNoteType() {
-    return get(selectedNoteType);
-}
-
-// Helper function to get store value
-function get<T>(store: any): T {
-    let value: T | undefined;
-    store.subscribe((val: T) => { value = val; })();
-    return value as T;
+    return appState.selectedNoteType;
 }

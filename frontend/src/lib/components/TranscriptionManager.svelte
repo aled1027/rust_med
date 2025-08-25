@@ -1,9 +1,6 @@
 <script lang="ts">
   import {
-    transcript,
-    medicalNote,
-    lastTranscript,
-    lastMedicalNote,
+    appState,
     updateStatus,
     showError,
   } from "$lib/stores/app";
@@ -63,8 +60,8 @@
         onTranscriptionProgress(mockTranscript, true);
       }
 
-      transcript.set(mockTranscript);
-      lastTranscript.set(mockTranscript);
+      appState.transcript = mockTranscript;
+      appState.lastTranscript = mockTranscript;
       lastTranscriptData = mockTranscript;
 
       updateStatus("Generating medical note...");
@@ -79,8 +76,8 @@
         onNoteGenerationComplete(mockMedicalNote);
       }
 
-      medicalNote.set(mockMedicalNote);
-      lastMedicalNote.set(mockMedicalNote);
+      appState.medicalNote = mockMedicalNote;
+      appState.lastMedicalNote = mockMedicalNote;
       lastMedicalNoteData = mockMedicalNote;
 
       return {
@@ -220,10 +217,10 @@ PLAN:
   }
 
   function clearResults() {
-    transcript.set("");
-    medicalNote.set("");
-    lastTranscript.set("");
-    lastMedicalNote.set("");
+          appState.transcript = "";
+      appState.medicalNote = "";
+      appState.lastTranscript = "";
+      appState.lastMedicalNote = "";
     lastTranscriptData = "";
     lastMedicalNoteData = "";
   }
