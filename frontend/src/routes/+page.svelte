@@ -18,7 +18,7 @@
     </header>
     <section>
       <!-- Patient Information Section -->
-      <h2>Patient Information2</h2>
+      <h2>Patient Information</h2>
       <form>
         <div class="input-group">
           <label for="first-name">First Name:</label>

@@ -28,17 +28,16 @@ curl -L -o med_llama.gguf https://huggingface.co/garcianacho/MedLlama-2-7B-GGUF/
 mv med_llama.gguf binaries/models
 ```
 
-Next, set up the frontend (sveltekit) app and run it.
-
-The command `npm run dev` in the frontend directory is configured to stream updates of the UI to the build directory, so updates made to the code files are reflected in the tauri app when it's run in dev mode.
+Next, set up the frontend (sveltekit) app.
 
 ```bash
 cd frontend
 npm install
-npm run dev
 ```
 
 With that, you're ready to run the application:
+
+The command `npm run dev` when run at the root of the project will run (a) the frontend with `vite build --watch` such that code changes to the frontend are streamed to the `frontend/build` directory and (b) run the tauri app in dev mode with `cargo tauri dev`.
 
 ```bash
 # Be at the root of the repo to start the Tauri project
@@ -57,6 +56,6 @@ npm run dev
 
 ### Frontend (Sveltekit)
 
-The frontend is a sveltekit app and located at `frontend/`.
+The frontend is a sveltekit app and located at `frontend/`. The app is a typical, static sveltekit app that's currently configured to run in prerendered mode, although that may change in the future.
 
-The command `npm run dev` is configured to stream updates of the UI to the build directory, so updates made to the code files are reflected in the tauri app when it's run in dev mode.
+The Tauri app uses whatever is in the `frontend/build` directory, so while you could develop as a typical app with `cd frontend && npm run dev`, you can always get live updates in the native Tauri app with `npm run dev` from the root of the repo. The major differences are that functionality may be limited in the web-only version because it doesn't have the rust backend and updates will be slower to take effect in the Tauri version.
