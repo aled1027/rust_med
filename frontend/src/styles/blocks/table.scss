@@ -1,0 +1,100 @@
+@use "../tokens" as *;
+/* TABLE
+
+Make a table. Designs for use with the Table component, but could 
+probably be used with a regular HTML table.
+*/
+
+.table-container {
+    container-type: inline-size;
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table {
+    --table-header-bg-color: var(--bg-color-alt2);
+    --table-header-text-color: var(--color-text-light);
+    --table-row-border-bottom: 1px solid var(--bg-color-alt2);
+    --table-row-alternating-bg-color: var(--bg-color-alt);
+}
+
+/* Mobile-first default styles */
+.table thead {
+    /* Hide on mobile, but keep for accessibility */
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+.table tbody tr {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    border-bottom: var(--table-row-border-bottom);
+    padding: 0.5rem 0.5rem;
+    background-color: var(--table-row-alternating-bg-color);
+
+    overflow: scroll;
+    max-width: 100%;
+}
+
+.table tbody td {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-weight: var(--table-row-text-weight);
+    color: var(--table-row-text-color);
+    padding: 0.75rem 1rem;
+}
+
+.table td[data-title]:before {
+    content: attr(data-title);
+    color: var(--table-header-text-color);
+    font-weight: $font-semibold;
+}
+
+/* Container query replaces media query */
+@container (min-width: 48rem) {
+    .table thead {
+        /* Show on here. Undo the visually-hidden styles */
+        clip: auto;
+        clip-path: none;
+        height: auto;
+        overflow: visible;
+        position: static;
+        white-space: normal;
+        width: auto;
+    }
+
+    .table thead th {
+        background-color: var(--table-header-bg-color);
+        color: var(--table-header-text-color);
+        padding: 0.75rem 1rem;
+        white-space: nowrap;
+    }
+
+    .table tbody tr {
+        display: table-row;
+        background: none;
+    }
+
+    .table tbody td {
+        display: table-cell;
+        font-weight: var(--table-row-text-weight);
+        border-bottom: var(--table-row-border-bottom);
+        padding: 0.75rem 1rem;
+    }
+
+    .table tbody tr:nth-child(even) {
+        background-color: var(--table-row-alternating-bg-color);
+    }
+
+    .table td[data-title]:before {
+        /* Remove the small viewport data-title labels */
+        content: none;
+    }
+}

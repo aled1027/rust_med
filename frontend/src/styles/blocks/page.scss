@@ -1,0 +1,13 @@
+@use "../tokens" as *;
+
+.page {
+    margin-block-start: $space-xl;
+    margin-inline: auto;
+    padding-inline: 0.5rem;
+    padding-block: $space-l;
+    max-width: $max-content-width;
+}
+
+.page[data-type="narrow"] {
+    max-width: $prose-width;
+}

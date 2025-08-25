@@ -1,0 +1,11 @@
+@use "../tokens" as *;
+
+.textarea-with-button {
+    position: relative;
+}
+
+.textarea-with-button button {
+    position: absolute;
+    right: 1.25ex;
+    bottom: 2.25ex;
+}

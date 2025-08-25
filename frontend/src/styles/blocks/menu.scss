@@ -1,0 +1,113 @@
+@use "../tokens" as *;
+
+.menu {
+    --menu-z-index: 2000;
+    --menu-block-start: 0.75rem;
+    --menu-inline-start: 0.5rem;
+    --menu-width: 18rem;
+
+    position: fixed;
+    width: var(--menu-width);
+    top: 0;
+    left: 0;
+    z-index: var(--menu-z-index);
+}
+
+.menu__contents {
+    height: 100dvh;
+    width: 100%;
+    padding-block-start: 0.25rem;
+    padding-inline: var(--menu-inline-start);
+    transform: translateX(-100%);
+    display: none;
+
+    transition-property: display transform;
+    transition-duration: 0.3s;
+    transition-behavior: allow-discrete;
+}
+
+.menu[data-open='true'] .menu__contents {
+    display: block;
+    transform: translateX(0);
+
+    @starting-style {
+        transform: translateX(-100%);
+    }
+}
+
+.menu__top {
+    padding-inline-start: var(--menu-inline-start);
+}
+
+.menu .toggle-open {
+    // This is positioned so it fits in nicely with the surface titlebar on mobile
+    position: absolute;
+    top: 0.75rem;
+    left: 1rem;
+    z-index: var(--menu-z-index);
+    visibility: visible;
+    display: block;
+    opacity: 1;
+    transition: visibility 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+@media (min-width: 768px) {
+    .menu .toggle-open {
+        top: 1rem;
+    }
+}
+
+.menu[data-open='true'] .toggle-open {
+    visibility: hidden;
+    display: none;
+    opacity: 0;
+}
+
+.menu ul {
+    padding-inline-start: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.325em;
+}
+
+.menu .menu__nav-link {
+    text-decoration: none;
+    color: var(--nav-link-color);
+    font-size: 1rem;
+    font-weight: $font-light;
+
+    padding-block: 0.25rem;
+    padding-inline: $main-layout-margin;
+    width: 100%;
+
+    /* Set a height so they're all consistent */
+    height: 2rem;
+
+    display: inline-flex;
+    gap: 1rem;
+    align-items: center;
+
+    border-radius: $radius-s;
+    background: transparent;
+
+    transition: background 0.15s linear;
+}
+
+.menu .menu__nav-link[data-active="true"] {
+    font-weight: $font-semibold;
+}
+
+.menu .menu__nav-link:hover {
+    background: var(--nav-link-hover-background);
+}
+
+.menu svg {
+    width: 1em;
+    height: 1em;
+}
+
+.menu__message {
+    text-align: center;
+    font-size: $step--1;
+}

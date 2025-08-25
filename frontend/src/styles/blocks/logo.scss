@@ -1,0 +1,13 @@
+.logo:hover {
+    color: var(--color-primary);
+}
+
+.logo__inner {
+    display: inline-flex;
+    gap: 0.25em;
+    font-size: 1.25rem;
+    padding-block: 1rem;
+    justify-content: center;
+    align-items: center;
+    transition: color 0.3s linear;
+}
