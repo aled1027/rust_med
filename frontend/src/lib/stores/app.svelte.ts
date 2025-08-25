@@ -1,4 +1,3 @@
-// Application state using Svelte 5 runes
 interface PatientInfo {
     firstName: string;
     lastName: string;

@@ -7,52 +7,16 @@
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   }
-
-  function updateFirstName(event: Event) {
-    const target = event.target as HTMLInputElement;
-    appState.patientInfo = { ...appState.patientInfo, firstName: target.value };
-  }
-
-  function updateLastName(event: Event) {
-    const target = event.target as HTMLInputElement;
-    appState.patientInfo = { ...appState.patientInfo, lastName: target.value };
-  }
-
-  function updateDateOfBirth(event: Event) {
-    const target = event.target as HTMLInputElement;
-    appState.patientInfo = {
-      ...appState.patientInfo,
-      dateOfBirth: target.value,
-    };
-  }
-
-  function updateNoteType(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    appState.selectedNoteType = target.value;
-  }
-
-  function handleStartRecording() {
-    appService.startRecording();
-  }
-
-  function handlePauseResume() {
-    appService.pauseResumeRecording();
-  }
-
-  function handleStopRecording() {
-    appService.stopRecording();
-  }
 </script>
 
-<form class="patient-info-form" on:submit|preventDefault>
+<form class="patient-info-form" onsubmit|preventDefault>
   <div class="form-group">
     <label for="first-name">Patient First Name</label>
     <input
       type="text"
       id="first-name"
       placeholder="Enter first name"
-      value={appState.patientInfo.firstName}
-      on:input={updateFirstName}
+      bind:value={appState.patientInfo.firstName}
       required
     />
   </div>
@@ -63,8 +27,7 @@
       type="text"
       id="last-name"
       placeholder="Enter last name"
-      value={appState.patientInfo.lastName}
-      on:input={updateLastName}
+      bind:value={appState.patientInfo.lastName}
       required
     />
   </div>
@@ -74,20 +37,14 @@
     <input
       type="date"
       id="dob"
-      value={appState.patientInfo.dateOfBirth}
-      on:change={updateDateOfBirth}
+      bind:value={appState.patientInfo.dateOfBirth}
       required
     />
   </div>
 
   <div class="form-group">
     <label for="note-type">Note Type</label>
-    <select
-      id="note-type"
-      value={appState.selectedNoteType}
-      on:change={updateNoteType}
-      required
-    >
+    <select id="note-type" bind:value={appState.selectedNoteType} required>
       <option value="soap">SOAP Note</option>
       <option value="full">Full Note</option>
     </select>
@@ -110,7 +67,7 @@
       class="button start-btn"
       class:recording={appState.isRecording}
       disabled={!appState.canStartRecording}
-      on:click={handleStartRecording}
+      onclick={() => appService.startRecording()}
     >
       {#if appState.isRecording}
         Recording...
@@ -123,7 +80,7 @@
       class="button pause-btn"
       class:paused={appState.isPaused}
       disabled={!appState.canPauseResume}
-      on:click={handlePauseResume}
+      onclick={() => appService.pauseResumeRecording()}
     >
       {#if appState.isPaused}
         Resume
@@ -135,7 +92,7 @@
     <button
       class="button stop-btn"
       disabled={!appState.canStopRecording}
-      on:click={handleStopRecording}
+      onclick={() => appService.stopRecording()}
     >
       Stop Recording
     </button>
