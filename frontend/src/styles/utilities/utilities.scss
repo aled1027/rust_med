@@ -181,10 +181,15 @@
     max-width: $prose-width;
 }
 
+.w-max-narrow {
+    max-width: $narrow-width;
+}
+
 .prose {
     padding-inline: 1rem;
     max-width: $prose-width;
 }
+
 
 /* MISC */
 .text-align-center {
