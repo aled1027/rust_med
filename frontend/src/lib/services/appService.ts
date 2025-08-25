@@ -394,6 +394,12 @@ class TauriService {
     return result;
   }
 
+  async loadNotes(): Promise<{ success: boolean, notes: ApiNote[], error: string | null }> {
+    const tauri = this.ensureTauri();
+    const result = await tauri.core.invoke('load_patient_notes');
+    return result;
+  }
+
   async saveNote(note: ApiNote): Promise<{ success: boolean, error: string | null }> {
     const tauri = this.ensureTauri();
     const apiNote: ApiNote = {
@@ -623,6 +629,11 @@ class AppService {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       showError(`Failed to save note: ${errorMessage}`);
     }
+  }
+
+  async loadNotes() {
+    const loadResult = await this.ensureTauriService().loadNotes();
+    return loadResult;
   }
 
   reset() {

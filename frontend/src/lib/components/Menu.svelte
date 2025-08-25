@@ -67,6 +67,7 @@
     </ul>
     <h2>Saved Notes</h2>
     <ul>
+      <li><a href="/notes">All notes</a></li>
       <li>Notes will be dynamically populated here.</li>
       <li>Note 1</li>
       <li>Note 2</li>
