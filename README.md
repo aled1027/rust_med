@@ -28,9 +28,21 @@ curl -L -o med_llama.gguf https://huggingface.co/garcianacho/MedLlama-2-7B-GGUF/
 mv med_llama.gguf binaries/models
 ```
 
+Next, set up the frontend (sveltekit) app and run it.
+
+The command `npm run dev` in the frontend directory is configured to stream updates of the UI to the build directory, so updates made to the code files are reflected in the tauri app when it's run in dev mode.
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
 With that, you're ready to run the application:
 
 ```bash
+# Be at the root of the repo to start the Tauri project
+cd ..
 npm run dev
 ```
 
@@ -43,8 +55,8 @@ npm run dev
 - `src-tauri/tauri.conf.json` - Copy tauri.conf.json code from artifact
 - `src-tauri/capabilities/default.json` - Copy default.json code from artifact
 
-### Frontend Files (Web)
+### Frontend (Sveltekit)
 
-- `src/index.html` - Copy index.html code from artifact
-- `src/styles.css` - Copy styles.css code from artifact
-- `src/main.js` - Copy main.js code from artifact
+The frontend is a sveltekit app and located at `frontend/`.
+
+The command `npm run dev` is configured to stream updates of the UI to the build directory, so updates made to the code files are reflected in the tauri app when it's run in dev mode.
