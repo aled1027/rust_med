@@ -4,13 +4,13 @@
   "version": "0.1.0",
   "identifier": "com.medical.notegenerator",
   "build": {
-    "frontendDist": "../src"
+    "frontendDist": "../frontend/build"
   },
   "app": {
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "Medical Note Generator", 
+        "title": "Medical Note Generator",
         "width": 1920,
         "height": 1080,
         "resizable": true,
@@ -23,10 +23,6 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "resources": [
-      "../binaries/whisperfile.exe",
-      "../binaries/llamafile.exe", 
-      "../binaries/models/*"
-    ]
+    "resources": []
   }
 }
