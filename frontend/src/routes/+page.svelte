@@ -1,3 +1,6 @@
+<script lang="ts">
+</script>
+
 <main class="flow">
   <header>
     <h1>Medical Note Generator</h1>
@@ -5,22 +8,22 @@
   </header>
 
   <section class="flow">
-    <h2>Patient Information</h2>
+    <h2>New Note</h2>
     <form class="flow">
       <div class="input-group">
-        <label for="first-name">First Name:</label>
+        <label for="first-name">Patient First Name</label>
         <input type="text" id="first-name" placeholder="Enter first name" />
       </div>
       <div class="input-group">
-        <label for="lastName">Last Name:</label>
-        <input type="text" id="lastName" placeholder="Enter last name" />
+        <label for="last-name">Patient Last Name</label>
+        <input type="text" id="last-name" placeholder="Enter last name" />
       </div>
       <div class="input-group">
-        <label for="dob">Date of Birth:</label>
+        <label for="dob">Patient Date of Birth</label>
         <input type="date" id="dob" class="patient-input" />
       </div>
       <div class="input-group">
-        <label for="note-type">Note Type:</label>
+        <label for="note-type">Note Type</label>
         <select id="note-type">
           <option value="soap">SOAP Note</option>
           <option value="full">Full Note</option>
@@ -44,7 +47,7 @@
         </button>
         <button id="save-note-btn" class="button" disabled> Save Note </button>
         <div id="recording-dot" class="recording-dot"></div>
-        <span id="recording-txt">Not Recording</span>
+        <!-- <span id="recording-txt">Not Recording</span> -->
         <!-- <div class="waveform-container"> -->
         <!-- <canvas id="waveform" width="400" height="100"></canvas> -->
         <!-- </div> -->

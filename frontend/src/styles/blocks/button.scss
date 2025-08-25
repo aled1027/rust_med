@@ -181,3 +181,16 @@
 .button[data-type="arrow-right"]:hover {
     background-color: #E0E0D9;
 }
+
+.button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    &:hover {
+        filter: none;
+    }
+
+    &:active {
+        transform: none;
+    }
+}
