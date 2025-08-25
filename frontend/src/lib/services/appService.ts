@@ -148,8 +148,16 @@ export class AppService {
 
       updateStatus('Audio processed successfully. Starting transcription...');
 
+      // Write the audio to a file
+      const appDataDir = await this.getTauriAPI().path.appLocalDataDir();
+      const audioPath = `${appDataDir}/temp_audio_${Date.now()}.wav`;
+      const arrayBuffer = await audioBlob.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      await this.getTauriAPI().fs.writeFile(audioPath, uint8Array);
+      console.log("Audio written to file", audioPath);
+
       // Save audio to temporary file and transcribe
-      await this.handleTranscription(audioBlob);
+      await this.handleTranscription(audioPath);
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -157,28 +165,11 @@ export class AppService {
     }
   }
 
-  private async handleTranscription(audioBlob: Blob) {
+  private async handleTranscription(audioPath: string) {
     try {
       updateStatus('Transcribing audio...');
 
       const tauri = this.getTauriAPI();
-
-      // Convert blob to base64 for Tauri
-      const arrayBuffer = await audioBlob.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
-      const base64Audio = btoa(String.fromCharCode(...uint8Array));
-
-      // Create a temporary file path
-      const timestamp = Date.now();
-      const tempAudioPath = `temp_audio_${timestamp}.wav`;
-
-      // Save audio to temporary file using Tauri
-      const appDataDir = await tauri.path.appLocalDataDir();
-      const audioPath = `${appDataDir}/temp/${tempAudioPath}`;
-
-      // Save the audio file first
-      await tauri.fs.writeFile(audioPath, uint8Array);
-
       // Call Tauri transcription
       const transcriptionResult = await tauri.core.invoke('transcribe_audio', {
         audioPath: audioPath
