@@ -130,6 +130,15 @@ form>*+* {
     }
 }
 
+input[type='date'] {
+
+    &::placeholder {
+        // color: var(--color-text-light);
+        color: black !important;
+        opacity: 1;
+    }
+}
+
 select.select-light {
     background: transparent;
     color: var(--color-text-light3);

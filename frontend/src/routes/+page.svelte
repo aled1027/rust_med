@@ -6,32 +6,44 @@
 <main class="flow">
   <div class="flow mx-auto w-max-narrow">
     <header>
-      <h1 class="size-step-7">Medical Note Generator</h1>
+      <h1 class="size-step-7 text-align-center w-fit mx-auto">
+        Medical Note Generator
+      </h1>
     </header>
     <section class="flow my-2xl">
       <h2 class="mx-auto w-fit">Start a New Note</h2>
       <form class="flow">
         <div class="input-group">
           <label for="first-name">Patient First Name</label>
-          <input type="text" id="first-name" placeholder="Enter first name" />
+          <input
+            type="text"
+            id="first-name"
+            placeholder="Enter first name"
+            required
+          />
         </div>
         <div class="input-group">
           <label for="last-name">Patient Last Name</label>
-          <input type="text" id="last-name" placeholder="Enter last name" />
+          <input
+            type="text"
+            id="last-name"
+            placeholder="Enter last name"
+            required
+          />
         </div>
         <div class="input-group">
           <label for="dob">Patient Date of Birth</label>
-          <input type="date" id="dob" class="patient-input" />
+          <input type="date" id="dob" value="2000-12-31" required />
         </div>
         <div class="input-group">
           <label for="note-type">Note Type</label>
-          <select id="note-type">
+          <select id="note-type" required>
             <option value="soap">SOAP Note</option>
             <option value="full">Full Note</option>
           </select>
         </div>
-        <div>
-          <!-- non-input fields; buttons -->
+        <!-- Buttons -->
+        <div class="grid my-m" style="--gutter: 0.5rem">
           <button id="start-recording-btn" class="button">
             Start Recording
           </button>
