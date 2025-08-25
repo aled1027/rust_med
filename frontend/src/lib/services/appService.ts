@@ -571,7 +571,7 @@ class AppService {
       appState.lastTranscript = transcriptionResult.transcript;
 
 
-      updateStatus('Generating medical note...');
+      updateStatus('Generating medical note... (this can take about 30 seconds)');
       const noteGenResult = await this.ensureTauriService().generateMedicalNote(transcriptionResult.transcript, appState.selectedNoteType);
       console.log('Note generation result:', noteGenResult);
 

@@ -330,12 +330,18 @@ async fn generate_medical_note(
         "llamafile"
     };
     
-    // Try different possible locations for the llamafile
+    // Get the current working directory to build absolute paths
+    let current_dir = std::env::current_dir().map_err(|e| format!("Failed to get current directory: {}", e))?;
+    let project_root = if current_dir.ends_with("src-tauri") {
+        current_dir.parent().unwrap_or(&current_dir).to_path_buf()
+    } else {
+        current_dir
+    };
+    
+    // Try different possible locations for the llamafile with absolute paths
     let llamafile_paths = [
-        // Development paths (relative to project root)
-        PathBuf::from("binaries").join(llamafile_name),
-        PathBuf::from("./binaries").join(llamafile_name),
-        PathBuf::from("../binaries").join(llamafile_name),
+        // Development paths (absolute from project root)
+        project_root.join("binaries").join(llamafile_name),
         // Production paths (in resources)
         resource_dir.join(llamafile_name),
         resource_dir.join("binaries").join(llamafile_name),
@@ -370,14 +376,6 @@ async fn generate_medical_note(
         "mistral-7b-instruct.gguf",
         "openchat-3.5.gguf"
     ];
-    
-    // Get the current working directory to build absolute paths
-    let current_dir = std::env::current_dir().map_err(|e| format!("Failed to get current directory: {}", e))?;
-    let project_root = if current_dir.ends_with("src-tauri") {
-        current_dir.parent().unwrap_or(&current_dir).to_path_buf()
-    } else {
-        current_dir
-    };
     
     let model_paths = [
         // Absolute paths from project root
@@ -442,7 +440,7 @@ S: ",
     } else {
         format!(
             "<|begin_of_text|><|start_header_id|>user<|end_header_id|>
-You are an expert medical transcriptionist. Correct any medcal terminology errors that might have happened during transcription before generating the medical note. You convert medical transcript to a structured medical note with these sections in this order: 
+You are an expert medical transcriptionist. Correct any medical terminology errors that might have happened during transcription before generating the medical note. You convert medical transcript to a structured medical note with these sections in this order: 
 1. Presenting Illness
 (Bullet point statements of the main problem)
 2. History of Presenting Illness
@@ -486,6 +484,9 @@ Medical transcript:
     
     // Execute llamafile with supported parameters only
     println!("Executing llamafile with absolute model path: {:?}", model_path);
+    println!("Project root: {:?}", project_root);
+    println!("Llamafile path: {:?}", llamafile_path);
+    println!("Current working directory: {:?}", std::env::current_dir().unwrap_or_default());
     
     let mut cmd = std::process::Command::new(&llamafile_path);
     cmd.current_dir(&project_root)
