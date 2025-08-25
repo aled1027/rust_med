@@ -10,7 +10,7 @@
     clearResults,
     clearPatientInfo,
     reset,
-  } from "$lib/stores/app";
+  } from "$lib/stores/app.svelte";
 
   let recordingManager: any;
   let transcriptionManager: any;
@@ -114,15 +114,15 @@
       clearResults();
 
       // Clear last results
-      lastTranscript.set("");
-      lastMedicalNote.set("");
+      appState.lastTranscript = "";
+      appState.lastMedicalNote = "";
 
       await recordingManager.startRecording();
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       showError(`Failed to start recording: ${errorMessage}`);
-      isRecording.set(false);
+      appState.isRecording = false;
     }
   }
 
@@ -157,7 +157,7 @@
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       showError(`Failed to stop recording: ${errorMessage}`);
-      isRecording.set(false);
+      appState.isRecording = false;
     }
   }
 
@@ -182,7 +182,7 @@
     try {
       updateStatus("Transcribing audio...");
 
-      const noteType = $selectedNoteType;
+      const noteType = appState.selectedNoteType;
       const result = await transcriptionManager.saveAndTranscribe(
         convertedBlob,
         noteType
@@ -190,15 +190,15 @@
 
       if (result.success) {
         // The transcript is already shown via events, just store it
-        lastTranscript.set(result.transcript || "");
+        appState.lastTranscript = result.transcript || "";
 
         if (result.medicalNote) {
           // Note generation succeeded - the note is already shown via events
-          lastMedicalNote.set(result.medicalNote);
+          appState.lastMedicalNote = result.medicalNote;
           updateStatus("Medical note generated successfully!");
         } else if (result.noteError) {
           // Transcription succeeded but note generation failed
-          medicalNote.set(`Error generating note: ${result.noteError}`);
+          appState.medicalNote = `Error generating note: ${result.noteError}`;
           updateStatus("Transcription completed (note generation failed)");
         }
       }
@@ -206,10 +206,9 @@
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       showError(`Transcription failed: ${errorMessage}`);
-      transcript.set(`Transcription failed: ${errorMessage}`);
-      medicalNote.set(
-        "Audio saved successfully, but transcription service failed."
-      );
+      appState.transcript = `Transcription failed: ${errorMessage}`;
+      appState.medicalNote =
+        "Audio saved successfully, but transcription service failed.";
     }
   }
 

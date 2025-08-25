@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { appState } from "$lib/stores/app";
+  import { appState } from "$lib/stores/app.svelte";
   import { appService } from "$lib/services/appService";
 
   function formatTime(seconds: number): string {

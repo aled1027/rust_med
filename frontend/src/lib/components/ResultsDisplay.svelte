@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { appState } from '$lib/stores/app';
+  import { appState } from '$lib/stores/app.svelte';
 
   export let onSaveNote: () => void;
   export let onCopyNote: () => void;

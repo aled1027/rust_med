@@ -1,9 +1,5 @@
 <script lang="ts">
-  import {
-    appState,
-    updateStatus,
-    showError,
-  } from "$lib/stores/app";
+  import { appState, updateStatus, showError } from "$lib/stores/app.svelte";
 
   let notes: any[] = [];
   let selectedNoteData: any = null;

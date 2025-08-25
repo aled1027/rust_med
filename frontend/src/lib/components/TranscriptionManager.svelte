@@ -1,9 +1,5 @@
 <script lang="ts">
-  import {
-    appState,
-    updateStatus,
-    showError,
-  } from "$lib/stores/app";
+  import { appState, updateStatus, showError } from "$lib/stores/app.svelte";
 
   let lastTranscriptData = "";
   let lastMedicalNoteData = "";
@@ -217,10 +213,10 @@ PLAN:
   }
 
   function clearResults() {
-          appState.transcript = "";
-      appState.medicalNote = "";
-      appState.lastTranscript = "";
-      appState.lastMedicalNote = "";
+    appState.transcript = "";
+    appState.medicalNote = "";
+    appState.lastTranscript = "";
+    appState.lastMedicalNote = "";
     lastTranscriptData = "";
     lastMedicalNoteData = "";
   }

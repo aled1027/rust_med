@@ -5,7 +5,7 @@
   import ResultsDisplay from "$lib/components/ResultsDisplay.svelte";
   import ErrorDisplay from "$lib/components/ErrorDisplay.svelte";
   import { appService } from "$lib/services/appService";
-  import { appState, updateStatus } from "$lib/stores/app";
+  import { appState, updateStatus } from "$lib/stores/app.svelte";
 
   onMount(async () => {
     // Initialize the app service

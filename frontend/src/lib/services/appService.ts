@@ -5,7 +5,7 @@ import {
   clearResults,
   clearPatientInfo,
   reset as resetStore
-} from '$lib/stores/app';
+} from '$lib/stores/app.svelte';
 
 export class AppService {
   private mediaRecorder: MediaRecorder | null = null;
@@ -14,12 +14,7 @@ export class AppService {
   private recordingInterval: number | null = null;
   private pauseResumeSupported = false;
 
-  // Helper method to get current store value
-  private getStoreValue<T>(store: any): T {
-    let value: T | undefined;
-    store.subscribe((val: T) => { value = val; })();
-    return value as T;
-  }
+
 
   async initialize() {
     try {
@@ -65,17 +60,15 @@ export class AppService {
 
   pauseResumeRecording() {
     try {
-      const currentPausedState = this.getStoreValue(isPaused);
-
-      if (currentPausedState) {
+      if (appState.isPaused) {
         // Resume recording
         updateStatus('Resuming recording...');
-        isPaused.set(false);
+        appState.isPaused = false;
         this.startTimer();
       } else {
         // Pause recording
         updateStatus('Pausing recording...');
-        isPaused.set(true);
+        appState.isPaused = true;
         this.stopTimer(true);
       }
     } catch (error) {
@@ -89,8 +82,8 @@ export class AppService {
     try {
       updateStatus('Stopping recording...');
 
-      isRecording.set(false);
-      isPaused.set(false);
+      appState.isRecording = false;
+      appState.isPaused = false;
       this.stopTimer();
 
       // Process the recorded audio
@@ -99,7 +92,7 @@ export class AppService {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       showError(`Failed to stop recording: ${errorMessage}`);
-      isRecording.set(false);
+      appState.isRecording = false;
     }
   }
 
@@ -109,7 +102,7 @@ export class AppService {
     }
 
     this.recordingInterval = setInterval(() => {
-      recordingTime.update(time => time + 1);
+      appState.recordingTime = appState.recordingTime + 1;
     }, 1000);
   }
 
@@ -120,7 +113,7 @@ export class AppService {
     }
 
     if (!pause) {
-      recordingTime.set(0);
+      appState.recordingTime = 0;
     }
   }
 
@@ -155,8 +148,8 @@ The patient is a 45-year-old male who reports experiencing chest pain for the pa
 
 The patient denies any recent trauma, fever, or other symptoms. He reports the pain started while he was watching television and has been constant since onset.`;
 
-      transcript.set(mockTranscript);
-      lastTranscript.set(mockTranscript);
+      appState.transcript = mockTranscript;
+      appState.lastTranscript = mockTranscript;
 
       updateStatus('Generating medical note...');
 
@@ -188,26 +181,23 @@ PLAN:
 4. Cardiology consultation
 5. Admit to cardiac unit for monitoring`;
 
-      medicalNote.set(mockMedicalNote);
-      lastMedicalNote.set(mockMedicalNote);
+      appState.medicalNote = mockMedicalNote;
+      appState.lastMedicalNote = mockMedicalNote;
 
       updateStatus('Medical note generated successfully!');
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       showError(`Transcription failed: ${errorMessage}`);
-      transcript.set(`Transcription failed: ${errorMessage}`);
-      medicalNote.set('Audio saved successfully, but transcription service failed.');
+      appState.transcript = `Transcription failed: ${errorMessage}`;
+      appState.medicalNote = 'Audio saved successfully, but transcription service failed.';
     }
   }
 
   async saveNote() {
     try {
       // Check if we have both transcript and medical note
-      const currentLastTranscript = this.getStoreValue(lastTranscript);
-      const currentLastMedicalNote = this.getStoreValue(lastMedicalNote);
-
-      if (!currentLastTranscript || !currentLastMedicalNote) {
+      if (!appState.lastTranscript || !appState.lastMedicalNote) {
         showError('No note to save. Please record and generate a note first.');
         return;
       }
@@ -221,8 +211,8 @@ PLAN:
       updateStatus('Note saved successfully!');
       clearResults();
       clearPatientInfo();
-      lastTranscript.set('');
-      lastMedicalNote.set('');
+      appState.lastTranscript = '';
+      appState.lastMedicalNote = '';
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -231,10 +221,8 @@ PLAN:
   }
 
   copyNote() {
-    const currentMedicalNote = this.getStoreValue(medicalNote);
-
-    if (currentMedicalNote) {
-      navigator.clipboard.writeText(currentMedicalNote).then(() => {
+    if (appState.medicalNote) {
+      navigator.clipboard.writeText(appState.medicalNote).then(() => {
         updateStatus('Note copied to clipboard!');
       }).catch(() => {
         showError('Failed to copy note to clipboard');
@@ -249,9 +237,9 @@ PLAN:
       clearInterval(this.recordingInterval);
       this.recordingInterval = null;
     }
-    recordingTime.set(0);
-    isRecording.set(false);
-    isPaused.set(false);
+    appState.recordingTime = 0;
+    appState.isRecording = false;
+    appState.isPaused = false;
   }
 }
 

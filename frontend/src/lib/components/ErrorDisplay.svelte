@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { appState } from '$lib/stores/app';
+  import { appState } from '$lib/stores/app.svelte';
 </script>
 
 {#if appState.errorMessage}

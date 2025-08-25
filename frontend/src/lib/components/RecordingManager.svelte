@@ -4,7 +4,7 @@
     appState,
     updateStatus,
     showError,
-  } from "$lib/stores/app";
+  } from "$lib/stores/app.svelte";
 
   let mediaRecorder: MediaRecorder | null = null;
   let audioChunks: Blob[] = [];
