@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { 
-    isRecording, 
-    isPaused, 
+  import {
+    isRecording,
+    isPaused,
     recordingTime,
     canStartRecording,
     canPauseResume,
     canStopRecording,
-    appStatus
-  } from '$lib/stores/app';
+    appStatus,
+  } from "$lib/stores/app";
 
   export let onStartRecording: () => void;
   export let onPauseResume: () => void;
@@ -16,7 +16,7 @@
   function formatTime(seconds: number): string {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   }
 </script>
 
@@ -32,8 +32,8 @@
   </div>
 
   <div class="control-buttons">
-    <button 
-      class="button start-btn" 
+    <button
+      class="button start-btn"
       class:recording={$isRecording}
       disabled={!$canStartRecording}
       on:click={onStartRecording}
@@ -45,8 +45,8 @@
       {/if}
     </button>
 
-    <button 
-      class="button pause-btn" 
+    <button
+      class="button pause-btn"
       class:paused={$isPaused}
       disabled={!$canPauseResume}
       on:click={onPauseResume}
@@ -58,8 +58,8 @@
       {/if}
     </button>
 
-    <button 
-      class="button stop-btn" 
+    <button
+      class="button stop-btn"
       disabled={!$canStopRecording}
       on:click={onStopRecording}
     >
@@ -78,7 +78,7 @@
 
   .status-display {
     text-align: center;
-    
+
     .status-text {
       font-size: 1.1rem;
       font-weight: 500;
@@ -91,7 +91,7 @@
     align-items: center;
     gap: 0.5rem;
     margin-top: 0.5rem;
-    
+
     .recording-dot {
       width: 12px;
       height: 12px;
@@ -99,7 +99,7 @@
       border-radius: 50%;
       animation: pulse 1.5s ease-in-out infinite;
     }
-    
+
     .recording-time {
       font-family: monospace;
       font-size: 1.2rem;
@@ -123,50 +123,50 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
-    
+
     &:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
-    
+
     &.start-btn {
       background-color: #10b981;
       color: white;
-      
+
       &:hover:not(:disabled) {
         background-color: #059669;
       }
-      
+
       &.recording {
         background-color: #ef4444;
-        
+
         &:hover:not(:disabled) {
           background-color: #dc2626;
         }
       }
     }
-    
+
     &.pause-btn {
       background-color: #f59e0b;
       color: white;
-      
+
       &:hover:not(:disabled) {
         background-color: #d97706;
       }
-      
+
       &.paused {
         background-color: #10b981;
-        
+
         &:hover:not(:disabled) {
           background-color: #059669;
         }
       }
     }
-    
+
     &.stop-btn {
       background-color: #6b7280;
       color: white;
-      
+
       &:hover:not(:disabled) {
         background-color: #4b5563;
       }
@@ -174,7 +174,8 @@
   }
 
   @keyframes pulse {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 1;
     }
     50% {
