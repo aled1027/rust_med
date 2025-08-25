@@ -23,6 +23,7 @@ export class AudioService {
 
   async startRecording(deviceId?: string): Promise<void> {
     try {
+      console.log("About to start recording", deviceId);
       // Enhanced audio constraints for better speech recognition
       const audioConstraints = {
         deviceId: deviceId ? { exact: deviceId } : undefined,
@@ -76,8 +77,10 @@ export class AudioService {
       this.isRecording = true;
 
       return new Promise((resolve, reject) => {
+        console.log("Recording started");
         this.mediaRecorder!.ondataavailable = (event) => {
           if (event.data.size > 0) {
+            console.log("Recording data available", event.data.size);
             this.audioChunks.push(event.data);
           }
         };
