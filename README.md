@@ -64,3 +64,5 @@ The Tauri app uses whatever is in the `frontend/build` directory, so while you c
 
 - Integrate the main.js functionality to svelte style
 - Test that it's all working, end to end, since I changed a bunch of ids and tags
+- Cases to handle:
+  - no speech detected in audio

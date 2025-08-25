@@ -8,44 +8,84 @@ import {
 } from '$lib/stores/app.svelte';
 import { audioService } from '$lib/services/audioService';
 
-// Tauri API utilities
-declare global {
-  interface Window {
-    __TAURI__: {
-      core: { invoke: (command: string, args?: any) => Promise<any> };
-      fs: { writeFile: (path: string, data: string | Uint8Array) => Promise<void> };
-      path: { appLocalDataDir: () => Promise<string> };
-      event: { listen: (event: string, callback: (data: any) => void) => Promise<void> };
-    };
+interface ApiNote {
+  first_name: string;
+  last_name: string;
+  dob: string;
+  note_type: string;
+  transcript: string;
+  medical_note: string;
+}
+
+class TauriService {
+  private tauri: typeof window.__TAURI__;
+
+  constructor() {
+    if (typeof window.__TAURI__ === 'undefined') {
+      throw new Error('Tauri APIs not available');
+    }
+    this.tauri = window.__TAURI__;
+  }
+
+  async appLocalDataDir(): Promise<string> {
+    return this.tauri.path.appLocalDataDir();
+  }
+
+  async writeFile(path: string, data: string | Uint8Array): Promise<void> {
+    await this.tauri.fs.writeFile(path, data);
+  }
+
+  async transcribeAudio(audioPath: string): Promise<{ success: boolean, transcript: string, error: string | null }> {
+    return this.tauri.core.invoke('transcribe_audio', {
+      audioPath: audioPath
+    });
+  }
+
+  async generateMedicalNote(transcript: string, noteType: string): Promise<{ success: boolean, note: string, error: string | null }> {
+    return this.tauri.core.invoke('generate_medical_note', {
+      transcript: transcript,
+      noteType: noteType
+    });
+  }
+
+  async saveNote(note: ApiNote): Promise<{ success: boolean, error: string | null }> {
+    const apiNote: ApiNote = {
+      first_name: note.first_name,
+      last_name: note.last_name,
+      dob: note.dob,
+      note_type: note.note_type,
+      transcript: note.transcript,
+      medical_note: note.medical_note
+    }
+    const saveResult = await this.tauri.core.invoke('save_patient_note', apiNote);
+    return saveResult;
   }
 }
 
-export class AppService {
-  private recordingInterval: number | null = null;
+class AppService {
+  /**
+   * Recording timer ID for tracking recording duration.
+   * Increments appState.recordingTime every second while recording is active.
+   * Set to null when no timer is running.
+   */
+  private recordingTimerId: number | null = null;
+  private tauriService: TauriService;
+
+  constructor() {
+    this.tauriService = new TauriService();
+  }
 
   async initialize() {
     try {
-      // Load available microphones
       appState.availableMicrophones = await audioService.getAvailableMicrophones();
-      console.log('Init init microphones:', appState.availableMicrophones);
       if (appState.availableMicrophones.length > 0) {
         appState.selectedMicrophoneId = appState.availableMicrophones[0].deviceId;
-        console.log('Selected microphone:', appState.selectedMicrophoneId);
       }
-
       updateStatus('Ready');
-      console.log('Medical Note Generator initialized successfully');
     } catch (error) {
       console.error('Failed to initialize app:', error);
       showError('Failed to initialize application');
     }
-  }
-
-  private getTauriAPI() {
-    if (typeof window.__TAURI__ === 'undefined') {
-      throw new Error('Tauri APIs not available');
-    }
-    return window.__TAURI__;
   }
 
   async startRecording() {
@@ -115,19 +155,19 @@ export class AppService {
   }
 
   private startTimer() {
-    if (this.recordingInterval) {
-      clearInterval(this.recordingInterval);
+    if (this.recordingTimerId) {
+      clearInterval(this.recordingTimerId);
     }
 
-    this.recordingInterval = setInterval(() => {
+    this.recordingTimerId = setInterval(() => {
       appState.recordingTime = appState.recordingTime + 1;
     }, 1000);
   }
 
   private stopTimer(pause = false) {
-    if (this.recordingInterval) {
-      clearInterval(this.recordingInterval);
-      this.recordingInterval = null;
+    if (this.recordingTimerId) {
+      clearInterval(this.recordingTimerId);
+      this.recordingTimerId = null;
     }
 
     if (!pause) {
@@ -149,55 +189,45 @@ export class AppService {
       updateStatus('Audio processed successfully. Starting transcription...');
 
       // Write the audio to a file
-      const appDataDir = await this.getTauriAPI().path.appLocalDataDir();
-      const audioPath = `${appDataDir}/temp_audio_${Date.now()}.wav`;
-      const arrayBuffer = await audioBlob.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
-      await this.getTauriAPI().fs.writeFile(audioPath, uint8Array);
-      console.log("Audio written to file", audioPath);
+      // TODO: make cross platform
+      const appDataDir = await this.tauriService.appLocalDataDir();
+      // IF DEBUG:
+      const audioPath = `${appDataDir}/debug.wav`;
+      // ELSE:
+      // const audioPath = `${appDataDir}/temp_audio_${Date.now()}.wav`;
+      // const arrayBuffer = await audioBlob.arrayBuffer();
+      // const uint8Array = new Uint8Array(arrayBuffer);
+      // await this.tauriService.writeFile(audioPath, audioBlob);
+      // console.log("Audio written to file", audioPath);
 
       // Save audio to temporary file and transcribe
-      await this.handleTranscription(audioPath);
 
+      updateStatus('Transcribing audio...');
+      const transcriptionResult = await this.tauriService.transcribeAudio(audioPath);
+      if (!transcriptionResult.success) {
+        throw new Error(transcriptionResult.error || 'Transcription failed');
+      }
+
+      appState.transcript = transcriptionResult.transcript;
+      appState.lastTranscript = transcriptionResult.transcript;
+
+
+      updateStatus('Generating medical note...');
+      const noteGenResult = await this.tauriService.generateMedicalNote(transcriptionResult.transcript, appState.selectedNoteType);
+
+      if (!noteGenResult.success) {
+        throw new Error(noteGenResult.error || 'Failed to generate medical note');
+      }
+
+      appState.medicalNote = noteGenResult.note;
+      appState.lastMedicalNote = noteGenResult.note;
+      updateStatus('Note generated successfully!');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       showError(`Failed to process recording: ${errorMessage}`);
     }
   }
 
-  private async handleTranscription(audioPath: string) {
-    updateStatus('Transcribing audio...');
-
-    const tauri = this.getTauriAPI();
-
-    // Call Tauri transcription
-    const transcriptionResult = await tauri.core.invoke('transcribe_audio', {
-      audioPath: audioPath
-    });
-
-    if (transcriptionResult.success) {
-      appState.transcript = transcriptionResult.transcript;
-      appState.lastTranscript = transcriptionResult.transcript;
-
-      updateStatus('Generating medical note...');
-
-      // Generate medical note using Tauri
-      const noteResult = await tauri.core.invoke('generate_medical_note', {
-        transcript: transcriptionResult.transcript,
-        noteType: appState.selectedNoteType
-      });
-
-      if (noteResult.success) {
-        appState.medicalNote = noteResult.note;
-        appState.lastMedicalNote = noteResult.note;
-        updateStatus('Medical note generated successfully!');
-      } else {
-        throw new Error(noteResult.error || 'Failed to generate medical note');
-      }
-    } else {
-      throw new Error(transcriptionResult.error || 'Transcription failed');
-    }
-  }
 
   async saveNote() {
     try {
@@ -209,10 +239,8 @@ export class AppService {
 
       updateStatus('Saving note...');
 
-      const tauri = this.getTauriAPI();
-
       // Save note using Tauri backend
-      const saveResult = await tauri.core.invoke('save_patient_note', {
+      const saveResult = await this.tauriService.saveNote({
         first_name: appState.patientInfo.firstName,
         last_name: appState.patientInfo.lastName,
         dob: appState.patientInfo.dateOfBirth,
@@ -237,22 +265,12 @@ export class AppService {
     }
   }
 
-  copyNote() {
-    if (appState.medicalNote) {
-      navigator.clipboard.writeText(appState.medicalNote).then(() => {
-        updateStatus('Note copied to clipboard!');
-      }).catch(() => {
-        showError('Failed to copy note to clipboard');
-      });
-    }
-  }
-
   reset() {
     // Call the imported reset function from the store
     resetStore();
-    if (this.recordingInterval) {
-      clearInterval(this.recordingInterval);
-      this.recordingInterval = null;
+    if (this.recordingTimerId) {
+      clearInterval(this.recordingTimerId);
+      this.recordingTimerId = null;
     }
     audioService.reset();
     appState.recordingTime = 0;

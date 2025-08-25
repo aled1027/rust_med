@@ -12,7 +12,7 @@ export class AudioService {
   }
 
   private checkPauseResumeSupport() {
-    if (typeof MediaRecorder !== 'undefined' && MediaRecorder.prototype.pause && MediaRecorder.prototype.resume) {
+    if (typeof MediaRecorder !== 'undefined') {
       console.log('Browser supports MediaRecorder pause/resume');
       this.pauseResumeSupported = true;
     } else {
@@ -23,8 +23,6 @@ export class AudioService {
 
   async startRecording(deviceId?: string): Promise<void> {
     try {
-      console.log("About to start recording", deviceId);
-      // Enhanced audio constraints for better speech recognition
       const audioConstraints = {
         deviceId: deviceId ? { exact: deviceId } : undefined,
         sampleRate: 44100,
@@ -40,7 +38,6 @@ export class AudioService {
         audio: audioConstraints
       });
 
-      // Prefer WebM format for better quality, will convert to WAV
       const supportedFormats = [
         'audio/webm;codecs=opus',
         'audio/webm',
@@ -75,12 +72,11 @@ export class AudioService {
 
       this.audioChunks = [];
       this.isRecording = true;
+      const recordingFrequency = 1000; // Collect data every 1 second
 
       return new Promise((resolve, reject) => {
-        console.log("Recording started");
         this.mediaRecorder!.ondataavailable = (event) => {
           if (event.data.size > 0) {
-            console.log("Recording data available", event.data.size);
             this.audioChunks.push(event.data);
           }
         };
@@ -96,7 +92,7 @@ export class AudioService {
           reject(new Error(`Recording error: ${event.error?.message || 'Unknown error'}`));
         };
 
-        this.mediaRecorder!.start(1000); // Collect data every second
+        this.mediaRecorder!.start(recordingFrequency); // Collect data every second
         resolve();
       });
 
@@ -160,7 +156,7 @@ export class AudioService {
   private async convertToWav(audioBlob: Blob): Promise<Blob> {
     try {
       // Use OfflineAudioContext for better performance
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)({
+      const audioContext = new (window.AudioContext)({
         sampleRate: 16000  // Whisper prefers 16kHz
       });
 

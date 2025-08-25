@@ -8,22 +8,8 @@
   import { appState, updateStatus } from "$lib/stores/app.svelte";
 
   onMount(async () => {
-    // Initialize the app service
     await appService.initialize();
-
-    // Set initial state
-    appState.showTranscript = true;
-    appState.showMedicalNote = true;
-    updateStatus("Ready");
   });
-
-  function handleSaveNote() {
-    appService.saveNote();
-  }
-
-  function handleCopyNote() {
-    appService.copyNote();
-  }
 </script>
 
 <Menu />
@@ -42,7 +28,10 @@
       <PatientInfoForm />
     </section>
 
-    <ResultsDisplay onSaveNote={handleSaveNote} onCopyNote={handleCopyNote} />
+    <ResultsDisplay
+      onSaveNote={() => appService.saveNote()}
+      onCopyNote={() => console.log("copy note")}
+    />
   </div>
 </main>
 
