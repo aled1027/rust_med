@@ -7,6 +7,18 @@ import {
   reset as resetStore
 } from '$lib/stores/app.svelte';
 import { audioService } from '$lib/services/audioService';
+import { browser } from '$app/environment';
+
+declare global {
+  interface Window {
+    __TAURI__: {
+      core: { invoke: (command: string, args?: any) => Promise<any> };
+      fs: { writeFile: (path: string, data: string | Uint8Array) => Promise<void> };
+      path: { appLocalDataDir: () => Promise<string> };
+      event: { listen: (event: string, callback: (data: any) => void) => Promise<void> };
+    };
+  }
+}
 
 interface ApiNote {
   first_name: string;
@@ -18,37 +30,58 @@ interface ApiNote {
 }
 
 class TauriService {
-  private tauri: typeof window.__TAURI__;
+  private tauri: typeof window.__TAURI__ | null = null;
 
   constructor() {
-    if (typeof window.__TAURI__ === 'undefined') {
-      throw new Error('Tauri APIs not available');
+    // Don't initialize during SSR
+    if (browser && typeof window.__TAURI__ !== 'undefined') {
+      this.tauri = window.__TAURI__;
     }
-    this.tauri = window.__TAURI__;
+  }
+
+  private ensureTauri(): typeof window.__TAURI__ {
+    if (!this.tauri) {
+      if (!browser) {
+        throw new Error('Tauri APIs not available during SSR');
+      }
+      if (typeof window.__TAURI__ === 'undefined') {
+        throw new Error('Tauri APIs not available');
+      }
+      this.tauri = window.__TAURI__;
+    }
+    return this.tauri;
   }
 
   async appLocalDataDir(): Promise<string> {
-    return this.tauri.path.appLocalDataDir();
+    const tauri = this.ensureTauri();
+    return tauri.path.appLocalDataDir();
   }
 
   async writeFile(path: string, data: string | Uint8Array): Promise<void> {
-    await this.tauri.fs.writeFile(path, data);
+    const tauri = this.ensureTauri();
+    await tauri.fs.writeFile(path, data);
   }
 
   async transcribeAudio(audioPath: string): Promise<{ success: boolean, transcript: string, error: string | null }> {
-    return this.tauri.core.invoke('transcribe_audio', {
+    const tauri = this.ensureTauri();
+    return tauri.core.invoke('transcribe_audio', {
       audioPath: audioPath
     });
   }
 
   async generateMedicalNote(transcript: string, noteType: string): Promise<{ success: boolean, note: string, error: string | null }> {
-    return this.tauri.core.invoke('generate_medical_note', {
+    console.log('Generating medical note...');
+    const tauri = this.ensureTauri();
+    const result = await tauri.core.invoke('generate_medical_note', {
       transcript: transcript,
       noteType: noteType
     });
+    console.log('Medical note generated successfully!');
+    return result;
   }
 
   async saveNote(note: ApiNote): Promise<{ success: boolean, error: string | null }> {
+    const tauri = this.ensureTauri();
     const apiNote: ApiNote = {
       first_name: note.first_name,
       last_name: note.last_name,
@@ -57,7 +90,7 @@ class TauriService {
       transcript: note.transcript,
       medical_note: note.medical_note
     }
-    const saveResult = await this.tauri.core.invoke('save_patient_note', apiNote);
+    const saveResult = await tauri.core.invoke('save_patient_note', apiNote);
     return saveResult;
   }
 }
@@ -69,17 +102,26 @@ class AppService {
    * Set to null when no timer is running.
    */
   private recordingTimerId: number | null = null;
-  private tauriService: TauriService;
+  private tauriService: TauriService | null = null;
 
-  constructor() {
-    this.tauriService = new TauriService();
+  private ensureTauriService(): TauriService {
+    if (!this.tauriService) {
+      if (!browser) {
+        throw new Error('Tauri service not available during SSR');
+      }
+      this.tauriService = new TauriService();
+    }
+    return this.tauriService;
   }
 
   async initialize() {
     try {
-      appState.availableMicrophones = await audioService.getAvailableMicrophones();
-      if (appState.availableMicrophones.length > 0) {
-        appState.selectedMicrophoneId = appState.availableMicrophones[0].deviceId;
+      // Only initialize audio service in browser
+      if (browser) {
+        appState.availableMicrophones = await audioService.getAvailableMicrophones();
+        if (appState.availableMicrophones.length > 0) {
+          appState.selectedMicrophoneId = appState.availableMicrophones[0].deviceId;
+        }
       }
       updateStatus('Ready');
     } catch (error) {
@@ -190,7 +232,7 @@ class AppService {
 
       // Write the audio to a file
       // TODO: make cross platform
-      const appDataDir = await this.tauriService.appLocalDataDir();
+      const appDataDir = await this.ensureTauriService().appLocalDataDir();
       // IF DEBUG:
       const audioPath = `${appDataDir}/debug.wav`;
       // ELSE:
@@ -203,17 +245,21 @@ class AppService {
       // Save audio to temporary file and transcribe
 
       updateStatus('Transcribing audio...');
-      const transcriptionResult = await this.tauriService.transcribeAudio(audioPath);
+      console.log('Transcribing audio...');
+      const transcriptionResult = await this.ensureTauriService().transcribeAudio(audioPath);
       if (!transcriptionResult.success) {
+        console.error('Transcription failed:', transcriptionResult.error);
         throw new Error(transcriptionResult.error || 'Transcription failed');
       }
+      console.log('Transcription result:', transcriptionResult);
 
       appState.transcript = transcriptionResult.transcript;
       appState.lastTranscript = transcriptionResult.transcript;
 
 
       updateStatus('Generating medical note...');
-      const noteGenResult = await this.tauriService.generateMedicalNote(transcriptionResult.transcript, appState.selectedNoteType);
+      const noteGenResult = await this.ensureTauriService().generateMedicalNote(transcriptionResult.transcript, appState.selectedNoteType);
+      console.log('Note generation result:', noteGenResult);
 
       if (!noteGenResult.success) {
         throw new Error(noteGenResult.error || 'Failed to generate medical note');
@@ -222,6 +268,9 @@ class AppService {
       appState.medicalNote = noteGenResult.note;
       appState.lastMedicalNote = noteGenResult.note;
       updateStatus('Note generated successfully!');
+
+      appState.showTranscript = true;
+      appState.showMedicalNote = true;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       showError(`Failed to process recording: ${errorMessage}`);
@@ -240,7 +289,7 @@ class AppService {
       updateStatus('Saving note...');
 
       // Save note using Tauri backend
-      const saveResult = await this.tauriService.saveNote({
+      const saveResult = await this.ensureTauriService().saveNote({
         first_name: appState.patientInfo.firstName,
         last_name: appState.patientInfo.lastName,
         dob: appState.patientInfo.dateOfBirth,
