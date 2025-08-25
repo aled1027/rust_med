@@ -6,6 +6,7 @@ import {
   clearPatientInfo,
   reset as resetStore
 } from '$lib/stores/app.svelte';
+import { audioService } from '$lib/services/audioService';
 
 // Tauri API utilities
 declare global {
@@ -20,34 +21,23 @@ declare global {
 }
 
 export class AppService {
-  private mediaRecorder: MediaRecorder | null = null;
-  private audioChunks: Blob[] = [];
-  private stream: MediaStream | null = null;
   private recordingInterval: number | null = null;
-  private pauseResumeSupported = false;
-  private recordingManager: any = null;
 
   async initialize() {
     try {
-      // Initialize the recording manager from the static modules
-      await this.loadRecordingManager();
+      // Load available microphones
+      appState.availableMicrophones = await audioService.getAvailableMicrophones();
+      console.log('Init init microphones:', appState.availableMicrophones);
+      if (appState.availableMicrophones.length > 0) {
+        appState.selectedMicrophoneId = appState.availableMicrophones[0].deviceId;
+        console.log('Selected microphone:', appState.selectedMicrophoneId);
+      }
+
       updateStatus('Ready');
       console.log('Medical Note Generator initialized successfully');
     } catch (error) {
       console.error('Failed to initialize app:', error);
       showError('Failed to initialize application');
-    }
-  }
-
-  private async loadRecordingManager() {
-    try {
-      // Dynamically import the recording manager from static modules
-      const { RecordingManager } = await import('../../../static/modules/recordingManager.js');
-      this.recordingManager = new RecordingManager();
-      console.log('Recording manager loaded successfully');
-    } catch (error) {
-      console.error('Failed to load recording manager:', error);
-      throw new Error('Failed to load recording manager');
     }
   }
 
@@ -67,13 +57,8 @@ export class AppService {
       appState.lastTranscript = '';
       appState.lastMedicalNote = '';
 
-      // Check if recording manager is available
-      if (!this.recordingManager) {
-        throw new Error('Recording manager not initialized');
-      }
-
-      // Start actual recording
-      await this.recordingManager.startRecording();
+      // Start actual recording using audio service
+      await audioService.startRecording(appState.selectedMicrophoneId);
 
       appState.isRecording = true;
       appState.isPaused = false;
@@ -90,20 +75,16 @@ export class AppService {
 
   pauseResumeRecording() {
     try {
-      if (!this.recordingManager) {
-        throw new Error('Recording manager not initialized');
-      }
-
       if (appState.isPaused) {
         // Resume recording
         updateStatus('Resuming recording...');
-        this.recordingManager.resumeRecording();
+        audioService.resumeRecording();
         appState.isPaused = false;
         this.startTimer();
       } else {
         // Pause recording
         updateStatus('Pausing recording...');
-        this.recordingManager.pauseRecording();
+        audioService.pauseRecording();
         appState.isPaused = true;
         this.stopTimer(true);
       }
@@ -118,11 +99,7 @@ export class AppService {
     try {
       updateStatus('Stopping recording...');
 
-      if (!this.recordingManager) {
-        throw new Error('Recording manager not initialized');
-      }
-
-      this.recordingManager.stopRecording();
+      audioService.stopRecording();
       appState.isRecording = false;
       appState.isPaused = false;
       this.stopTimer();
@@ -162,12 +139,8 @@ export class AppService {
     try {
       updateStatus('Processing recorded audio...');
 
-      if (!this.recordingManager) {
-        throw new Error('Recording manager not initialized');
-      }
-
-      // Get the recorded audio blob
-      const audioBlob = await this.recordingManager.processRecordedAudio();
+      // Get the recorded audio blob from audio service
+      const audioBlob = await audioService.getRecordedAudio();
 
       if (!audioBlob) {
         throw new Error('No audio data recorded');
@@ -297,9 +270,7 @@ export class AppService {
       clearInterval(this.recordingInterval);
       this.recordingInterval = null;
     }
-    if (this.recordingManager) {
-      this.recordingManager.reset();
-    }
+    audioService.reset();
     appState.recordingTime = 0;
     appState.isRecording = false;
     appState.isPaused = false;

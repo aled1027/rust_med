@@ -49,6 +49,18 @@
       <option value="full">Full Note</option>
     </select>
   </div>
+
+  <div class="form-group">
+    <label for="microphone">Microphone</label>
+    <select id="microphone" bind:value={appState.selectedMicrophoneId}>
+      {#each appState.availableMicrophones as microphone}
+        <option value={microphone.deviceId}>
+          {microphone.label ||
+            `Microphone ${microphone.deviceId.slice(0, 50)}...`}
+        </option>
+      {/each}
+    </select>
+  </div>
 </form>
 
 <div class="recording-controls">
