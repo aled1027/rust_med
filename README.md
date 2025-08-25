@@ -62,7 +62,16 @@ The Tauri app uses whatever is in the `frontend/build` directory, so while you c
 
 ## TODOs:
 
-- Integrate the main.js functionality to svelte style
-- Test that it's all working, end to end, since I changed a bunch of ids and tags
+- Make sure that llama is being called right and not generating fake info for us
+- Store notes
+- Be able to view stored notes
+- After recording, navigate to the new stored note
+- Add a nicer loading indicator for processing
 - Cases to handle:
   - no speech detected in audio
+
+Frontend:
+
+- appState has all the state
+- appService is the main engine for running things
+  - It uses some utility classes: audioService for audio-related things and tauriService for interacting with tauri
