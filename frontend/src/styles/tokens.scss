@@ -251,4 +251,19 @@ $spaces: (
   @each $color, $value in map.get($themes, "light") {
     --#{$color}: #{$value};
   }
+
+  // Additional component colors
+  --color-border: var(--gray-200);
+  --color-surface: var(--gray-25);
+  --color-surface-elevated: var(--gray-100);
+  --color-text-muted: var(--gray-600);
+  --color-primary: var(--color-primary);
+  --color-primary-dark: #5a3da3;
+  --color-secondary: var(--gray-600);
+  --color-secondary-dark: var(--gray-700);
+  --color-success: #10b981;
+  --color-success-dark: #059669;
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fef3c7;
+  --color-warning-text: #92400e;
 }
