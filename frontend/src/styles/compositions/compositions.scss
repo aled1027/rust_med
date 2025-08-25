@@ -53,8 +53,9 @@
 
 .main-layout {
     margin-inline: $main-layout-margin;
-    margin-block-start: $space-m;
-    width: $max-content-width;
+    margin-block-start: $space-l;
+    width: $main-layout-width;
+    padding-inline: 1rem;
 }
 
 /* FRAME */

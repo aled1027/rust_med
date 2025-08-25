@@ -59,3 +59,8 @@ npm run dev
 The frontend is a sveltekit app and located at `frontend/`. The app is a typical, static sveltekit app that's currently configured to run in prerendered mode, although that may change in the future.
 
 The Tauri app uses whatever is in the `frontend/build` directory, so while you could develop as a typical app with `cd frontend && npm run dev`, you can always get live updates in the native Tauri app with `npm run dev` from the root of the repo. The major differences are that functionality may be limited in the web-only version because it doesn't have the rust backend and updates will be slower to take effect in the Tauri version.
+
+## TODOs:
+
+- Integrate the main.js functionality to svelte style
+- Test that it's all working, end to end, since I changed a bunch of ids and tags

@@ -128,6 +128,7 @@ $flow-space: 1.25em;
 $main-layout-margin: auto;
 $max-content-width: 60rem;
 $prose-width: 50rem;
+$main-layout-width: clamp(250px, 100%, $max-content-width);
 
 // Typography
 $font-light: 300;
