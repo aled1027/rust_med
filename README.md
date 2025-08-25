@@ -62,12 +62,9 @@ The Tauri app uses whatever is in the `frontend/build` directory, so while you c
 
 ## TODOs:
 
-- Make sure that llama is being called right and not generating fake info for us
-- Store notes
-- Be able to view stored notes
-- After recording, navigate to the new stored note
-- Add a nicer loading indicator for processing
-- Cases to handle:
+- Next: Store and load notes. Use /notes (arrived at through menu)
+  - Right now, the storing function isn't working / being called.jK:w
+- Error cases to handle:
   - no speech detected in audio
 
 Frontend:

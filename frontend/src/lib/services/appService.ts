@@ -396,21 +396,25 @@ class TauriService {
 
   async loadNotes(): Promise<{ success: boolean, notes: ApiNote[], error: string | null }> {
     const tauri = this.ensureTauri();
+    console.log('TauriService: Loading notes...');
     const result = await tauri.core.invoke('load_patient_notes');
+    console.log('TauriService: Load notes result:', result);
     return result;
   }
 
   async saveNote(note: ApiNote): Promise<{ success: boolean, error: string | null }> {
     const tauri = this.ensureTauri();
-    const apiNote: ApiNote = {
+    console.log('TauriService: Saving note:', note);
+    console.log('TauriService: Calling save_patient_note with individual parameters');
+    const saveResult = await tauri.core.invoke('save_patient_note', {
       first_name: note.first_name,
       last_name: note.last_name,
       dob: note.dob,
       note_type: note.note_type,
       transcript: note.transcript,
       medical_note: note.medical_note
-    }
-    const saveResult = await tauri.core.invoke('save_patient_note', apiNote);
+    });
+    console.log('TauriService: Save note result:', saveResult);
     return saveResult;
   }
 }
@@ -597,11 +601,13 @@ class AppService {
 
   async saveNote() {
     try {
-      // Check if we have both transcript and medical note
-      if (!appState.lastTranscript || !appState.lastMedicalNote) {
-        showError('No note to save. Please record and generate a note first.');
-        return;
-      }
+      console.log('AppService: saveNote called');
+      console.log('AppService: Current state:', {
+        lastTranscript: appState.lastTranscript,
+        lastMedicalNote: appState.lastMedicalNote,
+        patientInfo: appState.patientInfo,
+        selectedNoteType: appState.selectedNoteType
+      });
 
       updateStatus('Saving note...');
 
@@ -632,7 +638,9 @@ class AppService {
   }
 
   async loadNotes() {
+    console.log('AppService: loadNotes called');
     const loadResult = await this.ensureTauriService().loadNotes();
+    console.log('AppService: loadNotes result:', loadResult);
     return loadResult;
   }
 
