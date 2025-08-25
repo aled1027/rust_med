@@ -27,11 +27,9 @@
 
       <PatientInfoForm />
     </section>
-
-    <ResultsDisplay
-      onSaveNote={() => appService.saveNote()}
-      onCopyNote={() => console.log("copy note")}
-    />
+    <section>
+      <ResultsDisplay />
+    </section>
   </div>
 </main>
 

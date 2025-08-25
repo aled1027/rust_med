@@ -19,8 +19,6 @@ export class AppState {
     isRecording = $state(false);
     isPaused = $state(false);
     recordingTime = $state(0);
-    showTranscript = $state(false);
-    showMedicalNote = $state(false);
 
     // Patient information
     patientInfo = $state<PatientInfo>({
@@ -82,8 +80,6 @@ export class AppState {
     clearResults() {
         this.transcript = '';
         this.medicalNote = '';
-        this.showTranscript = false;
-        this.showMedicalNote = false;
     }
 
     clearPatientInfo() {

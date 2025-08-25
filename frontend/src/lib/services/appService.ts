@@ -268,9 +268,6 @@ class AppService {
       appState.medicalNote = noteGenResult.note;
       appState.lastMedicalNote = noteGenResult.note;
       updateStatus('Note generated successfully!');
-
-      appState.showTranscript = true;
-      appState.showMedicalNote = true;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       showError(`Failed to process recording: ${errorMessage}`);
