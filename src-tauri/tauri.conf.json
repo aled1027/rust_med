@@ -23,6 +23,10 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "resources": []
+    "resources": [
+      "../binaries/whisperfile*",
+      "../binaries/llamafile*",
+      "../binaries/models/*"
+    ]
   }
 }
