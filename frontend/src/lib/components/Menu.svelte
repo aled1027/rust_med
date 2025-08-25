@@ -1,7 +1,7 @@
 <script lang="ts">
+  import { afterNavigate } from "$app/navigation";
   import IconMenu from "~icons/mdi/menu";
   import IconClose from "~icons/mdi/close";
-  import { afterNavigate } from "$app/navigation";
 
   let isMenuOpen = $state(false);
 
