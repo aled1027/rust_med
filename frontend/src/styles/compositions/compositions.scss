@@ -53,6 +53,8 @@
 
 .main-layout {
     margin-inline: $main-layout-margin;
+    margin-block-start: $space-m;
+    width: $max-content-width;
 }
 
 /* FRAME */
@@ -98,6 +100,8 @@
 .cluster {
     display: flex;
     flex-wrap: wrap;
+
+
     gap: var(--space, 1rem);
     justify-content: flex-start;
     align-items: center;
@@ -106,7 +110,6 @@
 }
 
 /* BOX */
-// TODO: RENAME CARD BECAUSE CARD MAKES SENSE
 .box {
     --box-padding: var(--space-m) var(--space-l);
     // Let's rename bg-color-alt and alt2. I had an idea but I can't remember it now
@@ -135,7 +138,6 @@
 }
 
 .box[data-style="home"] {
-    // TODO: this can probably be removed
     font-size: 1rem;
     font-weight: $font-regular;
     color: inherit;

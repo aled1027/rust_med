@@ -46,15 +46,8 @@
     left: 1rem;
     z-index: var(--menu-z-index);
     visibility: visible;
-    display: block;
     opacity: 1;
     transition: visibility 0.3s ease-in-out, opacity 0.3s ease-in-out;
-}
-
-@media (min-width: 768px) {
-    .menu .toggle-open {
-        top: 1rem;
-    }
 }
 
 .menu[data-open='true'] .toggle-open {

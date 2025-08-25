@@ -125,7 +125,7 @@ $themes: (
 // Layout
 $gutter: $space-s;
 $flow-space: 1.25em;
-$main-layout-margin: 0.5rem;
+$main-layout-margin: auto;
 $max-content-width: 60rem;
 $prose-width: 50rem;
 
@@ -248,11 +248,4 @@ $spaces: (
   @each $color, $value in map.get($themes, "light") {
     --#{$color}: #{$value};
   }
-
-  // TODO: disabling dark mode for now
-  // @media (prefers-color-scheme: dark) {
-  // @each $color, $value in map.get($themes, "dark") {
-  // --#{$color}: #{$value};
-  // }
-  // }
 }

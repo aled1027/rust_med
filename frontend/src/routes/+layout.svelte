@@ -10,4 +10,6 @@
 </svelte:head>
 
 <Menu />
-{@render children?.()}
+<main class="main-layout" id="content">
+  {@render children()}
+</main>
