@@ -1,15 +1,5 @@
 <main class="with-sidebar">
-  <!-- Sidebar for saved notes -->
-  <section class="sidebar">
-    <h2>Saved Notes</h2>
-    <ul>
-      <li>Notes will be dynamically populated here.</li>
-      <li>Note 1</li>
-      <li>Note 2</li>
-      <li>Note 3</li>
-    </ul>
-  </section>
-
+ 
   <!-- Main view area -->
   <div class="not-sidebar">
     <header>
