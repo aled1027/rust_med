@@ -7,23 +7,55 @@ import {
   reset as resetStore
 } from '$lib/stores/app.svelte';
 
+// Tauri API utilities
+declare global {
+  interface Window {
+    __TAURI__: {
+      core: { invoke: (command: string, args?: any) => Promise<any> };
+      fs: { writeFile: (path: string, data: string | Uint8Array) => Promise<void> };
+      path: { appLocalDataDir: () => Promise<string> };
+      event: { listen: (event: string, callback: (data: any) => void) => Promise<void> };
+    };
+  }
+}
+
 export class AppService {
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
   private stream: MediaStream | null = null;
   private recordingInterval: number | null = null;
   private pauseResumeSupported = false;
-
-
+  private recordingManager: any = null;
 
   async initialize() {
     try {
+      // Initialize the recording manager from the static modules
+      await this.loadRecordingManager();
       updateStatus('Ready');
       console.log('Medical Note Generator initialized successfully');
     } catch (error) {
       console.error('Failed to initialize app:', error);
       showError('Failed to initialize application');
     }
+  }
+
+  private async loadRecordingManager() {
+    try {
+      // Dynamically import the recording manager from static modules
+      const { RecordingManager } = await import('../../../static/modules/recordingManager.js');
+      this.recordingManager = new RecordingManager();
+      console.log('Recording manager loaded successfully');
+    } catch (error) {
+      console.error('Failed to load recording manager:', error);
+      throw new Error('Failed to load recording manager');
+    }
+  }
+
+  private getTauriAPI() {
+    if (typeof window.__TAURI__ === 'undefined') {
+      throw new Error('Tauri APIs not available');
+    }
+    return window.__TAURI__;
   }
 
   async startRecording() {
@@ -35,8 +67,19 @@ export class AppService {
       appState.lastTranscript = '';
       appState.lastMedicalNote = '';
 
-      // For now, we'll simulate recording since we need to handle permissions properly
-      this.simulateRecording();
+      // Check if recording manager is available
+      if (!this.recordingManager) {
+        throw new Error('Recording manager not initialized');
+      }
+
+      // Start actual recording
+      await this.recordingManager.startRecording();
+
+      appState.isRecording = true;
+      appState.isPaused = false;
+      appState.recordingTime = 0;
+      this.startTimer();
+      updateStatus('Recording...');
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -45,29 +88,22 @@ export class AppService {
     }
   }
 
-  private simulateRecording() {
-    appState.isRecording = true;
-    appState.isPaused = false;
-    appState.recordingTime = 0;
-    this.startTimer();
-    updateStatus('Recording... (Simulated)');
-
-    // Simulate recording for 5 seconds then auto-stop
-    setTimeout(() => {
-      this.stopRecording();
-    }, 5000);
-  }
-
   pauseResumeRecording() {
     try {
+      if (!this.recordingManager) {
+        throw new Error('Recording manager not initialized');
+      }
+
       if (appState.isPaused) {
         // Resume recording
         updateStatus('Resuming recording...');
+        this.recordingManager.resumeRecording();
         appState.isPaused = false;
         this.startTimer();
       } else {
         // Pause recording
         updateStatus('Pausing recording...');
+        this.recordingManager.pauseRecording();
         appState.isPaused = true;
         this.stopTimer(true);
       }
@@ -82,6 +118,11 @@ export class AppService {
     try {
       updateStatus('Stopping recording...');
 
+      if (!this.recordingManager) {
+        throw new Error('Recording manager not initialized');
+      }
+
+      this.recordingManager.stopRecording();
       appState.isRecording = false;
       appState.isPaused = false;
       this.stopTimer();
@@ -119,13 +160,23 @@ export class AppService {
 
   private async processRecording() {
     try {
-      updateStatus('Converting audio to WAV format...');
+      updateStatus('Processing recorded audio...');
 
-      // Simulate processing delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!this.recordingManager) {
+        throw new Error('Recording manager not initialized');
+      }
 
-      // Simulate transcription
-      await this.handleTranscription();
+      // Get the recorded audio blob
+      const audioBlob = await this.recordingManager.processRecordedAudio();
+
+      if (!audioBlob) {
+        throw new Error('No audio data recorded');
+      }
+
+      updateStatus('Audio processed successfully. Starting transcription...');
+
+      // Save audio to temporary file and transcribe
+      await this.handleTranscription(audioBlob);
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -133,58 +184,55 @@ export class AppService {
     }
   }
 
-  private async handleTranscription() {
+  private async handleTranscription(audioBlob: Blob) {
     try {
       updateStatus('Transcribing audio...');
 
-      // Simulate transcription delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const tauri = this.getTauriAPI();
 
-      // Generate mock transcript
-      const mockTranscript = `Patient presents with chief complaint of chest pain. 
-      
-History of Present Illness:
-The patient is a 45-year-old male who reports experiencing chest pain for the past 2 hours. The pain is described as pressure-like, located in the center of the chest, and radiates to the left arm. The pain is rated as 8/10 in severity and is associated with shortness of breath and diaphoresis.
+      // Convert blob to base64 for Tauri
+      const arrayBuffer = await audioBlob.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      const base64Audio = btoa(String.fromCharCode(...uint8Array));
 
-The patient denies any recent trauma, fever, or other symptoms. He reports the pain started while he was watching television and has been constant since onset.`;
+      // Create a temporary file path
+      const timestamp = Date.now();
+      const tempAudioPath = `temp_audio_${timestamp}.wav`;
 
-      appState.transcript = mockTranscript;
-      appState.lastTranscript = mockTranscript;
+      // Save audio to temporary file using Tauri
+      const appDataDir = await tauri.path.appLocalDataDir();
+      const audioPath = `${appDataDir}/temp/${tempAudioPath}`;
 
-      updateStatus('Generating medical note...');
+      // Save the audio file first
+      await tauri.fs.writeFile(audioPath, uint8Array);
 
-      // Simulate note generation delay
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Call Tauri transcription
+      const transcriptionResult = await tauri.core.invoke('transcribe_audio', {
+        audioPath: audioPath
+      });
 
-      // Generate mock medical note
-      const mockMedicalNote = `SOAP NOTE
+      if (transcriptionResult.success) {
+        appState.transcript = transcriptionResult.transcript;
+        appState.lastTranscript = transcriptionResult.transcript;
 
-SUBJECTIVE:
-${mockTranscript}
+        updateStatus('Generating medical note...');
 
-OBJECTIVE:
-Vital Signs: BP 140/90, HR 95, RR 22, T 98.6°F, O2 Sat 95%
-General: Patient appears anxious and in moderate distress
-Cardiovascular: Regular rate and rhythm, no murmurs, gallops, or rubs
-Respiratory: Clear to auscultation bilaterally
-Abdomen: Soft, non-tender, non-distended
+        // Generate medical note using Tauri
+        const noteResult = await tauri.core.invoke('generate_medical_note', {
+          transcript: transcriptionResult.transcript,
+          noteType: appState.selectedNoteType
+        });
 
-ASSESSMENT:
-1. Acute chest pain, suspicious for acute coronary syndrome
-2. Hypertension
-3. Anxiety
-
-PLAN:
-1. Immediate ECG and cardiac enzymes
-2. Aspirin 325mg PO
-3. Nitroglycerin sublingual if systolic BP >90
-4. Cardiology consultation
-5. Admit to cardiac unit for monitoring`;
-
-      appState.medicalNote = mockMedicalNote;
-      appState.lastMedicalNote = mockMedicalNote;
-
-      updateStatus('Medical note generated successfully!');
+        if (noteResult.success) {
+          appState.medicalNote = noteResult.note;
+          appState.lastMedicalNote = noteResult.note;
+          updateStatus('Medical note generated successfully!');
+        } else {
+          throw new Error(noteResult.error || 'Failed to generate medical note');
+        }
+      } else {
+        throw new Error(transcriptionResult.error || 'Transcription failed');
+      }
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -204,15 +252,27 @@ PLAN:
 
       updateStatus('Saving note...');
 
-      // For now, we'll just show a success message
-      // In a real app, this would save to a database or file system
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const tauri = this.getTauriAPI();
 
-      updateStatus('Note saved successfully!');
-      clearResults();
-      clearPatientInfo();
-      appState.lastTranscript = '';
-      appState.lastMedicalNote = '';
+      // Save note using Tauri backend
+      const saveResult = await tauri.core.invoke('save_patient_note', {
+        first_name: appState.patientInfo.firstName,
+        last_name: appState.patientInfo.lastName,
+        dob: appState.patientInfo.dateOfBirth,
+        note_type: appState.selectedNoteType,
+        transcript: appState.lastTranscript,
+        medical_note: appState.lastMedicalNote
+      });
+
+      if (saveResult.success) {
+        updateStatus('Note saved successfully!');
+        clearResults();
+        clearPatientInfo();
+        appState.lastTranscript = '';
+        appState.lastMedicalNote = '';
+      } else {
+        throw new Error(saveResult.error || 'Failed to save note');
+      }
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -236,6 +296,9 @@ PLAN:
     if (this.recordingInterval) {
       clearInterval(this.recordingInterval);
       this.recordingInterval = null;
+    }
+    if (this.recordingManager) {
+      this.recordingManager.reset();
     }
     appState.recordingTime = 0;
     appState.isRecording = false;

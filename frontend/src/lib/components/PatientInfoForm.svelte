@@ -9,7 +9,7 @@
   }
 </script>
 
-<form class="patient-info-form" onsubmit|preventDefault>
+<form class="patient-info-form" onsubmit={(e) => e.preventDefault()}>
   <div class="form-group">
     <label for="first-name">Patient First Name</label>
     <input

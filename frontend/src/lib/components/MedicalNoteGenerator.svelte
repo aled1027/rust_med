@@ -3,14 +3,7 @@
   import RecordingManager from "./RecordingManager.svelte";
   import TranscriptionManager from "./TranscriptionManager.svelte";
   import NotesManager from "./NotesManager.svelte";
-  import {
-    appState,
-    updateStatus,
-    showError,
-    clearResults,
-    clearPatientInfo,
-    reset,
-  } from "$lib/stores/app.svelte";
+  import { appState } from "$lib/stores/app.svelte";
 
   let recordingManager: any;
   let transcriptionManager: any;
@@ -31,11 +24,11 @@
       // Setup notes event listeners
       setupNotesListeners();
 
-      updateStatus("Ready");
+      appState.updateStatus("Ready");
       console.log("Medical Note Generator initialized successfully");
     } catch (error) {
       console.error("Failed to initialize app:", error);
-      showError("Failed to initialize application");
+      appState.showError("Failed to initialize application");
     }
   }
 
@@ -74,7 +67,7 @@
       (finalNote: string) => {
         appState.medicalNote = finalNote;
         appState.lastMedicalNote = finalNote;
-        updateStatus("Medical note generated successfully!");
+        appState.updateStatus("Medical note generated successfully!");
       }
     );
   }
@@ -105,13 +98,13 @@
   async function handleStartRecording() {
     try {
       // Validate patient info first
-      if (!$patientInfo.firstName || !$patientInfo.lastName) {
-        showError("Please enter patient first and last name");
+      if (!appState.patientInfo.firstName || !appState.patientInfo.lastName) {
+        appState.showError("Please enter patient first and last name");
         return;
       }
 
-      updateStatus("Initializing recording...");
-      clearResults();
+      appState.updateStatus("Initializing recording...");
+      appState.clearResults();
 
       // Clear last results
       appState.lastTranscript = "";
@@ -121,33 +114,33 @@
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      showError(`Failed to start recording: ${errorMessage}`);
+      appState.showError(`Failed to start recording: ${errorMessage}`);
       appState.isRecording = false;
     }
   }
 
   async function handlePauseResumeRecording() {
     try {
-      if ($isPaused) {
+      if (appState.isPaused) {
         // Resume recording
-        updateStatus("Resuming recording...");
+        appState.updateStatus("Resuming recording...");
         recordingManager.resumeRecording();
       } else {
         // Pause recording
-        updateStatus("Pausing recording...");
+        appState.updateStatus("Pausing recording...");
         recordingManager.pauseRecording();
       }
     } catch (error) {
       console.error("Error in handlePauseResumeRecording:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      showError(`Failed to pause/resume recording: ${errorMessage}`);
+      appState.showError(`Failed to pause/resume recording: ${errorMessage}`);
     }
   }
 
   async function handleStopRecording() {
     try {
-      updateStatus("Stopping recording...");
+      appState.updateStatus("Stopping recording...");
 
       recordingManager.stopRecording();
 
@@ -156,14 +149,14 @@
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      showError(`Failed to stop recording: ${errorMessage}`);
+      appState.showError(`Failed to stop recording: ${errorMessage}`);
       appState.isRecording = false;
     }
   }
 
   async function processRecording() {
     try {
-      updateStatus("Converting audio to WAV format...");
+      appState.updateStatus("Converting audio to WAV format...");
 
       // Process and convert audio
       const convertedBlob = await recordingManager.processRecordedAudio();
@@ -174,13 +167,13 @@
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      showError(`Failed to process recording: ${errorMessage}`);
+      appState.showError(`Failed to process recording: ${errorMessage}`);
     }
   }
 
   async function handleTranscription(convertedBlob: Blob) {
     try {
-      updateStatus("Transcribing audio...");
+      appState.updateStatus("Transcribing audio...");
 
       const noteType = appState.selectedNoteType;
       const result = await transcriptionManager.saveAndTranscribe(
@@ -195,17 +188,19 @@
         if (result.medicalNote) {
           // Note generation succeeded - the note is already shown via events
           appState.lastMedicalNote = result.medicalNote;
-          updateStatus("Medical note generated successfully!");
+          appState.updateStatus("Medical note generated successfully!");
         } else if (result.noteError) {
           // Transcription succeeded but note generation failed
           appState.medicalNote = `Error generating note: ${result.noteError}`;
-          updateStatus("Transcription completed (note generation failed)");
+          appState.updateStatus(
+            "Transcription completed (note generation failed)"
+          );
         }
       }
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      showError(`Transcription failed: ${errorMessage}`);
+      appState.showError(`Transcription failed: ${errorMessage}`);
       appState.transcript = `Transcription failed: ${errorMessage}`;
       appState.medicalNote =
         "Audio saved successfully, but transcription service failed.";
@@ -215,57 +210,59 @@
   async function handleSaveNote() {
     try {
       // Validate patient info
-      if (!$patientInfo.firstName || !$patientInfo.lastName) {
-        showError("Please enter patient first and last name");
+      if (!appState.patientInfo.firstName || !appState.patientInfo.lastName) {
+        appState.showError("Please enter patient first and last name");
         return;
       }
 
       // Check if we have both transcript and medical note
-      if (!$lastTranscript || !$lastMedicalNote) {
-        showError("No note to save. Please record and generate a note first.");
+      if (!appState.lastTranscript || !appState.lastMedicalNote) {
+        appState.showError(
+          "No note to save. Please record and generate a note first."
+        );
         return;
       }
 
-      updateStatus("Saving note...");
+      appState.updateStatus("Saving note...");
 
       const result = await notesManager.saveNote(
-        $patientInfo,
-        $selectedNoteType,
-        $lastTranscript,
-        $lastMedicalNote
+        appState.patientInfo,
+        appState.selectedNoteType,
+        appState.lastTranscript,
+        appState.lastMedicalNote
       );
 
       if (result.success) {
-        updateStatus("Note saved successfully!");
-        clearResults();
-        clearPatientInfo();
-        lastTranscript.set("");
-        lastMedicalNote.set("");
+        appState.updateStatus("Note saved successfully!");
+        appState.clearResults();
+        appState.clearPatientInfo();
+        appState.lastTranscript = "";
+        appState.lastMedicalNote = "";
       } else {
         throw new Error(result.error || "Failed to save note");
       }
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      showError(`Failed to save note: ${errorMessage}`);
+      appState.showError(`Failed to save note: ${errorMessage}`);
     }
   }
 
   function handleCopyNote() {
-    if ($medicalNote) {
+    if (appState.medicalNote) {
       navigator.clipboard
-        .writeText($medicalNote)
+        .writeText(appState.medicalNote)
         .then(() => {
-          updateStatus("Note copied to clipboard!");
+          appState.updateStatus("Note copied to clipboard!");
         })
         .catch(() => {
-          showError("Failed to copy note to clipboard");
+          appState.showError("Failed to copy note to clipboard");
         });
     }
   }
 
   function handleReset() {
-    reset();
+    appState.reset();
     recordingManager.reset();
     transcriptionManager.clearResults();
   }
