@@ -1,6 +1,31 @@
 <script lang="ts">
-  import { appState } from "$lib/state.svelte";
+  import { appState, updateStatus } from "$lib/state.svelte";
   import { appService } from "$lib/services/appService";
+
+  let firstName = $state("");
+  let lastName = $state("");
+  let dateOfBirth = $state("");
+  let noteType = $state("soap");
+
+  async function stopAndProcessRecording() {
+    await appService.stopRecording();
+    const { transcript, medicalNote, error } =
+      await appService.processRecording();
+    if (error) {
+      return;
+    }
+    updateStatus("Saving note...");
+    await appService.saveNote(
+      firstName,
+      lastName,
+      dateOfBirth,
+      noteType,
+      transcript,
+      medicalNote
+    );
+    await appService.syncNotes();
+    updateStatus("Done!");
+  }
 
   function formatRecordingTime(seconds: number): string {
     const mins = Math.floor(seconds / 60);
@@ -16,7 +41,7 @@
       type="text"
       id="first-name"
       placeholder="Enter first name"
-      bind:value={appState.patientInfo.firstName}
+      bind:value={firstName}
       required
     />
   </div>
@@ -27,7 +52,7 @@
       type="text"
       id="last-name"
       placeholder="Enter last name"
-      bind:value={appState.patientInfo.lastName}
+      bind:value={lastName}
       required
     />
   </div>
@@ -38,14 +63,14 @@
       type="date"
       id="date-of-birth"
       name="date-of-birth"
-      bind:value={appState.patientInfo.dateOfBirth}
+      bind:value={dateOfBirth}
       required
     />
   </div>
 
   <div class="form-group">
     <label for="note-type">Note Type</label>
-    <select id="note-type" bind:value={appState.selectedNoteType} required>
+    <select id="note-type" bind:value={noteType} required>
       <option value="soap">SOAP Note</option>
       <option value="full">Full Note</option>
     </select>
@@ -107,7 +132,7 @@
     <button
       class="button stop-btn"
       disabled={!appState.canStopRecording}
-      onclick={() => appService.stopRecording()}
+      onclick={stopAndProcessRecording}
     >
       Stop Recording
     </button>

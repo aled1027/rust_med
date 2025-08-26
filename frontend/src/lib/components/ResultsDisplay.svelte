@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
   import { appState } from "$lib/state.svelte";
 </script>
 
@@ -25,4 +25,4 @@
     Generated notes are drafts requiring healthcare provider review and approval
     before use in patient care. The AI process can make mistakes.
   </p>
-</div>
+</div> -->

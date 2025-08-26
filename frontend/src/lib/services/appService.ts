@@ -2,8 +2,6 @@ import {
   appState,
   updateStatus,
   showError,
-  clearResults,
-  clearPatientInfo,
   reset as resetStore
 } from '$lib/state.svelte';
 import { browser } from '$app/environment';
@@ -441,11 +439,6 @@ class AppService {
   async startRecording() {
     try {
       updateStatus('Initializing recording...');
-      clearResults();
-
-      // Clear last results
-      appState.lastTranscript = '';
-      appState.lastMedicalNote = '';
 
       // Start actual recording using audio service
       await audioService.startRecording(appState.selectedMicrophoneId);
@@ -488,14 +481,10 @@ class AppService {
   stopRecording() {
     try {
       updateStatus('Stopping recording...');
-
       audioService.stopRecording();
       appState.isRecording = false;
       appState.isPaused = false;
       this.stopTimer();
-
-      // Process the recorded audio
-      this.processRecording();
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -525,7 +514,10 @@ class AppService {
     }
   }
 
-  private async processRecording() {
+  async processRecording(): Promise<{ transcript: string, medicalNote: string, error: boolean }> {
+    let transcript = '';
+    let medicalNote = '';
+    let error = false;
     try {
       updateStatus('Processing recorded audio...');
 
@@ -551,7 +543,6 @@ class AppService {
       // const uint8Array = new Uint8Array(arrayBuffer);
       // await this.tauriService.writeFile(audioPath, audioBlob);
       // console.log("Audio written to file", audioPath);
-
       // Save audio to temporary file and transcribe
 
       updateStatus('Transcribing audio...');
@@ -563,25 +554,26 @@ class AppService {
       }
       console.log('Transcription result:', transcriptionResult);
 
-      appState.transcript = transcriptionResult.transcript;
-      appState.lastTranscript = transcriptionResult.transcript;
-
+      transcript = transcriptionResult.transcript;
 
       updateStatus('Generating medical note... (this can take about 30 seconds)');
-      const noteGenResult = await this.tauriService.generateMedicalNote(transcriptionResult.transcript, appState.selectedNoteType);
+      // TODO: hardcoded
+      const noteType = "soap";
+      const noteGenResult = await this.tauriService.generateMedicalNote(transcript, noteType);
       console.log('Note generation result:', noteGenResult);
 
       if (!noteGenResult.success) {
         throw new Error(noteGenResult.error || 'Failed to generate medical note');
       }
+      medicalNote = noteGenResult.note;
 
-      appState.medicalNote = noteGenResult.note;
-      appState.lastMedicalNote = noteGenResult.note;
       updateStatus('Note generated successfully!');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       showError(`Failed to process recording: ${errorMessage}`);
+      error = true;
     }
+    return { transcript, medicalNote, error };
   }
 
 
@@ -608,13 +600,6 @@ class AppService {
     }
 
     updateStatus('Note saved successfully!');
-
-    // TODO: figure out the flow here because this is bad
-    clearResults();
-    clearPatientInfo();
-    appState.lastTranscript = '';
-    appState.lastMedicalNote = '';
-
     return saveResult.note_id;
   }
 
