@@ -12,6 +12,9 @@
 
   async function stopAndProcessRecording() {
     await appService.stopRecording();
+    return;
+
+    // TODO:
     const processResult = await appService.processRecording();
     if (processResult.error) {
       return;
@@ -123,8 +126,7 @@
 
     <button
       class="button pause-btn"
-      class:paused={appState.recordingState === "paused"}
-      disabled={appState.recordingState !== "recording"}
+      disabled={!["recording", "paused"].includes(appState.recordingState)}
       onclick={() => appService.pauseResumeRecording()}
     >
       {#if appState.recordingState === "paused"}
@@ -228,14 +230,6 @@
 
       &:hover:not(:disabled) {
         background-color: #d97706;
-      }
-
-      &.paused {
-        background-color: #10b981;
-
-        &:hover:not(:disabled) {
-          background-color: #059669;
-        }
       }
     }
 
