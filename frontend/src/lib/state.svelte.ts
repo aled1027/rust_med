@@ -1,8 +1,6 @@
-interface PatientInfo {
-    firstName: string;
-    lastName: string;
-    dateOfBirth: string;
-}
+import type { PatientInfo, TauriNote } from "$lib/types";
+
+
 
 export class AppState {
     // Application state
@@ -10,17 +8,20 @@ export class AppState {
     isRecording = $state(false);
     isPaused = $state(false);
     recordingTime = $state(0);
+    notes = $state<TauriNote[]>([]);
 
     // Patient information
+    // TODO: move this info to the form. It doesn't need to be in "global" state
     patientInfo = $state<PatientInfo>({
         firstName: '',
         lastName: '',
         dateOfBirth: '2000-12-31'
     });
-
     selectedNoteType = $state('soap');
 
+
     // Results
+    // TODO: this can also be moved into component state
     transcript = $state('');
     medicalNote = $state('');
     lastTranscript = $state('');

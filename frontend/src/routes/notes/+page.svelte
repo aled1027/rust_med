@@ -3,7 +3,7 @@
   import { browser } from "$app/environment";
   import { appState } from "$lib/state.svelte";
   import { onMount } from "svelte";
-  import type { TauriNote } from "$lib/services/appService";
+  import type { TauriNote } from "$lib/types";
 
   let notes = $state<TauriNote[]>([]);
 

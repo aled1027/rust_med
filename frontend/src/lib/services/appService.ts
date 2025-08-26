@@ -7,6 +7,7 @@ import {
   reset as resetStore
 } from '$lib/state.svelte';
 import { browser } from '$app/environment';
+import type { TauriNote, TauriNoteIn } from '$lib/types';
 
 declare global {
   interface Window {
@@ -18,21 +19,6 @@ declare global {
     };
   }
 }
-
-interface TauriNoteIn {
-  firstName: string;
-  lastName: string;
-  dateOfBirth: string;
-  noteType: string;
-  transcript: string;
-  medicalNote: string;
-}
-
-export interface TauriNote extends TauriNoteIn {
-  id: string;
-  createdAt: string;
-}
-
 
 export class AudioService {
   // Audio Service - Handles recording, transcription, and audio processing
@@ -632,6 +618,12 @@ class AppService {
     }
     return [];
   }
+
+  async syncNotes() {
+    const notes = await this.loadNotes();
+    appState.notes = notes;
+  }
+
 
   reset() {
     // Call the imported reset function from the store

@@ -2,6 +2,9 @@
   import { afterNavigate } from "$app/navigation";
   import IconMenu from "~icons/mdi/menu";
   import IconClose from "~icons/mdi/close";
+  import { onMount } from "svelte";
+  import { appService } from "$lib/services/appService";
+  import { appState } from "$lib/state.svelte";
 
   let isMenuOpen = $state(false);
 
@@ -29,6 +32,10 @@
       toggleMenu();
     }
   }
+
+  onMount(async () => {
+    await appService.syncNotes();
+  });
 </script>
 
 <svelte:window on:keydown={handleKeydown} on:click={handleClickOutside} />
@@ -65,13 +72,22 @@
         </a>
       </li>
     </ul>
-    <h2>Saved Notes</h2>
-    <ul>
-      <li><a href="/notes">All notes</a></li>
-      <li>Notes will be dynamically populated here.</li>
-      <li>Note 1</li>
-      <li>Note 2</li>
-      <li>Note 3</li>
+    <h2>Notes</h2>
+    <ul role="list">
+      {#each appState.notes as note}
+        <li>
+          <a href="/notes/{note.id}">
+            <span>
+              {note.lastName || "Unknown"},
+              {note.firstName || "Unknown"}
+            </span>
+            <br />
+            <small>
+              {new Date(note.createdAt).toLocaleString()}
+            </small>
+          </a>
+        </li>
+      {/each}
     </ul>
   </div>
 </nav>
