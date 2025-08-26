@@ -30,6 +30,7 @@ interface TauriNoteIn {
 
 interface TauriNote extends TauriNoteIn {
   id: string;
+  createdAt: string;
 }
 
 
@@ -391,12 +392,14 @@ class TauriService {
     const result = await this.ensureTauri().core.invoke('load_patient_notes');
     if (result.success) {
       const notes = result.notes.map((n: any) => ({
+        id: n.id,
         firstName: n.first_name,
         lastName: n.last_name,
         dateOfBirth: n.date_of_birth,
         noteType: n.note_type,
         transcript: n.transcript,
-        medicalNote: n.medical_note
+        medicalNote: n.medical_note,
+        createdAt: n.created_at
       }));
       return { success: true, notes: notes, error: null };
     }

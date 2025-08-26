@@ -17,12 +17,13 @@
     if (!browser) {
       throw new Error("saveNote called in non-browser environment");
     }
-
-    const note_id = await appService.saveNote();
+    appService.saveNote();
+    notes = await appService.loadNotes();
   }
 
-  onMount(() => {
-    appService.initialize();
+  onMount(async () => {
+    await appService.initialize();
+    notes = await appService.loadNotes();
 
     appState.patientInfo.firstName = "John";
     appState.patientInfo.lastName = "Doe";
@@ -35,21 +36,19 @@
 
 <h1>Notes</h1>
 <div class="grid">
-  <button class="button" onclick={loadNotes}>Load Notes</button>
   <button class="button" onclick={saveNote}>Save a Test Note</button>
 </div>
 
 {#if notes.length === 0}
   <p>No notes found.</p>
 {:else}
-  <h2>Found {notes.length} notes:</h2>
+  <h2>Notes ({notes.length})</h2>
   <ul>
     {#each notes as note}
       <li>
         <strong>{note.firstName} {note.lastName}</strong> - {note.dateOfBirth} -
         {note.noteType}
         <br />
-        <small>{note.createdAt}</small>
         <small>Created: {new Date(note.createdAt).toLocaleString()}</small>
       </li>
     {/each}
