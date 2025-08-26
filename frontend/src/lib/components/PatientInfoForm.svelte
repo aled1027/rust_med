@@ -97,7 +97,7 @@
 <div class="recording-controls">
   <div class="status-display">
     <span class="status-text">{appState.appStatus}</span>
-    {#if appState.isRecording}
+    {#if appState.recordingState === "recording" || appState.recordingState === "paused"}
       <div class="recording-indicator">
         <div class="recording-dot"></div>
         <span class="recording-time"
@@ -110,11 +110,11 @@
   <div class="control-buttons">
     <button
       class="button start-btn"
-      class:recording={appState.isRecording}
-      disabled={!appState.canStartRecording}
+      class:recording={appState.recordingState === "recording"}
+      disabled={appState.recordingState !== "ready"}
       onclick={() => appService.startRecording()}
     >
-      {#if appState.isRecording}
+      {#if appState.recordingState === "recording"}
         Recording...
       {:else}
         Start Recording
@@ -123,11 +123,11 @@
 
     <button
       class="button pause-btn"
-      class:paused={appState.isPaused}
-      disabled={!appState.canPauseResume}
+      class:paused={appState.recordingState === "paused"}
+      disabled={appState.recordingState !== "recording"}
       onclick={() => appService.pauseResumeRecording()}
     >
-      {#if appState.isPaused}
+      {#if appState.recordingState === "paused"}
         Resume
       {:else}
         Pause
@@ -136,7 +136,7 @@
 
     <button
       class="button stop-btn"
-      disabled={!appState.canStopRecording}
+      disabled={appState.recordingState !== "recording"}
       onclick={stopAndProcessRecording}
     >
       Stop Recording

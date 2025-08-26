@@ -4,8 +4,6 @@ import type { RecordingState, TauriNote } from "$lib/types";
 export class AppState {
     // Application state
     appStatus = $state('Ready');
-    isRecording = $state(false);
-    isPaused = $state(false);
     recordingTime = $state(0);
     notes = $state<TauriNote[]>([]);
     recordingState = $state<RecordingState>("not-ready");
@@ -28,8 +26,6 @@ export class AppState {
     }
 
     reset() {
-        this.isRecording = false;
-        this.isPaused = false;
         this.recordingTime = 0;
         this.errorMessage = '';
         this.recordingState = "not-ready";

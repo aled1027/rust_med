@@ -2,7 +2,6 @@ import {
   appState,
   updateStatus,
   showError,
-  reset as resetStore
 } from '$lib/state.svelte';
 import { browser } from '$app/environment';
 import type { TauriNote, TauriNoteIn } from '$lib/types';
@@ -23,8 +22,6 @@ export class AudioService {
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
   private stream: MediaStream | null = null;
-  private isRecording = false;
-  private isPaused = false;
   private pauseResumeSupported = false;
 
   constructor() {
@@ -91,7 +88,7 @@ export class AudioService {
       });
 
       this.audioChunks = [];
-      this.isRecording = true;
+      appState.recordingState = "recording";
       const recordingFrequency = 1000; // Collect data every 1 second
 
       return new Promise((resolve, reject) => {
@@ -102,10 +99,8 @@ export class AudioService {
         };
 
         this.mediaRecorder!.onstop = () => {
-          if (!this.isPaused) {
-            this.isRecording = false;
-            resolve();
-          }
+          appState.recordingState = "stopped";
+          resolve();
         };
 
         this.mediaRecorder!.onerror = (event) => {
@@ -113,7 +108,7 @@ export class AudioService {
         };
 
         this.mediaRecorder!.start(recordingFrequency); // Collect data every second
-        resolve();
+        // Do not call resolve() here; it should only be called onstop
       });
 
     } catch (error) {
@@ -128,7 +123,7 @@ export class AudioService {
 
     try {
       this.mediaRecorder.pause();
-      this.isPaused = true;
+      appState.recordingState = "paused";
     } catch (error) {
       throw new Error(`Failed to pause recording: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -141,7 +136,7 @@ export class AudioService {
 
     try {
       this.mediaRecorder.resume();
-      this.isPaused = false;
+      appState.recordingState = "recording";
     } catch (error) {
       throw new Error(`Failed to resume recording: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -154,8 +149,7 @@ export class AudioService {
 
     try {
       this.mediaRecorder.stop();
-      this.isRecording = false;
-      this.isPaused = false;
+      appState.recordingState = "stopped";
     } catch (error) {
       throw new Error(`Failed to stop recording: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -293,21 +287,12 @@ export class AudioService {
     }
   }
 
-  getRecordingState() {
-    return {
-      isRecording: this.isRecording,
-      isPaused: this.isPaused,
-      pauseResumeSupported: this.pauseResumeSupported
-    };
-  }
-
   reset(): void {
     this.stopRecording();
     this.audioChunks = [];
     this.stream = null;
     this.mediaRecorder = null;
-    this.isRecording = false;
-    this.isPaused = false;
+    appState.recordingState = "ready";
   }
 
   async getAvailableMicrophones(): Promise<MediaDeviceInfo[]> {
@@ -433,6 +418,7 @@ class AppService {
           appState.selectedMicrophoneId = appState.availableMicrophones[0].deviceId;
         }
       }
+      appState.recordingState = "ready";
       updateStatus('Ready');
     } catch (error) {
       console.error('Failed to initialize app:', error);
@@ -447,8 +433,7 @@ class AppService {
       // Start actual recording using audio service
       await audioService.startRecording(appState.selectedMicrophoneId);
 
-      appState.isRecording = true;
-      appState.isPaused = false;
+      appState.recordingState = "recording";
       appState.recordingTime = 0;
       this.startTimer();
       updateStatus('Recording...');
@@ -456,23 +441,23 @@ class AppService {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       showError(`Failed to start recording: ${errorMessage}`);
-      appState.isRecording = false;
+      appState.recordingState = "not-ready";
     }
   }
 
   pauseResumeRecording() {
     try {
-      if (appState.isPaused) {
+      if (appState.recordingState === "paused") {
         // Resume recording
         updateStatus('Resuming recording...');
         audioService.resumeRecording();
-        appState.isPaused = false;
+        appState.recordingState = "recording";
         this.startTimer();
       } else {
         // Pause recording
         updateStatus('Pausing recording...');
         audioService.pauseRecording();
-        appState.isPaused = true;
+        appState.recordingState = "paused";
         this.stopTimer(true);
       }
     } catch (error) {
@@ -486,14 +471,13 @@ class AppService {
     try {
       updateStatus('Stopping recording...');
       audioService.stopRecording();
-      appState.isRecording = false;
-      appState.isPaused = false;
+      appState.recordingState = "stopped";
       this.stopTimer();
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       showError(`Failed to stop recording: ${errorMessage}`);
-      appState.isRecording = false;
+      appState.recordingState = "not-ready";
     }
   }
 
@@ -628,15 +612,15 @@ class AppService {
 
   reset() {
     // Call the imported reset function from the store
-    resetStore();
+    appState.reset();
+
     if (this.recordingTimerId) {
       clearInterval(this.recordingTimerId);
       this.recordingTimerId = null;
     }
     audioService.reset();
     appState.recordingTime = 0;
-    appState.isRecording = false;
-    appState.isPaused = false;
+    appState.recordingState = "ready";
   }
 }
 
