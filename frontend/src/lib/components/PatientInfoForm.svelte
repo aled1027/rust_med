@@ -1,19 +1,24 @@
 <script lang="ts">
   import { appState, updateStatus } from "$lib/state.svelte";
   import { appService } from "$lib/services/appService";
+  import ResultsDisplay from "./ResultsDisplay.svelte";
 
   let firstName = $state("");
   let lastName = $state("");
   let dateOfBirth = $state("");
   let noteType = $state("soap");
+  let transcript = $state("");
+  let medicalNote = $state("");
 
   async function stopAndProcessRecording() {
     await appService.stopRecording();
-    const { transcript, medicalNote, error } =
-      await appService.processRecording();
-    if (error) {
+    const processResult = await appService.processRecording();
+    if (processResult.error) {
       return;
     }
+    transcript = processResult.transcript;
+    medicalNote = processResult.medicalNote;
+
     updateStatus("Saving note...");
     await appService.saveNote(
       firstName,
@@ -138,6 +143,8 @@
     </button>
   </div>
 </div>
+
+<ResultsDisplay {transcript} {medicalNote} />
 
 <style lang="scss">
   .recording-controls {

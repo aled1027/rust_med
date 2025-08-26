@@ -752,7 +752,7 @@ async fn save_patient_note(
 
 #[tauri::command]
 async fn load_patient_notes(app: tauri::AppHandle) -> Result<LoadNotesResult, String> {
-    println!("Loading patient notes");
+    println!("Loading patient notes...");
 
     let app_data_dir = app.path().app_local_data_dir().map_err(|e| e.to_string())?;
     let notes_dir = app_data_dir.join("notes");

@@ -23,11 +23,7 @@
 
     <section class="flow my-2xl">
       <h2 class="mx-auto w-fit">Start a New Note</h2>
-
       <PatientInfoForm />
-    </section>
-    <section>
-      <ResultsDisplay />
     </section>
   </div>
 </main>
