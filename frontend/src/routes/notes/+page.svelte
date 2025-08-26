@@ -7,6 +7,31 @@
 
   let note: TauriNote | null = $state(null);
 
+  // Svelte action for auto-resizing textarea
+  function autoResizeTextarea(node: HTMLTextAreaElement) {
+    function resize() {
+      node.style.height = "auto";
+      node.style.height = node.scrollHeight + "px";
+    }
+
+    // Initial resize
+    resize();
+
+    // Resize when content changes
+    const observer = new MutationObserver(resize);
+    observer.observe(node, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+
+    return {
+      destroy() {
+        observer.disconnect();
+      },
+    };
+  }
+
   afterNavigate(async () => {
     await appService.syncNotes();
 
@@ -53,7 +78,12 @@
       </p>
 
       <div class="nice-box">
-        <textarea class="my-0" readonly value={note.medicalNote}></textarea>
+        <textarea
+          class="my-0"
+          readonly
+          value={note.medicalNote}
+          use:autoResizeTextarea
+        ></textarea>
       </div>
       <h3>Advanced Fields</h3>
       <details class="flow">
