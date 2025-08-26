@@ -12,9 +12,4 @@ export interface TauriNote extends TauriNoteIn {
     createdAt: string;
 }
 
-// TODO: patient info can be removed after the storage is moved from appState to the form
-export interface PatientInfo {
-    firstName: string;
-    lastName: string;
-    dateOfBirth: string;
-}
+export type RecordingState = "not-ready" | "ready" | "recording" | "paused" | "stopped";

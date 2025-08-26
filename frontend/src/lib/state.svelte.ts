@@ -1,5 +1,4 @@
-import type { PatientInfo, TauriNote } from "$lib/types";
-
+import type { RecordingState, TauriNote } from "$lib/types";
 
 
 export class AppState {
@@ -9,6 +8,7 @@ export class AppState {
     isPaused = $state(false);
     recordingTime = $state(0);
     notes = $state<TauriNote[]>([]);
+    recordingState = $state<RecordingState>("not-ready");
 
     // Microphone
     availableMicrophones = $state<MediaDeviceInfo[]>([]);
@@ -16,18 +16,6 @@ export class AppState {
 
     // Error
     errorMessage = $state('');
-
-    get canStartRecording() {
-        return !this.isRecording;
-    }
-
-    get canPauseResume() {
-        return this.isRecording;
-    }
-
-    get canStopRecording() {
-        return this.isRecording;
-    }
 
     // Utility methods
     updateStatus(status: string) {
@@ -39,16 +27,12 @@ export class AppState {
         setTimeout(() => this.errorMessage = '', 5000);
     }
 
-    clearError() {
-        this.errorMessage = '';
-    }
-
-
     reset() {
         this.isRecording = false;
         this.isPaused = false;
         this.recordingTime = 0;
-        this.clearError();
+        this.errorMessage = '';
+        this.recordingState = "not-ready";
         this.updateStatus('Ready');
     }
 }
@@ -56,22 +40,14 @@ export class AppState {
 // Create a singleton instance
 export const appState = new AppState();
 
-// Export utility functions for backward compatibility
 export function updateStatus(status: string) {
+    // TODO: remove this. Legacy from older version
     appState.updateStatus(status);
 }
 
 export function showError(message: string) {
+    // TODO: remove this. Legacy from older version
     appState.showError(message);
-}
-
-export function clearError() {
-    appState.clearError();
-}
-
-
-export function reset() {
-    appState.reset();
 }
 
 
