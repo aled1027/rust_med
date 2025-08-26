@@ -130,10 +130,8 @@ form>*+* {
     }
 }
 
-input[type='date'] {
-
+:is(input[type='date'], input[type='datetime-local']) {
     &::placeholder {
-        // color: var(--color-text-light);
         color: black !important;
         opacity: 1;
     }

@@ -76,7 +76,7 @@
     <ul role="list">
       {#each appState.notes as note}
         <li>
-          <a href="/notes/{note.id}">
+          <a href="/notes?noteId={note.id}">
             <span>
               {note.lastName || "Unknown"},
               {note.firstName || "Unknown"}

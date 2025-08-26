@@ -24,7 +24,7 @@
   ></textarea>
 
   <p class="warning">
-    Generated notes are drafts requiring healthcare provider review and approval
-    before use in patient care. The AI process can make mistakes.
+    generated notes are drafts requiring healthcare provider review and approval
+    before use in patient care. the ai process can make mistakes.
   </p>
 </div>
