@@ -403,6 +403,10 @@ class TauriService {
   async saveNote(note: TauriNoteIn): Promise<{ success: boolean, note_id: string | null, error: string | null }> {
     return await this.ensureTauri().core.invoke('save_patient_note', note);
   }
+
+  async deleteNote(noteId: string): Promise<{ success: boolean, error: string | null }> {
+    return await this.ensureTauri().core.invoke('delete_patient_note', { noteId: noteId });
+  }
 }
 
 class AppService {
@@ -614,6 +618,11 @@ class AppService {
   async syncNotes() {
     const notes = await this.loadNotes();
     appState.notes = notes;
+  }
+
+  async deleteNote(noteId: string) {
+    await this.tauriService.deleteNote(noteId);
+    await this.syncNotes();
   }
 
 

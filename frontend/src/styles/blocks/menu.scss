@@ -33,6 +33,7 @@
 .menu[data-open='true'] .menu__contents {
     display: block;
     transform: translateX(0);
+    height: 100%;
 
     @starting-style {
         transform: translateX(-100%);

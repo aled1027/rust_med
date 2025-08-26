@@ -2,7 +2,6 @@
   import { onMount } from "svelte";
   import Menu from "$lib/components/Menu.svelte";
   import PatientInfoForm from "$lib/components/PatientInfoForm.svelte";
-  import ResultsDisplay from "$lib/components/ResultsDisplay.svelte";
   import ErrorDisplay from "$lib/components/ErrorDisplay.svelte";
   import { appService } from "$lib/services/appService";
 

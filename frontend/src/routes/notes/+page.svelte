@@ -4,6 +4,7 @@
   import { page } from "$app/state";
   import type { TauriNote } from "$lib/types";
   import { afterNavigate } from "$app/navigation";
+  import { goto } from "$app/navigation";
 
   let note: TauriNote | null = $state(null);
 
@@ -34,6 +35,14 @@
     };
   }
 
+  async function deleteNote() {
+    // TODO: add confirmation and success
+    if (note) {
+      await appService.deleteNote(note.id);
+      goto("/");
+    }
+  }
+
   afterNavigate(async () => {
     await appService.syncNotes();
 
@@ -59,6 +68,8 @@
       <h2>{note.lastName}, {note.firstName}</h2>
       <small>Note created at: {new Date(note.createdAt).toLocaleString()}</small
       >
+      <button class="button" on:click={deleteNote}> Delete </button>
+
       <div class="settings-group">
         <label for="first-name">First Name</label>
         <input type="text" id="first-name" bind:value={note.firstName} />
