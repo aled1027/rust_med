@@ -13,8 +13,12 @@
     z-index: var(--menu-z-index);
 }
 
-.menu__contents {
+.menu[data-open="true"] {
+    overflow-y: scroll;
     height: 100dvh;
+}
+
+.menu__contents {
     width: 100%;
     padding-block-start: 0.25rem;
     padding-inline: var(--menu-inline-start);
