@@ -13,13 +13,10 @@
     z-index: var(--menu-z-index);
 }
 
-.menu[data-open="true"] {
-    overflow-y: scroll;
-    height: 100dvh;
-}
-
 .menu__contents {
     width: 100%;
+    height: 100dvh;
+    overflow-y: scroll;
     padding-block-start: 0.25rem;
     padding-inline: var(--menu-inline-start);
     transform: translateX(-100%);
@@ -33,7 +30,6 @@
 .menu[data-open='true'] .menu__contents {
     display: block;
     transform: translateX(0);
-    height: 100%;
 
     @starting-style {
         transform: translateX(-100%);
