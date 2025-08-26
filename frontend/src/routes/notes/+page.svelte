@@ -98,8 +98,10 @@
 
       <label for="medical-note" class="visually-hidden">Medical Note</label>
       <div class="position-relative">
-        <!-- TODO: finish copy button -->
-        <button class="button" data-type="copy" onclick={copyNote}>copy</button>
+        <!-- TODO: finish copy button. Tell the user they copied! -->
+        <button type="button" class="button" data-type="copy" onclick={copyNote}
+          >copy</button
+        >
         <textarea
           id="medical-note"
           class="nice-box with-copy-button"
