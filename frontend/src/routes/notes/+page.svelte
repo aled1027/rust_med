@@ -3,15 +3,9 @@
   import { browser } from "$app/environment";
   import { appState } from "$lib/stores/app.svelte";
   import { onMount } from "svelte";
+  import type { TauriNote } from "$lib/services/appService";
 
-  let notes = $state<any[]>([]);
-
-  async function loadNotes() {
-    if (browser) {
-      notes = await appService.loadNotes();
-      console.log("notes:", notes);
-    }
-  }
+  let notes = $state<TauriNote[]>([]);
 
   async function saveNote() {
     if (!browser) {

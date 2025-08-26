@@ -28,7 +28,7 @@ interface TauriNoteIn {
   medicalNote: string;
 }
 
-interface TauriNote extends TauriNoteIn {
+export interface TauriNote extends TauriNoteIn {
   id: string;
   createdAt: string;
 }
