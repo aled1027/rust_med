@@ -99,8 +99,10 @@ export class AudioService {
         };
 
         this.mediaRecorder!.onstop = () => {
-          appState.recordingState = "stopped";
-          resolve();
+          if (appState.recordingState !== "paused") {
+            appState.recordingState = "stopped";
+            resolve();
+          }
         };
 
         this.mediaRecorder!.onerror = (event) => {
@@ -108,7 +110,7 @@ export class AudioService {
         };
 
         this.mediaRecorder!.start(recordingFrequency); // Collect data every second
-        // Do not call resolve() here; it should only be called onstop
+        resolve();
       });
 
     } catch (error) {
@@ -427,22 +429,20 @@ class AppService {
   }
 
   async startRecording() {
-    try {
-      updateStatus('Initializing recording...');
+    updateStatus('Initializing recording...');
 
-      // Start actual recording using audio service
-      await audioService.startRecording(appState.selectedMicrophoneId);
+    // Start actual recording using audio service
+    console.log('Starting recording');
+    await audioService.startRecording(appState.selectedMicrophoneId);
+    console.log('Told audio state to start recording');
+    appState.recordingState = "recording";
+    appState.recordingTime = 0;
 
-      appState.recordingState = "recording";
-      appState.recordingTime = 0;
-      this.startTimer();
-      updateStatus('Recording...');
+    this.startTimer();
+    console.log('Time started', appState.recordingTime);
+    updateStatus('Recording...');
 
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      showError(`Failed to start recording: ${errorMessage}`);
-      appState.recordingState = "not-ready";
-    }
+
   }
 
   pauseResumeRecording() {

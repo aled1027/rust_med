@@ -12,4 +12,4 @@ export interface TauriNote extends TauriNoteIn {
     createdAt: string;
 }
 
-export type RecordingState = "not-ready" | "ready" | "recording" | "paused" | "stopped";
+export type RecordingState = "not-ready" | "ready" | "recording" | "paused" | "stopped" | "error";
