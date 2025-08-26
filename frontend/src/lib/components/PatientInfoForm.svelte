@@ -33,10 +33,11 @@
   </div>
 
   <div class="form-group">
-    <label for="dob">Patient Date of Birth</label>
+    <label for="date-of-birth">Patient Date of Birth</label>
     <input
       type="date"
-      id="dob"
+      id="date-of-birth"
+      name="date-of-birth"
       bind:value={appState.patientInfo.dateOfBirth}
       required
     />
