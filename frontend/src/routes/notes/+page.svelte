@@ -35,6 +35,12 @@
     };
   }
 
+  async function copyNote() {
+    if (note) {
+      await navigator.clipboard.writeText(note.medicalNote);
+    }
+  }
+
   async function deleteNote() {
     // TODO: add confirmation and success
     if (note) {
@@ -91,12 +97,16 @@
       </p>
 
       <label for="medical-note" class="visually-hidden">Medical Note</label>
-      <textarea
-        id="medical-note"
-        class="nice-box"
-        value={note.medicalNote}
-        use:autoResizeTextarea
-      ></textarea>
+      <div class="position-relative">
+        <!-- TODO: finish copy button -->
+        <button class="button" data-type="copy" onclick={copyNote}>copy</button>
+        <textarea
+          id="medical-note"
+          class="nice-box with-copy-button"
+          value={note.medicalNote}
+          use:autoResizeTextarea
+        ></textarea>
+      </div>
       <h3>Advanced Fields</h3>
       <details class="flow">
         <summary>Advanced Fields</summary>
@@ -127,11 +137,21 @@
 
   .nice-box {
     padding-block: var(--space-xs);
+    padding-block-start: 2rem;
     padding-inline: var(--space-xs);
     border: 1px solid var(--color-border);
     border-radius: 4px;
     background: #fdfcf4;
     color: var(--color-text);
     width: 100%;
+  }
+
+  .button[data-type="copy"] {
+    border: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 1.5rem;
+    font-size: 0.75rem;
   }
 </style>
