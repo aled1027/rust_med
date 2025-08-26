@@ -62,8 +62,6 @@ The Tauri app uses whatever is in the `frontend/build` directory, so while you c
 
 ## TODOs:
 
-- Next: Store and load notes. Use /notes (arrived at through menu)
-  - Right now, the storing function isn't working / being called.jK:w
 - Error cases to handle:
   - no speech detected in audio
 

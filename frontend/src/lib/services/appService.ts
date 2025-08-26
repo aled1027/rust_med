@@ -351,8 +351,7 @@ export const audioService = new AudioService();
 class TauriService {
   private tauri: typeof window.__TAURI__ | null = null;
 
-  ensureTauri(): typeof window.__TAURI__ {
-    // TODO: make private
+  private ensureTauri(): typeof window.__TAURI__ {
     if (!this.tauri) {
       // Don't initialize during SSR, only in browser
       if (!browser) {
