@@ -10,6 +10,38 @@
   let transcript = $state("");
   let medicalNote = $state("");
 
+  let recordButtonDataType = $derived.by(() => {
+    if (appState.recordingState === "ready") {
+      return "record";
+    } else if (appState.recordingState === "recording") {
+      return "pause";
+    } else if (appState.recordingState === "paused") {
+      return "pause";
+    } else {
+      return "record";
+    }
+  });
+
+  let recordButtonDisabled = $derived.by(() => {
+    return !["ready", "recording", "paused"].includes(appState.recordingState);
+  });
+
+  let recordButtonText = $derived.by(() => {
+    if (appState.recordingState === "ready") {
+      return "Start Recording";
+    } else if (appState.recordingState === "recording") {
+      return "Pause Recording";
+    } else if (appState.recordingState === "paused") {
+  });
+
+  function handleRecordButtonClick() {
+    if (appState.recordingState === "ready") {
+      appService.startRecording();
+    } else if (["recording", "paused"].includes(appState.recordingState)) {
+      appService.pauseResumeRecording();
+    }
+  }
+
   async function stopAndProcessRecording() {
     await appService.stopRecording();
     return;
@@ -112,32 +144,17 @@
 
   <div class="control-buttons">
     <button
-      class="button start-btn"
-      class:recording={appState.recordingState === "recording"}
-      disabled={appState.recordingState !== "ready"}
-      onclick={() => appService.startRecording()}
+      class="recording-button"
+      data-type={recordButtonDataType}
+      disabled={recordButtonDisabled}
+      onclick={handleRecordButtonClick}
     >
-      {#if appState.recordingState === "recording"}
-        Recording...
-      {:else}
-        Start Recording
-      {/if}
+      {recordButtonText}
     </button>
 
     <button
-      class="button pause-btn"
-      disabled={!["recording", "paused"].includes(appState.recordingState)}
-      onclick={() => appService.pauseResumeRecording()}
-    >
-      {#if appState.recordingState === "paused"}
-        Resume
-      {:else}
-        Pause
-      {/if}
-    </button>
-
-    <button
-      class="button stop-btn"
+      class="recording-button"
+      data-type="stop"
       disabled={appState.recordingState !== "recording"}
       onclick={stopAndProcessRecording}
     >
@@ -191,56 +208,6 @@
     gap: 0.5rem;
     flex-wrap: wrap;
     justify-content: center;
-  }
-
-  .button {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    &.start-btn {
-      background-color: #10b981;
-      color: white;
-
-      &:hover:not(:disabled) {
-        background-color: #059669;
-      }
-
-      &.recording {
-        background-color: #ef4444;
-
-        &:hover:not(:disabled) {
-          background-color: #dc2626;
-        }
-      }
-    }
-
-    &.pause-btn {
-      background-color: #f59e0b;
-      color: white;
-
-      &:hover:not(:disabled) {
-        background-color: #d97706;
-      }
-    }
-
-    &.stop-btn {
-      background-color: #6b7280;
-      color: white;
-
-      &:hover:not(:disabled) {
-        background-color: #4b5563;
-      }
-    }
   }
 
   @keyframes pulse {
