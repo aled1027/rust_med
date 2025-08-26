@@ -428,17 +428,12 @@ class AppService {
    * Set to null when no timer is running.
    */
   private recordingTimerId: number | null = null;
-  private tauriService: TauriService | null = null;
+  private tauriService: TauriService;
 
-  private ensureTauriService(): TauriService {
-    if (!this.tauriService) {
-      if (!browser) {
-        throw new Error('Tauri service not available during SSR');
-      }
-      this.tauriService = new TauriService();
-      this.tauriService.ensureTauri();
-    }
-    return this.tauriService;
+  constructor() {
+    // Tauri service can be initialized here because it doesn't depend on the browser environment
+    // TauriService itself will handle the browser environment check.
+    this.tauriService = new TauriService();
   }
 
   async initialize() {
@@ -558,14 +553,14 @@ class AppService {
       updateStatus('Audio processed successfully. Starting transcription...');
 
       // Write the audio to a file
-      const appDataDir = await this.ensureTauriService().appLocalDataDir();
+      const appDataDir = await this.tauriService.appLocalDataDir();
       // TODO: address this
       // IF DEBUG:
       const audioFilename = 'debug.wav';
-      const audioPath = await this.ensureTauriService().joinPath(appDataDir, audioFilename);
+      const audioPath = await this.tauriService.joinPath(appDataDir, audioFilename);
       // ELSE:
       // const audioFilename = `temp_audio_${Date.now()}.wav`;
-      // const audioPath = await this.ensureTauriService().joinPath(appDataDir, audioFilename);
+      // const audioPath = await this.tauriService.joinPath(appDataDir, audioFilename);
       // const arrayBuffer = await audioBlob.arrayBuffer();
       // const uint8Array = new Uint8Array(arrayBuffer);
       // await this.tauriService.writeFile(audioPath, audioBlob);
@@ -575,7 +570,7 @@ class AppService {
 
       updateStatus('Transcribing audio...');
       console.log('Transcribing audio...');
-      const transcriptionResult = await this.ensureTauriService().transcribeAudio(audioPath);
+      const transcriptionResult = await this.tauriService.transcribeAudio(audioPath);
       if (!transcriptionResult.success) {
         console.error('Transcription failed:', transcriptionResult.error);
         throw new Error(transcriptionResult.error || 'Transcription failed');
@@ -587,7 +582,7 @@ class AppService {
 
 
       updateStatus('Generating medical note... (this can take about 30 seconds)');
-      const noteGenResult = await this.ensureTauriService().generateMedicalNote(transcriptionResult.transcript, appState.selectedNoteType);
+      const noteGenResult = await this.tauriService.generateMedicalNote(transcriptionResult.transcript, appState.selectedNoteType);
       console.log('Note generation result:', noteGenResult);
 
       if (!noteGenResult.success) {
@@ -614,7 +609,7 @@ class AppService {
       transcript: appState.lastTranscript,
       medicalNote: appState.lastMedicalNote
     }
-    const saveResult = await this.ensureTauriService().saveNote(tauriNote);
+    const saveResult = await this.tauriService.saveNote(tauriNote);
     if (!saveResult.success || saveResult.note_id === null) {
       throw new Error(saveResult.error || 'Failed to save note');
     }
@@ -631,7 +626,7 @@ class AppService {
   }
 
   async loadNotes(): Promise<TauriNote[]> {
-    const loadResult = await this.ensureTauriService().loadNotes();
+    const loadResult = await this.tauriService.loadNotes();
     if (loadResult.success) {
       return loadResult.notes;
     }

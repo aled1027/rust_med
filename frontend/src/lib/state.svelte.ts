@@ -4,15 +4,6 @@ interface PatientInfo {
     dateOfBirth: string;
 }
 
-interface Note {
-    id?: string;
-    type: string;
-    transcript: string;
-    medicalNote: string;
-    patientInfo: PatientInfo;
-    timestamp: Date;
-}
-
 export class AppState {
     // Application state
     appStatus = $state('Ready');
@@ -38,10 +29,6 @@ export class AppState {
     // Microphone
     availableMicrophones = $state<MediaDeviceInfo[]>([]);
     selectedMicrophoneId = $state('');
-
-    // Notes
-    savedNotes = $state<Note[]>([]);
-    selectedNote = $state<Note | null>(null);
 
     // Error
     errorMessage = $state('');
