@@ -19,8 +19,7 @@ declare global {
   }
 }
 
-// TODO: rename API Note
-interface ApiNote {
+interface TauriNote {
   firstName: string;
   lastName: string;
   dateOfBirth: string;
@@ -345,9 +344,7 @@ export class AudioService {
 export const audioService = new AudioService();
 
 class TauriService {
-  // Keys in objects to the tauri backend should be camelCase
-  // TODO: make private
-  tauri: typeof window.__TAURI__ | null = null;
+  private tauri: typeof window.__TAURI__ | null = null;
 
   ensureTauri(): typeof window.__TAURI__ {
     // TODO: make private
@@ -365,55 +362,45 @@ class TauriService {
   }
 
   async appLocalDataDir(): Promise<string> {
-    const tauri = this.ensureTauri();
-    return tauri.path.appLocalDataDir();
+    return this.ensureTauri().path.appLocalDataDir();
   }
 
   async writeFile(path: string, data: string | Uint8Array): Promise<void> {
-    const tauri = this.ensureTauri();
-    await tauri.fs.writeFile(path, data);
+    await this.ensureTauri().fs.writeFile(path, data);
   }
 
   async transcribeAudio(audioPath: string): Promise<{ success: boolean, transcript: string, error: string | null }> {
-    const tauri = this.ensureTauri();
-    return tauri.core.invoke('transcribe_audio', {
+    return this.ensureTauri().core.invoke('transcribe_audio', {
       audioPath: audioPath
     });
   }
 
   async generateMedicalNote(transcript: string, noteType: string): Promise<{ success: boolean, note: string, error: string | null }> {
-    console.log('Generating medical note...');
-    const tauri = this.ensureTauri();
-    const result = await tauri.core.invoke('generate_medical_note', {
+    const result = await this.ensureTauri().core.invoke('generate_medical_note', {
       transcript: transcript,
       noteType: noteType
     });
-    console.log('Medical note generated successfully!');
     return result;
   }
 
-  async loadNotes(): Promise<{ success: boolean, notes: ApiNote[], error: string | null }> {
-    const tauri = this.ensureTauri();
-    console.log('TauriService: Loading notes...');
-    const result = await tauri.core.invoke('load_patient_notes');
-    console.log('TauriService: Load notes result:', result);
-    return result;
+  async loadNotes(): Promise<{ success: boolean, notes: TauriNote[], error: string | null }> {
+    const result = await this.ensureTauri().core.invoke('load_patient_notes');
+    if (result.success) {
+      const notes = result.notes.map((n: any) => ({
+        firstName: n.first_name,
+        lastName: n.last_name,
+        dateOfBirth: n.date_of_birth,
+        noteType: n.note_type,
+        transcript: n.transcript,
+        medicalNote: n.medical_note
+      }));
+      return { success: true, notes: notes, error: null };
+    }
+    return { success: false, notes: [], error: result.error };
   }
 
-  async saveNote(note: ApiNote): Promise<{ success: boolean, error: string | null }> {
-    const tauri = this.ensureTauri();
-    console.log('TauriService: Saving note:', note);
-    console.log('TauriService: Calling save_patient_note with individual parameters');
-    const saveResult = await tauri.core.invoke('save_patient_note', {
-      firstName: note.firstName,
-      lastName: note.lastName,
-      dateOfBirth: note.dateOfBirth,
-      noteType: note.noteType,
-      transcript: note.transcript,
-      medicalNote: note.medicalNote
-    });
-    console.log('TauriService: Save note result:', saveResult);
-    return saveResult;
+  async saveNote(note: TauriNote): Promise<{ success: boolean, note_id: string | null, error: string | null }> {
+    return await this.ensureTauri().core.invoke('save_patient_note', { note: note });
   }
 }
 
@@ -424,9 +411,9 @@ class AppService {
    * Set to null when no timer is running.
    */
   private recordingTimerId: number | null = null;
-  tauriService: TauriService | null = null;
+  private tauriService: TauriService | null = null;
 
-  ensureTauriService(): TauriService {
+  private ensureTauriService(): TauriService {
     if (!this.tauriService) {
       if (!browser) {
         throw new Error('Tauri service not available during SSR');
@@ -598,43 +585,38 @@ class AppService {
   }
 
 
-  async saveNote() {
-    try {
-      console.log('AppService: saveNote called');
-      updateStatus('Saving note...');
-
-      // Save note using Tauri backend
-      const saveResult = await this.ensureTauriService().saveNote({
-        firstName: appState.patientInfo.firstName,
-        lastName: appState.patientInfo.lastName,
-        dateOfBirth: appState.patientInfo.dateOfBirth,
-        noteType: appState.selectedNoteType,
-        transcript: appState.lastTranscript,
-        medicalNote: appState.lastMedicalNote
-      });
-      console.log("saveResult:", saveResult);
-
-      if (saveResult.success) {
-        updateStatus('Note saved successfully!');
-        clearResults();
-        clearPatientInfo();
-        appState.lastTranscript = '';
-        appState.lastMedicalNote = '';
-      } else {
-        throw new Error(saveResult.error || 'Failed to save note');
-      }
-
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      showError(`Failed to save note: ${errorMessage}`);
+  async saveNote(): Promise<string> {
+    updateStatus('Saving note...');
+    const tauriNote: TauriNote = {
+      firstName: appState.patientInfo.firstName,
+      lastName: appState.patientInfo.lastName,
+      dateOfBirth: appState.patientInfo.dateOfBirth,
+      noteType: appState.selectedNoteType,
+      transcript: appState.lastTranscript,
+      medicalNote: appState.lastMedicalNote
     }
+    const saveResult = await this.ensureTauriService().saveNote(tauriNote);
+    if (!saveResult.success || saveResult.note_id === null) {
+      throw new Error(saveResult.error || 'Failed to save note');
+    }
+
+    updateStatus('Note saved successfully!');
+
+    // TODO: figure out the flow here because this is bad
+    clearResults();
+    clearPatientInfo();
+    appState.lastTranscript = '';
+    appState.lastMedicalNote = '';
+
+    return saveResult.note_id;
   }
 
-  async loadNotes() {
-    console.log('AppService: loadNotes called');
+  async loadNotes(): Promise<TauriNote[]> {
     const loadResult = await this.ensureTauriService().loadNotes();
-    console.log('AppService: loadNotes result:', loadResult);
-    return loadResult;
+    if (loadResult.success) {
+      return loadResult.notes;
+    }
+    return [];
   }
 
   reset() {
