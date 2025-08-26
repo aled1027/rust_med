@@ -19,13 +19,14 @@ declare global {
   }
 }
 
+// TODO: rename API Note
 interface ApiNote {
-  first_name: string;
-  last_name: string;
-  dob: string;
-  note_type: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  noteType: string;
   transcript: string;
-  medical_note: string;
+  medicalNote: string;
 }
 
 
@@ -344,19 +345,16 @@ export class AudioService {
 export const audioService = new AudioService();
 
 class TauriService {
-  private tauri: typeof window.__TAURI__ | null = null;
+  // Keys in objects to the tauri backend should be camelCase
+  // TODO: make private
+  tauri: typeof window.__TAURI__ | null = null;
 
-  constructor() {
-    // Don't initialize during SSR
-    if (browser && typeof window.__TAURI__ !== 'undefined') {
-      this.tauri = window.__TAURI__;
-    }
-  }
-
-  private ensureTauri(): typeof window.__TAURI__ {
+  ensureTauri(): typeof window.__TAURI__ {
+    // TODO: make private
     if (!this.tauri) {
+      // Don't initialize during SSR, only in browser
       if (!browser) {
-        throw new Error('Tauri APIs not available during SSR');
+        throw new Error('Tauri APIs not available outside of browser');
       }
       if (typeof window.__TAURI__ === 'undefined') {
         throw new Error('Tauri APIs not available');
@@ -407,12 +405,12 @@ class TauriService {
     console.log('TauriService: Saving note:', note);
     console.log('TauriService: Calling save_patient_note with individual parameters');
     const saveResult = await tauri.core.invoke('save_patient_note', {
-      first_name: note.first_name,
-      last_name: note.last_name,
-      dob: note.dob,
-      note_type: note.note_type,
+      firstName: note.firstName,
+      lastName: note.lastName,
+      dateOfBirth: note.dateOfBirth,
+      noteType: note.noteType,
       transcript: note.transcript,
-      medical_note: note.medical_note
+      medicalNote: note.medicalNote
     });
     console.log('TauriService: Save note result:', saveResult);
     return saveResult;
@@ -426,14 +424,15 @@ class AppService {
    * Set to null when no timer is running.
    */
   private recordingTimerId: number | null = null;
-  private tauriService: TauriService | null = null;
+  tauriService: TauriService | null = null;
 
-  private ensureTauriService(): TauriService {
+  ensureTauriService(): TauriService {
     if (!this.tauriService) {
       if (!browser) {
         throw new Error('Tauri service not available during SSR');
       }
       this.tauriService = new TauriService();
+      this.tauriService.ensureTauri();
     }
     return this.tauriService;
   }
@@ -602,24 +601,18 @@ class AppService {
   async saveNote() {
     try {
       console.log('AppService: saveNote called');
-      console.log('AppService: Current state:', {
-        lastTranscript: appState.lastTranscript,
-        lastMedicalNote: appState.lastMedicalNote,
-        patientInfo: appState.patientInfo,
-        selectedNoteType: appState.selectedNoteType
-      });
-
       updateStatus('Saving note...');
 
       // Save note using Tauri backend
       const saveResult = await this.ensureTauriService().saveNote({
-        first_name: appState.patientInfo.firstName,
-        last_name: appState.patientInfo.lastName,
-        dob: appState.patientInfo.dateOfBirth,
-        note_type: appState.selectedNoteType,
+        firstName: appState.patientInfo.firstName,
+        lastName: appState.patientInfo.lastName,
+        dateOfBirth: appState.patientInfo.dateOfBirth,
+        noteType: appState.selectedNoteType,
         transcript: appState.lastTranscript,
-        medical_note: appState.lastMedicalNote
+        medicalNote: appState.lastMedicalNote
       });
+      console.log("saveResult:", saveResult);
 
       if (saveResult.success) {
         updateStatus('Note saved successfully!');

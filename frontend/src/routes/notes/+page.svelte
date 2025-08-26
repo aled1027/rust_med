@@ -2,6 +2,7 @@
   import { appService } from "$lib/services/appService";
   import { browser } from "$app/environment";
   import { appState } from "$lib/stores/app.svelte";
+  import { onMount } from "svelte";
 
   let notes = $state<any[]>([]);
   let loading = $state(false);
@@ -31,25 +32,29 @@
   }
 
   async function saveANote() {
-    if (browser) {
-      try {
-        console.log("Notes page: saveANote called");
-        appState.patientInfo.firstName = "John";
-        appState.patientInfo.lastName = "Doe";
-        appState.patientInfo.dateOfBirth = "1990-01-01";
-        appState.selectedNoteType = "soap";
-        appState.transcript = "This is a test transcript";
-        appState.medicalNote = "This is a test medical note";
-        await appService.saveNote();
-        console.log("Notes page: saveANote completed");
-        // Reload notes after saving
-        // await loadNotes();
-      } catch (err) {
-        console.error("Error saving note:", err);
-        error = err instanceof Error ? err.message : "Unknown error";
-      }
+    await appService.initialize();
+    await appService.ensureTauriService();
+    console.log(appService);
+
+    if (browser && appService.tauriService && appService.tauriService.tauri) {
+      const t = appService.tauriService.tauri;
+      console.log("----------------");
+      console.log("Next doing save_patient_note");
+      appState.patientInfo.firstName = "John";
+      appState.patientInfo.lastName = "Doe";
+      appState.patientInfo.dateOfBirth = "1985-01-01";
+      appState.selectedNoteType = "soap";
+      appState.lastTranscript = "This is a test transcript";
+      appState.lastMedicalNote = "This is a test medical note";
+      const result = appService.saveNote();
+      console.log("result:", result);
     }
+    console.log("Notes page: saveANote completed");
   }
+
+  onMount(() => {
+    appService.initialize();
+  });
 </script>
 
 <h1>Notes</h1>
@@ -75,9 +80,10 @@
   <ul>
     {#each notes as note}
       <li>
-        <strong>{note.first_name} {note.last_name}</strong> - {note.dob} - {note.note_type}
+        <strong>{note.firstName} {note.lastName}</strong> - {note.dateOfBirth} -
+        {note.noteType}
         <br />
-        <small>Created: {new Date(note.created_at).toLocaleString()}</small>
+        <small>Created: {new Date(note.createdAt).toLocaleString()}</small>
       </li>
     {/each}
   </ul>
