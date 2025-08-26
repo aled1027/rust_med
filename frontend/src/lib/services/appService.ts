@@ -299,8 +299,9 @@ export class AudioService {
 
   async getAvailableMicrophones(): Promise<MediaDeviceInfo[]> {
     try {
+      // TODO: for some reason, this works AFTER we start recording
+      // and then it gets all the mics
       const devices = await navigator.mediaDevices.enumerateDevices();
-      console.log('Available microphones:', devices);
       return devices.filter(device => device.kind === 'audioinput');
     } catch (error) {
       console.error('Failed to get available microphones:', error);
@@ -430,19 +431,11 @@ class AppService {
 
   async startRecording() {
     updateStatus('Initializing recording...');
-
-    // Start actual recording using audio service
-    console.log('Starting recording');
     await audioService.startRecording(appState.selectedMicrophoneId);
-    console.log('Told audio state to start recording');
     appState.recordingState = "recording";
     appState.recordingTime = 0;
-
     this.startTimer();
-    console.log('Time started', appState.recordingTime);
     updateStatus('Recording...');
-
-
   }
 
   pauseResumeRecording() {
@@ -540,15 +533,13 @@ class AppService {
         console.error('Transcription failed:', transcriptionResult.error);
         throw new Error(transcriptionResult.error || 'Transcription failed');
       }
-      console.log('Transcription result:', transcriptionResult);
 
       transcript = transcriptionResult.transcript;
-
       updateStatus('Generating medical note... (this can take about 30 seconds)');
+
       // TODO: hardcoded
       const noteType = "soap";
       const noteGenResult = await this.tauriService.generateMedicalNote(transcript, noteType);
-      console.log('Note generation result:', noteGenResult);
 
       if (!noteGenResult.success) {
         throw new Error(noteGenResult.error || 'Failed to generate medical note');

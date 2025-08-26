@@ -5,7 +5,7 @@
 
   let firstName = $state("");
   let lastName = $state("");
-  let dateOfBirth = $state("");
+  let dateOfBirth = $state(new Date().toISOString().split("T")[0]);
   let noteType = $state("soap");
   let transcript = $state("");
   let medicalNote = $state("");
@@ -32,6 +32,10 @@
     } else if (appState.recordingState === "recording") {
       return "Pause Recording";
     } else if (appState.recordingState === "paused") {
+      return "Resume Recording";
+    } else {
+      return "Processing...";
+    }
   });
 
   function handleRecordButtonClick() {
@@ -144,7 +148,7 @@
 
   <div class="control-buttons">
     <button
-      class="recording-button"
+      class="button"
       data-type={recordButtonDataType}
       disabled={recordButtonDisabled}
       onclick={handleRecordButtonClick}
@@ -153,7 +157,7 @@
     </button>
 
     <button
-      class="recording-button"
+      class="button"
       data-type="stop"
       disabled={appState.recordingState !== "recording"}
       onclick={stopAndProcessRecording}

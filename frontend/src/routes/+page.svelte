@@ -4,8 +4,9 @@
   import PatientInfoForm from "$lib/components/PatientInfoForm.svelte";
   import ErrorDisplay from "$lib/components/ErrorDisplay.svelte";
   import { appService } from "$lib/services/appService";
+  import { afterNavigate } from "$app/navigation";
 
-  onMount(async () => {
+  afterNavigate(async () => {
     await appService.initialize();
   });
 </script>
@@ -19,14 +20,11 @@
         Medical Note Generator
       </h1>
     </header>
-
     <section class="flow">
       <h2 class="mx-auto w-fit">Start a New Note</h2>
       <PatientInfoForm />
     </section>
   </div>
 </main>
-
 <ErrorDisplay />
-
 <footer></footer>

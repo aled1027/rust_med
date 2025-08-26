@@ -195,52 +195,20 @@
     }
 }
 
-.recording-button {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
+.button[data-type="record"] {
+    background: #10b981;
+    border: 1px solid #10b981;
+    color: white;
+}
 
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
+.button[data-type="pause"] {
+    background: #f59e0b;
+    border: 1px solid #f59e0b;
+    color: white;
+}
 
-    &[data-type="record"] {
-        background-color: #10b981;
-        color: white;
-
-        &:hover:not(:disabled) {
-            background-color: #059669;
-        }
-
-        &.recording {
-            background-color: #ef4444;
-
-            &:hover:not(:disabled) {
-                background-color: #dc2626;
-            }
-        }
-    }
-
-    &[data-type="pause"] {
-        background-color: #f59e0b;
-        color: white;
-
-        &:hover:not(:disabled) {
-            background-color: #d97706;
-        }
-    }
-
-    &[data-type="stop"] {
-        background-color: #6b7280;
-        color: white;
-
-        &:hover:not(:disabled) {
-            background-color: #4b5563;
-        }
-    }
+.button[data-type="stop"] {
+    background: #6b7280;
+    border: 1px solid #6b7280;
+    color: white;
 }
