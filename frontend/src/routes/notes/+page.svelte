@@ -9,6 +9,7 @@
   async function loadNotes() {
     if (browser) {
       notes = await appService.loadNotes();
+      console.log("notes:", notes);
     }
   }
 
@@ -17,17 +18,18 @@
       throw new Error("saveNote called in non-browser environment");
     }
 
+    const note_id = await appService.saveNote();
+  }
+
+  onMount(() => {
+    appService.initialize();
+
     appState.patientInfo.firstName = "John";
     appState.patientInfo.lastName = "Doe";
     appState.patientInfo.dateOfBirth = "1985-01-01";
     appState.selectedNoteType = "soap";
     appState.lastTranscript = "This is a test transcript";
     appState.lastMedicalNote = "This is a test medical note";
-    const result = appService.saveNote();
-  }
-
-  onMount(() => {
-    appService.initialize();
   });
 </script>
 
@@ -47,6 +49,7 @@
         <strong>{note.firstName} {note.lastName}</strong> - {note.dateOfBirth} -
         {note.noteType}
         <br />
+        <small>{note.createdAt}</small>
         <small>Created: {new Date(note.createdAt).toLocaleString()}</small>
       </li>
     {/each}

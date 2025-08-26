@@ -19,13 +19,17 @@ declare global {
   }
 }
 
-interface TauriNote {
+interface TauriNoteIn {
   firstName: string;
   lastName: string;
   dateOfBirth: string;
   noteType: string;
   transcript: string;
   medicalNote: string;
+}
+
+interface TauriNote extends TauriNoteIn {
+  id: string;
 }
 
 
@@ -399,8 +403,8 @@ class TauriService {
     return { success: false, notes: [], error: result.error };
   }
 
-  async saveNote(note: TauriNote): Promise<{ success: boolean, note_id: string | null, error: string | null }> {
-    return await this.ensureTauri().core.invoke('save_patient_note', { note: note });
+  async saveNote(note: TauriNoteIn): Promise<{ success: boolean, note_id: string | null, error: string | null }> {
+    return await this.ensureTauri().core.invoke('save_patient_note', note);
   }
 }
 
@@ -587,7 +591,7 @@ class AppService {
 
   async saveNote(): Promise<string> {
     updateStatus('Saving note...');
-    const tauriNote: TauriNote = {
+    const tauriNote: TauriNoteIn = {
       firstName: appState.patientInfo.firstName,
       lastName: appState.patientInfo.lastName,
       dateOfBirth: appState.patientInfo.dateOfBirth,
