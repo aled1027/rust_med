@@ -1,7 +1,7 @@
 <script lang="ts">
   import { appState, updateStatus } from "$lib/state.svelte";
   import { appService } from "$lib/services/appService";
-  import ResultsDisplay from "./ResultsDisplay.svelte";
+  import { goto } from "$app/navigation";
 
   let firstName = $state("");
   let lastName = $state("");
@@ -20,7 +20,7 @@
     medicalNote = processResult.medicalNote;
 
     updateStatus("Saving note...");
-    await appService.saveNote(
+    const noteId = await appService.saveNote(
       firstName,
       lastName,
       dateOfBirth,
@@ -29,7 +29,7 @@
       medicalNote
     );
     await appService.syncNotes();
-    updateStatus("Done!");
+    goto(`/notes?noteId=${noteId}`);
   }
 
   function formatRecordingTime(seconds: number): string {
@@ -143,8 +143,6 @@
     </button>
   </div>
 </div>
-
-<ResultsDisplay {transcript} {medicalNote} />
 
 <style lang="scss">
   .recording-controls {

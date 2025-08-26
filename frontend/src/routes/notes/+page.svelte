@@ -9,7 +9,8 @@
 
   // Svelte action for auto-resizing textarea
   function autoResizeTextarea(node: HTMLTextAreaElement) {
-    // TODO: note sure how robust/good this resizer is
+    // TODO: this resizer isn't great. It's not responsive to page changes, content changes.
+    // It seems like it only handles the initial resize/render in an okay way.
     function resize() {
       node.style.height = "auto";
       node.style.height = node.scrollHeight + "px";
@@ -84,7 +85,6 @@
         class="nice-box"
         value={note.medicalNote}
         use:autoResizeTextarea
-        readonly
       ></textarea>
       <h3>Advanced Fields</h3>
       <details class="flow">

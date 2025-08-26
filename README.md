@@ -65,6 +65,9 @@ The Tauri app uses whatever is in the `frontend/build` directory, so while you c
 - Make overall flow natural
 - Error cases to handle:
   - no speech detected in audio
+- Add delete button to note
+- Add edit buttons to note page
+- make start recording disabled while processing
 
 Frontend:
 
