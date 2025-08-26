@@ -9,6 +9,7 @@
 
   // Svelte action for auto-resizing textarea
   function autoResizeTextarea(node: HTMLTextAreaElement) {
+    // TODO: note sure how robust/good this resizer is
     function resize() {
       node.style.height = "auto";
       node.style.height = node.scrollHeight + "px";
@@ -77,14 +78,14 @@
         approval before use in patient care. the ai process can make mistakes.
       </p>
 
-      <div class="nice-box">
-        <textarea
-          class="my-0"
-          readonly
-          value={note.medicalNote}
-          use:autoResizeTextarea
-        ></textarea>
-      </div>
+      <label for="medical-note" class="visually-hidden">Medical Note</label>
+      <textarea
+        id="medical-note"
+        class="nice-box"
+        value={note.medicalNote}
+        use:autoResizeTextarea
+        readonly
+      ></textarea>
       <h3>Advanced Fields</h3>
       <details class="flow">
         <summary>Advanced Fields</summary>
