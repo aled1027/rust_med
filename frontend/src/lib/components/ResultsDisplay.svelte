@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { appState } from "$lib/stores/app.svelte";
+  import { appState } from "$lib/state.svelte";
 </script>
 
 <div class="flow">

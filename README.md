@@ -62,6 +62,7 @@ The Tauri app uses whatever is in the `frontend/build` directory, so while you c
 
 ## TODOs:
 
+- Make overall flow natural
 - Error cases to handle:
   - no speech detected in audio
 

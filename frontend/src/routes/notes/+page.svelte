@@ -1,7 +1,7 @@
 <script lang="ts">
   import { appService } from "$lib/services/appService";
   import { browser } from "$app/environment";
-  import { appState } from "$lib/stores/app.svelte";
+  import { appState } from "$lib/state.svelte";
   import { onMount } from "svelte";
   import type { TauriNote } from "$lib/services/appService";
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { appState } from '$lib/stores/app.svelte';
+  import { appState } from "$lib/state.svelte";
 </script>
 
 {#if appState.errorMessage}
@@ -29,7 +29,9 @@
     background-color: #fef2f2;
     border: 1px solid #fecaca;
     border-radius: 0.75rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow:
+      0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0 4px 6px -2px rgba(0, 0, 0, 0.05);
   }
 
   .error-icon {

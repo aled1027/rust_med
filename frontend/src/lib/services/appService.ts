@@ -5,7 +5,7 @@ import {
   clearResults,
   clearPatientInfo,
   reset as resetStore
-} from '$lib/stores/app.svelte';
+} from '$lib/state.svelte';
 import { browser } from '$app/environment';
 
 declare global {
@@ -369,6 +369,17 @@ class TauriService {
     return this.ensureTauri().path.appLocalDataDir();
   }
 
+  async joinPath(directory: string, filename: string): Promise<string> {
+    // @ts-ignore
+    return await this.ensureTauri().path.join(directory, filename);
+  }
+
+  async makePath(directory: string, filename: string): Promise<string> {
+    // Use Tauri's path.join to construct the path in a cross-platform way
+    // @ts-ignore
+    return await this.ensureTauri().path.join(directory, filename);
+  }
+
   async writeFile(path: string, data: string | Uint8Array): Promise<void> {
     await this.ensureTauri().fs.writeFile(path, data);
   }
@@ -547,12 +558,14 @@ class AppService {
       updateStatus('Audio processed successfully. Starting transcription...');
 
       // Write the audio to a file
-      // TODO: make cross platform
       const appDataDir = await this.ensureTauriService().appLocalDataDir();
+      // TODO: address this
       // IF DEBUG:
-      const audioPath = `${appDataDir}/debug.wav`;
+      const audioFilename = 'debug.wav';
+      const audioPath = await this.ensureTauriService().joinPath(appDataDir, audioFilename);
       // ELSE:
-      // const audioPath = `${appDataDir}/temp_audio_${Date.now()}.wav`;
+      // const audioFilename = `temp_audio_${Date.now()}.wav`;
+      // const audioPath = await this.ensureTauriService().joinPath(appDataDir, audioFilename);
       // const arrayBuffer = await audioBlob.arrayBuffer();
       // const uint8Array = new Uint8Array(arrayBuffer);
       // await this.tauriService.writeFile(audioPath, audioBlob);
