@@ -53,17 +53,19 @@
       </p>
 
       <div class="nice-box">
-        <p class="my-0">{note.medicalNote}</p>
+        <textarea class="my-0" readonly value={note.medicalNote}></textarea>
       </div>
       <h3>Advanced Fields</h3>
-      <details>
+      <details class="flow">
         <summary>Advanced Fields</summary>
         <div class="settings-group">
           <label for="note-id">Note ID</label>
           <input type="text" id="note-id" bind:value={note.id} />
         </div>
         <h4 class="mt-s">Transcript</h4>
-        <p>{note.transcript}</p>
+        <div class="nice-box">
+          <p class="my-0">{note.transcript}</p>
+        </div>
       </details>
     </form>
   {/if}

@@ -13,3 +13,4 @@
 <main class="main-layout" id="content">
   {@render children()}
 </main>
+<footer></footer>
