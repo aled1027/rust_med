@@ -31,7 +31,7 @@ struct PatientNote {
     id: String,
     first_name: String,
     last_name: String,
-    dob: String,
+    date_of_birth: String,
     note_type: String,
     transcript: String,
     medical_note: String,
@@ -701,7 +701,7 @@ async fn save_patient_note(
     app: tauri::AppHandle,
     first_name: String,
     last_name: String,
-    dob: String,
+    date_of_birth: String,
     note_type: String,
     transcript: String,
     medical_note: String,
@@ -726,7 +726,7 @@ async fn save_patient_note(
         id: note_id.clone(),
         first_name,
         last_name,
-        dob,
+        date_of_birth,
         note_type,
         transcript,
         medical_note,
@@ -754,24 +754,6 @@ async fn save_patient_note(
 async fn load_patient_notes(app: tauri::AppHandle) -> Result<LoadNotesResult, String> {
     println!("Loading patient notes");
 
-    // TODO: this works
-    return Ok(LoadNotesResult {
-        success: true,
-        notes: vec![
-            PatientNote {
-                id: "1".to_string(),
-                first_name: "John".to_string(),
-                last_name: "Doe".to_string(),
-                dob: "1990-01-01".to_string(),
-                note_type: "soap".to_string(),
-                transcript: "This is a test transcript".to_string(),
-                medical_note: "This is a test medical note".to_string(),
-                created_at: chrono::Local::now(),
-            }
-        ],
-        error: None,
-    });
-    
     let app_data_dir = app.path().app_local_data_dir().map_err(|e| e.to_string())?;
     let notes_dir = app_data_dir.join("notes");
     
