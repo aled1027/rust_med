@@ -21,7 +21,7 @@
 </script>
 
 <main class="flow">
-  <header>
+  <header class="my-xl">
     <h1 class="size-step-7 text-align-center w-fit mx-auto">
       Medical Note Generator
     </h1>
@@ -73,7 +73,6 @@
   .my-form {
     max-width: 600px;
     margin-inline: auto;
-    margin-block: var(--space-l);
   }
 
   .settings-group {

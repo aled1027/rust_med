@@ -15,13 +15,13 @@
 
 <main class="flow">
   <div class="flow mx-auto w-max-narrow">
-    <header>
+    <header class="my-xl">
       <h1 class="size-step-7 text-align-center w-fit mx-auto">
         Medical Note Generator
       </h1>
     </header>
 
-    <section class="flow my-2xl">
+    <section class="flow">
       <h2 class="mx-auto w-fit">Start a New Note</h2>
       <PatientInfoForm />
     </section>
