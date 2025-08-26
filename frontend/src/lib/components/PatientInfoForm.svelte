@@ -2,7 +2,7 @@
   import { appState } from "$lib/state.svelte";
   import { appService } from "$lib/services/appService";
 
-  function formatTime(seconds: number): string {
+  function formatRecordingTime(seconds: number): string {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
@@ -70,7 +70,9 @@
     {#if appState.isRecording}
       <div class="recording-indicator">
         <div class="recording-dot"></div>
-        <span class="recording-time">{formatTime(appState.recordingTime)}</span>
+        <span class="recording-time"
+          >{formatRecordingTime(appState.recordingTime)}</span
+        >
       </div>
     {/if}
   </div>

@@ -585,15 +585,22 @@ class AppService {
   }
 
 
-  async saveNote(): Promise<string> {
+  async saveNote(
+    firstName: string,
+    lastName: string,
+    dateOfBirth: string,
+    noteType: string,
+    transcript: string,
+    medicalNote: string
+  ): Promise<string> {
     updateStatus('Saving note...');
     const tauriNote: TauriNoteIn = {
-      firstName: appState.patientInfo.firstName,
-      lastName: appState.patientInfo.lastName,
-      dateOfBirth: appState.patientInfo.dateOfBirth,
-      noteType: appState.selectedNoteType,
-      transcript: appState.lastTranscript,
-      medicalNote: appState.lastMedicalNote
+      firstName: firstName,
+      lastName: lastName,
+      dateOfBirth: dateOfBirth,
+      noteType: noteType,
+      transcript: transcript,
+      medicalNote: medicalNote
     }
     const saveResult = await this.tauriService.saveNote(tauriNote);
     if (!saveResult.success || saveResult.note_id === null) {

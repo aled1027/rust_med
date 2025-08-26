@@ -72,7 +72,7 @@
         </a>
       </li>
     </ul>
-    <h2>Notes</h2>
+    <h2>Notes ({appState.notes.length})</h2>
     <ul role="list">
       {#each appState.notes as note}
         <li>
