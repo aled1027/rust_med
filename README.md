@@ -71,3 +71,8 @@ Frontend:
 - appState has all the state
 - appService is the main engine for running things
   - It uses some utility classes: audioService for audio-related things and tauriService for interacting with tauri
+
+Ideas:
+
+- Learn to make a sick textarea field with buttons
+- Learn to make a sick menu

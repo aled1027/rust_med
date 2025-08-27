@@ -7,6 +7,7 @@
   import { goto } from "$app/navigation";
 
   let note: TauriNote | null = $state(null);
+  let copyState = $state("copy");
 
   // Svelte action for auto-resizing textarea
   function autoResizeTextarea(node: HTMLTextAreaElement) {
@@ -38,6 +39,10 @@
   async function copyNote() {
     if (note) {
       await navigator.clipboard.writeText(note.medicalNote);
+      copyState = "copied";
+      setTimeout(() => {
+        copyState = "copy";
+      }, 2000);
     }
   }
 
@@ -102,8 +107,11 @@
       <label for="medical-note" class="visually-hidden">Medical Note</label>
       <div class="position-relative">
         <!-- TODO: finish copy button. Tell the user they copied! -->
-        <button type="button" class="button" data-type="copy" onclick={copyNote}
-          >copy</button
+        <button
+          type="button"
+          class="button"
+          data-type={copyState}
+          onclick={copyNote}>{copyState === "copy" ? "copy" : "copied"}</button
         >
         <textarea
           id="medical-note"
@@ -151,12 +159,17 @@
     width: 100%;
   }
 
-  .button[data-type="copy"] {
+  .button[data-type="copy"],
+  .button[data-type="copied"] {
     border: none;
     position: absolute;
     top: 0;
     right: 0;
     height: 1.5rem;
     font-size: 0.75rem;
+    min-width: 10ch;
+  }
+  .button[data-type="copied"] {
+    opacity: 0.6;
   }
 </style>
