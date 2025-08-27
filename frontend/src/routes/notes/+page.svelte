@@ -115,7 +115,7 @@
         <button
           type="button"
           class="button"
-          data-type="text"
+          data-type="ghost"
           onclick={cancelDelete}>Cancel</button
         >
         <button type="submit" class="button" data-type="danger"
@@ -143,8 +143,8 @@
     color: var(--color-text-on-surface);
     padding: 2rem;
     border-radius: 8px;
-    max-width: 500px;
-    width: 90%;
+    max-width: 600px;
+    margin-inline: 1rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   }
 
