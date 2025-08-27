@@ -225,3 +225,12 @@
 .button[data-type="copied"] {
     opacity: 0.6;
 }
+
+.button[data-type="danger"] {
+    background-color: #dc2626;
+    color: white;
+}
+
+.button[data-type="danger"]:hover {
+    background-color: #b91c1c;
+}
