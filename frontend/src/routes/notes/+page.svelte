@@ -138,16 +138,6 @@
     align-items: center;
   }
 
-  .modal__inner {
-    background: var(--color-surface);
-    color: var(--color-text-on-surface);
-    padding: 2rem;
-    border-radius: 8px;
-    max-width: 600px;
-    margin-inline: 1rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  }
-
   .modal {
     border: none;
     padding: 0;
@@ -161,5 +151,15 @@
     display: grid;
     place-content: center;
     background: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal__inner {
+    background: var(--color-surface);
+    color: var(--color-text-on-surface);
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 600px;
+    margin-inline: 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   }
 </style>
