@@ -212,3 +212,16 @@
     border: 1px solid #6b7280;
     color: white;
 }
+
+.button[data-type="copy"],
+.button[data-type="copied"] {
+    border: none;
+    height: 2.5rem;
+    font-size: 0.75rem;
+    min-width: 10ch;
+    border-radius: 0 0.25rem 0 0;
+}
+
+.button[data-type="copied"] {
+    opacity: 0.6;
+}

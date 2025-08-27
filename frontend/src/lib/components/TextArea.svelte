@@ -1,9 +1,9 @@
 <script lang="ts">
-  // An awesome textarea component with copy buttons, heading, and so on
-
-  let { text } = $props();
-
+  let { text, heading, headingSmall } = $props();
   let copyState = $state("copy");
+  let copyText = $derived(copyState === "copy" ? "copy" : "copied");
+  let uniqueId = $state(Math.random().toString(36).substring(2, 15));
+
   async function copyNote() {
     await navigator.clipboard.writeText(text);
     copyState = "copied";
@@ -12,70 +12,82 @@
     }, 2000);
   }
 
-  // Svelte action for auto-resizing textarea
-  function autoResizeTextarea(node: HTMLTextAreaElement) {
-    // TODO: this resizer isn't great. It's not responsive to page changes, content changes.
-    // It seems like it only handles the initial resize/render in an okay way.
+  function autosize(element: HTMLElement) {
+    // Svelte action for auto-resizing an element, like a textarea
     function resize() {
-      node.style.height = "auto";
-      node.style.height = node.scrollHeight + "px";
+      element.style.height = "auto";
+      element.style.height = element.scrollHeight + 8 + "px";
     }
 
-    // Initial resize
+    // resize on user input
+    element.addEventListener("input", resize);
+
+    // resize on window resize
+    window.addEventListener("resize", resize);
+
+    // resize right away
     resize();
 
-    // Resize when content changes
-    const observer = new MutationObserver(resize);
-    observer.observe(node, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-    });
-
     return {
+      update() {
+        resize();
+      },
       destroy() {
-        observer.disconnect();
+        element.removeEventListener("input", resize);
+        window.removeEventListener("resize", resize);
       },
     };
   }
 </script>
 
-<label for="medical-note" class="visually-hidden">Medical Note</label>
-<div class="position-relative">
-  <!-- TODO: finish copy button. Tell the user they copied! -->
-  <button type="button" class="button" data-type={copyState} onclick={copyNote}
-    >{copyState === "copy" ? "copy" : "copied"}</button
-  >
-  <textarea
-    id="medical-note"
-    class="my-nice-box"
-    value={text}
-    use:autoResizeTextarea
+<div class="textarea">
+  <div class="textarea__heading">
+    <span>
+      <span class="textarea__heading-text">{heading}</span>
+      <small>{headingSmall}</small>
+    </span>
+    <button
+      type="button"
+      class="button right-0"
+      data-type={copyState}
+      onclick={copyNote}>{copyText}</button
+    >
+  </div>
+  <label class="visually-hidden" for={uniqueId}>{heading}</label>
+  <textarea id={uniqueId} class="textarea__text" value={text} use:autosize
   ></textarea>
 </div>
 
 <style>
-  .my-nice-box {
-    padding-block: var(--space-xs);
-    padding-block-start: 2rem;
+  .textarea {
+    --textarea-heading-bg-color: rgba(135, 104, 217, 0.2);
+    --textarea-heading-text-color: rgb(13, 13, 13);
+  }
+
+  .textarea__heading {
+    width: 100%;
+    height: 2.5rem;
+    background: var(--textarea-heading-bg-color);
+    border-radius: 4px 4px 0 0;
+    color: var(--textarea-heading-text-color);
+
+    /* Repel */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .textarea__heading-text {
+    font-weight: 600;
+    padding-inline-start: var(--space-xs);
+  }
+
+  .textarea__text {
     padding-inline: var(--space-xs);
     border: 1px solid var(--color-border);
-    border-radius: 4px;
-    background: #fdfcf4;
-    color: var(--color-text);
+    border-radius: 0 0 4px 4px;
+    background: var(--color-surface);
+    color: var(--color-text-on-surface);
     width: 100%;
-  }
-  .button[data-type="copy"],
-  .button[data-type="copied"] {
-    border: none;
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: 1.5rem;
-    font-size: 0.75rem;
-    min-width: 10ch;
-  }
-  .button[data-type="copied"] {
-    opacity: 0.6;
   }
 </style>

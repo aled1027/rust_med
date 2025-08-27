@@ -97,6 +97,13 @@
     --grid-min-item-size: clamp(16rem, 33%, 20rem);
 }
 
+/* Three column grid layout */
+.grid[data-layout='small-thirds'] {
+    --grid-placement: auto-fit;
+    --grid-min-item-size: clamp(3rem, 32%, 20rem);
+    --gutter: var(--space-2xs);
+}
+
 /* CLUSTER */
 .cluster {
     display: flex;

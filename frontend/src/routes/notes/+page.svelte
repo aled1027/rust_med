@@ -42,9 +42,11 @@
       <h2>{note.lastName}, {note.firstName}</h2>
       <small>Note created at: {new Date(note.createdAt).toLocaleString()}</small
       >
-      <div class="grid">
-        <button class="button" disabled> Edit (not implemented) </button>
-        <button class="button" onclick={deleteNote}> Delete </button>
+      <div class="grid" data-layout="small-thirds">
+        <button class="button" disabled>Save</button>
+
+        <button class="button" disabled>Reset</button>
+        <button class="button" onclick={deleteNote}>Delete</button>
       </div>
 
       <div class="settings-group">
@@ -59,15 +61,17 @@
         <label for="date-of-birth">Date of Birth</label>
         <input type="date" id="date-of-birth" bind:value={note.dateOfBirth} />
       </div>
-      <h3>Medical Note</h3>
-      <small>Note type: {note.noteType}</small>
+
+      <TextArea
+        text={note.medicalNote}
+        heading="Medical Note"
+        headingSmall="({note.noteType.toUpperCase()})"
+      />
 
       <p class="warning">
         Generated notes are drafts requiring healthcare provider review and
         approval before use in patient care. the ai process can make mistakes.
       </p>
-
-      <TextArea text={note.medicalNote} />
 
       <h3>Advanced Fields</h3>
       <details class="flow">
@@ -76,10 +80,7 @@
           <label for="note-id">Note ID</label>
           <input type="text" id="note-id" bind:value={note.id} />
         </div>
-        <h4 class="mt-s">Transcript</h4>
-        <div class="nice-box">
-          <p class="my-0">{note.transcript}</p>
-        </div>
+        <TextArea text={note.transcript} heading="Transcript" headingSmall="" />
       </details>
     </form>
   {/if}
