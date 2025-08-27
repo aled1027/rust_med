@@ -8,13 +8,21 @@
   import TextArea from "$lib/components/TextArea.svelte";
 
   let note: TauriNote | null = $state(null);
+  let showDeleteConfirmation = $state(false);
 
   async function deleteNote() {
-    // TODO: add confirmation and success
     if (note) {
       await appService.deleteNote(note.id);
       goto("/");
     }
+  }
+
+  function confirmDelete() {
+    showDeleteConfirmation = true;
+  }
+
+  function cancelDelete() {
+    showDeleteConfirmation = false;
   }
 
   afterNavigate(async () => {
@@ -46,7 +54,9 @@
         <button class="button" disabled>Save</button>
 
         <button class="button" disabled>Reset</button>
-        <button class="button" onclick={deleteNote}>Delete</button>
+        <button class="button button--danger" onclick={confirmDelete}
+          >Delete</button
+        >
       </div>
 
       <div class="settings-group">
@@ -86,6 +96,32 @@
   {/if}
 </main>
 
+<!-- Delete Confirmation Modal -->
+{#if showDeleteConfirmation}
+  <div class="modal-overlay">
+    <form
+      class="modal-content"
+      onsubmit={(e) => {
+        e.preventDefault();
+        deleteNote();
+      }}
+    >
+      <h3>Confirm Deletion</h3>
+      <p>
+        Are you sure you want to delete this note for {note?.lastName}, {note?.firstName}?
+      </p>
+      <p class="warning">This action cannot be undone.</p>
+
+      <div class="modal-actions">
+        <button type="button" class="button" onclick={cancelDelete}
+          >Cancel</button
+        >
+        <button type="submit" class="button button--danger">Delete Note</button>
+      </div>
+    </form>
+  </div>
+{/if}
+
 <style>
   .my-form {
     max-width: 600px;
@@ -98,14 +134,46 @@
     align-items: center;
   }
 
-  .nice-box {
-    padding-block: var(--space-xs);
-    padding-block-start: 2rem;
-    padding-inline: var(--space-xs);
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-    background: #fdfcf4;
-    color: var(--color-text);
-    width: 100%;
+  .button--danger {
+    background-color: var(--color-error, #dc2626);
+    color: white;
+  }
+
+  .button--danger:hover {
+    background-color: var(--color-error-hover, #b91c1c);
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+
+  .modal-content h3 {
+    margin-top: 0;
+    color: var(--color-error, #dc2626);
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
   }
 </style>
