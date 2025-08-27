@@ -74,7 +74,10 @@
       <h2>{note.lastName}, {note.firstName}</h2>
       <small>Note created at: {new Date(note.createdAt).toLocaleString()}</small
       >
-      <button class="button" onclick={deleteNote}> Delete </button>
+      <div class="grid">
+        <button class="button" disabled> Edit (not implemented) </button>
+        <button class="button" onclick={deleteNote}> Delete </button>
+      </div>
 
       <div class="settings-group">
         <label for="first-name">First Name</label>
