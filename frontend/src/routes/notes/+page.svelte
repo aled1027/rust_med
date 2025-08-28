@@ -31,17 +31,19 @@
     showDeleteConfirmation = false;
   }
 
-  function handleDeleteForm(e: Event) {
+  async function handleDeleteForm(e: Event) {
     e.preventDefault();
-    deleteNote();
+    await deleteNote();
   }
 
-  function saveNote() {
-    console.log("saveNote");
+  async function saveNote() {
+    if (note) {
+      await appService.updateNote(note);
+    }
   }
 
   function resetNote() {
-    note = { ...originalNote };
+    note = { ...originalNote } as TauriNote;
   }
 
   afterNavigate(async () => {

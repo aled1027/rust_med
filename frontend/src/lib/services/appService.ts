@@ -395,6 +395,13 @@ class TauriService {
   async deleteNote(noteId: string): Promise<{ success: boolean, error: string | null }> {
     return await this.ensureTauri().core.invoke('delete_patient_note', { noteId: noteId });
   }
+
+  async updateNote(noteId: string, note: TauriNoteIn): Promise<{ success: boolean, note_id: string | null, error: string | null }> {
+    return await this.ensureTauri().core.invoke('update_patient_note', {
+      noteId: noteId,
+      ...note
+    });
+  }
 }
 
 class AppService {
@@ -580,6 +587,27 @@ class AppService {
 
     updateStatus('Note saved successfully!');
     return saveResult.note_id;
+  }
+
+  async updateNote(
+    note: TauriNote
+  ): Promise<string> {
+    updateStatus('Updating note...');
+    const tauriNoteIn: TauriNoteIn = {
+      firstName: note.firstName,
+      lastName: note.lastName,
+      dateOfBirth: note.dateOfBirth,
+      noteType: note.noteType,
+      transcript: note.transcript,
+      medicalNote: note.medicalNote
+    }
+    const updateResult = await this.tauriService.updateNote(note.id, tauriNoteIn);
+    if (!updateResult.success || updateResult.note_id === null) {
+      throw new Error(updateResult.error || 'Failed to update note');
+    }
+
+    updateStatus('Note updated successfully!');
+    return updateResult.note_id;
   }
 
   async loadNotes(): Promise<TauriNote[]> {

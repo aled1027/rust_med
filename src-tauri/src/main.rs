@@ -751,6 +751,63 @@ async fn save_patient_note(
 }
 
 #[tauri::command]
+async fn update_patient_note(
+    app: tauri::AppHandle,
+    note_id: String,
+    first_name: String,
+    last_name: String,
+    date_of_birth: String,
+    note_type: String,
+    transcript: String,
+    medical_note: String,
+) -> Result<SaveNoteResult, String> {
+    println!("Updating patient note {} for {} {}", note_id, first_name, last_name);
+    
+    let app_data_dir = app.path().app_local_data_dir().map_err(|e| e.to_string())?;
+    let notes_dir = app_data_dir.join("notes");
+    let note_file = notes_dir.join(format!("{}.json", note_id));
+    
+    // Check if the note file exists
+    if !note_file.exists() {
+        return Err(format!("Note not found: {}", note_id));
+    }
+    
+    // Load existing note to preserve creation date
+    let existing_content = fs::read_to_string(&note_file)
+        .map_err(|e| format!("Failed to read existing note: {}", e))?;
+    
+    let existing_note: PatientNote = serde_json::from_str(&existing_content)
+        .map_err(|e| format!("Failed to parse existing note: {}", e))?;
+    
+    // Create updated note with existing creation date
+    let updated_note = PatientNote {
+        id: note_id.clone(),
+        first_name,
+        last_name,
+        date_of_birth,
+        note_type,
+        transcript,
+        medical_note,
+        created_at: existing_note.created_at, // Preserve original creation date
+    };
+    
+    // Save updated note to JSON file
+    let json_content = serde_json::to_string_pretty(&updated_note)
+        .map_err(|e| format!("Failed to serialize updated note: {}", e))?;
+    
+    fs::write(&note_file, json_content)
+        .map_err(|e| format!("Failed to write updated note file: {}", e))?;
+    
+    println!("Note updated successfully: {:?}", note_file);
+    
+    Ok(SaveNoteResult {
+        success: true,
+        note_id: Some(note_id),
+        error: None,
+    })
+}
+
+#[tauri::command]
 async fn load_patient_notes(app: tauri::AppHandle) -> Result<LoadNotesResult, String> {
     println!("Loading patient notes...");
 
@@ -837,6 +894,7 @@ fn main() {
             transcribe_audio,
             generate_medical_note,
             save_patient_note,
+            update_patient_note,
             load_patient_notes,
             delete_patient_note
         ])
