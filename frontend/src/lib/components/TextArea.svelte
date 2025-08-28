@@ -1,5 +1,5 @@
 <script lang="ts">
-  let { text, heading, headingSmall } = $props();
+  let { text = $bindable(), heading, headingSmall } = $props();
   let copyState = $state("copy");
   let copyText = $derived(copyState === "copy" ? "copy" : "copied");
   let uniqueId = $state(Math.random().toString(36).substring(2, 15));
@@ -12,7 +12,7 @@
     }, 2000);
   }
 
-  function autosize(element: HTMLElement) {
+  function autosize(element: HTMLElement, value: string) {
     // Svelte action for auto-resizing an element, like a textarea
     function resize() {
       element.style.height = "auto";
@@ -29,7 +29,7 @@
     resize();
 
     return {
-      update() {
+      update(newValue: string) {
         resize();
       },
       destroy() {
@@ -54,7 +54,11 @@
     >
   </div>
   <label class="visually-hidden" for={uniqueId}>{heading}</label>
-  <textarea id={uniqueId} class="textarea__text" value={text} use:autosize
+  <textarea
+    id={uniqueId}
+    class="textarea__text"
+    bind:value={text}
+    use:autosize={text}
   ></textarea>
 </div>
 

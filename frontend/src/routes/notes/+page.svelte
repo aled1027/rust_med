@@ -85,7 +85,7 @@
       </div>
 
       <TextArea
-        text={note.medicalNote}
+        bind:text={note.medicalNote}
         heading="Medical Note"
         headingSmall="({note.noteType.toUpperCase()})"
       />
