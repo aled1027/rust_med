@@ -62,17 +62,16 @@ The Tauri app uses whatever is in the `frontend/build` directory, so while you c
 
 ## TODOs:
 
-- Add edit feature to note page
+- Make the menu more like Openai. A sidebar that can be closed on narrow viewports
 - Error cases to handle:
   - no speech detected in audio
+
+For later:
+
+- Should the audio be more managed through the tauri backend? I might have lost that from the prototype
 
 Frontend:
 
 - appState has all the state
 - appService is the main engine for running things
-  - It uses some utility classes: audioService for audio-related things and tauriService for interacting with tauri
-
-Ideas:
-
-- Learn to make a sick textarea field with buttons
-- Learn to make a sick menu
+  - It uses some utility classes: AudioService for audio-related things and TauriService for interacting with tauri

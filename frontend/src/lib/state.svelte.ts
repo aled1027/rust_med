@@ -36,13 +36,12 @@ export class AppState {
 // Create a singleton instance
 export const appState = new AppState();
 
+// Utility functions for managing the UI
 export function updateStatus(status: string) {
-    // TODO: remove this. Legacy from older version
     appState.updateStatus(status);
 }
 
 export function showError(message: string) {
-    // TODO: remove this. Legacy from older version
     appState.showError(message);
 }
 

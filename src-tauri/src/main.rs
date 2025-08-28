@@ -39,7 +39,7 @@ struct PatientNote {
 }
 
 #[derive(Serialize)]
-struct SaveNoteResult {
+struct NoteResult {
     success: bool,
     note_id: Option<String>,
     error: Option<String>,
@@ -484,9 +484,6 @@ Medical transcript:
     
     // Execute llamafile with supported parameters only
     println!("Executing llamafile with absolute model path: {:?}", model_path);
-    println!("Project root: {:?}", project_root);
-    println!("Llamafile path: {:?}", llamafile_path);
-    println!("Current working directory: {:?}", std::env::current_dir().unwrap_or_default());
     
     let mut cmd = std::process::Command::new(&llamafile_path);
     cmd.current_dir(&project_root)
@@ -507,6 +504,7 @@ Medical transcript:
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
     
+    println!("Starting llamafile process...");
     let mut child = cmd.spawn()
         .map_err(|e| format!("Failed to execute llamafile: {}", e))?;
 
@@ -535,6 +533,8 @@ Medical transcript:
 
     // Wait for the process to complete
     let status = child.wait().map_err(|e| format!("Failed to wait for llamafile: {}", e))?;
+
+    println!("Llamafile process completed");
 
     if status.success() {
         // Clean the final output
@@ -697,7 +697,7 @@ fn clean_llm_output(output: &str) -> String {
 }
 
 #[tauri::command]
-async fn save_patient_note(
+async fn create_patient_note(
     app: tauri::AppHandle,
     first_name: String,
     last_name: String,
@@ -705,8 +705,8 @@ async fn save_patient_note(
     note_type: String,
     transcript: String,
     medical_note: String,
-) -> Result<SaveNoteResult, String> {
-    println!("Saving patient note for {} {}", first_name, last_name);
+) -> Result<NoteResult, String> {
+    println!("Creating patient note for {} {}", first_name, last_name);
     
     let app_data_dir = app.path().app_local_data_dir().map_err(|e| e.to_string())?;
     let notes_dir = app_data_dir.join("notes");
@@ -741,9 +741,9 @@ async fn save_patient_note(
     fs::write(&note_file, json_content)
         .map_err(|e| format!("Failed to write note file: {}", e))?;
     
-    println!("Note saved successfully: {:?}", note_file);
+    println!("Note created successfully: {:?}", note_file);
     
-    Ok(SaveNoteResult {
+    Ok(NoteResult {
         success: true,
         note_id: Some(note_id),
         error: None,
@@ -760,7 +760,7 @@ async fn update_patient_note(
     note_type: String,
     transcript: String,
     medical_note: String,
-) -> Result<SaveNoteResult, String> {
+) -> Result<NoteResult, String> {
     println!("Updating patient note {} for {} {}", note_id, first_name, last_name);
     
     let app_data_dir = app.path().app_local_data_dir().map_err(|e| e.to_string())?;
@@ -800,7 +800,7 @@ async fn update_patient_note(
     
     println!("Note updated successfully: {:?}", note_file);
     
-    Ok(SaveNoteResult {
+    Ok(NoteResult {
         success: true,
         note_id: Some(note_id),
         error: None,
@@ -893,9 +893,9 @@ fn main() {
             validate_audio_file,
             transcribe_audio,
             generate_medical_note,
-            save_patient_note,
-            update_patient_note,
+            create_patient_note,
             load_patient_notes,
+            update_patient_note,
             delete_patient_note
         ])
         .setup(|app| {

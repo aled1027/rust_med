@@ -76,11 +76,11 @@ $gray-1000: #191A1A;
 // All use of theme colors should be done through CSS variables, not through SCSS variables,
 // so that theme is appropriately applied by the browser
 $themes: (
-  light: (color-primary: #6546B8,
-    color-primary-light: #8768D9,
-    color-primary-lighter: #E8E1F3,
-    color-accent: #6546B8,
-    color-tertiary: #6546B8,
+  light: (color-primary: #2D4FB4,
+    color-primary-light: #93A1D2,
+    color-primary-lighter: #bbcffb,
+    color-accent: #2D4FB4,
+    color-tertiary: #2D4FB4,
     bg-color: $gray-50,
     bg-color-alt: $gray-100,
     bg-color-alt2: $gray-300,

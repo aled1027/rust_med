@@ -64,14 +64,14 @@
 
 <style>
   .textarea {
-    --textarea-heading-bg-color: rgba(135, 104, 217, 0.2);
-    --textarea-heading-text-color: rgb(13, 13, 13);
+    --textarea-heading-bg-color: var(--color-primary-lighter);
+    --textarea-heading-text-color: var(--color-text);
   }
 
   .textarea__heading {
     width: 100%;
     height: 2.5rem;
-    background: var(--textarea-heading-bg-color);
+    background: var(--color-primary-lighter);
     border-radius: 4px 4px 0 0;
     color: var(--textarea-heading-text-color);
 

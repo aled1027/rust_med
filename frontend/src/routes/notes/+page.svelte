@@ -36,8 +36,9 @@
     await deleteNote();
   }
 
-  async function saveNote() {
+  async function updateNote() {
     if (note) {
+      originalNote = { ...note };
       await appService.updateNote(note);
     }
   }
@@ -94,7 +95,7 @@
 
       <p class="warning">
         Generated notes are drafts requiring healthcare provider review and
-        approval before use in patient care. the ai process can make mistakes.
+        approval before use in patient care. The AI process can make mistakes.
       </p>
 
       <!-- <details class="flow">
@@ -103,7 +104,7 @@
       </details> -->
 
       <div class="grid" data-layout="small-thirds">
-        <button class="button" disabled={!isDirty} onclick={saveNote}
+        <button class="button" disabled={!isDirty} onclick={updateNote}
           >Save</button
         >
 

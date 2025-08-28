@@ -388,8 +388,8 @@ class TauriService {
     return { success: false, notes: [], error: result.error };
   }
 
-  async saveNote(note: TauriNoteIn): Promise<{ success: boolean, note_id: string | null, error: string | null }> {
-    return await this.ensureTauri().core.invoke('save_patient_note', note);
+  async createNote(note: TauriNoteIn): Promise<{ success: boolean, note_id: string | null, error: string | null }> {
+    return await this.ensureTauri().core.invoke('create_patient_note', note);
   }
 
   async deleteNote(noteId: string): Promise<{ success: boolean, error: string | null }> {
@@ -563,7 +563,7 @@ class AppService {
   }
 
 
-  async saveNote(
+  async createNote(
     firstName: string,
     lastName: string,
     dateOfBirth: string,
@@ -571,7 +571,7 @@ class AppService {
     transcript: string,
     medicalNote: string
   ): Promise<string> {
-    updateStatus('Saving note...');
+    updateStatus('Creating note...');
     const tauriNote: TauriNoteIn = {
       firstName: firstName,
       lastName: lastName,
@@ -580,13 +580,13 @@ class AppService {
       transcript: transcript,
       medicalNote: medicalNote
     }
-    const saveResult = await this.tauriService.saveNote(tauriNote);
-    if (!saveResult.success || saveResult.note_id === null) {
-      throw new Error(saveResult.error || 'Failed to save note');
+    const result = await this.tauriService.createNote(tauriNote);
+    if (!result.success || result.note_id === null) {
+      throw new Error(result.error || 'Failed to create note');
     }
 
-    updateStatus('Note saved successfully!');
-    return saveResult.note_id;
+    updateStatus('Note created successfully!');
+    return result.note_id;
   }
 
   async updateNote(

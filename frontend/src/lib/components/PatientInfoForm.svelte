@@ -48,7 +48,6 @@
 
   async function stopAndProcessRecording() {
     await appService.stopRecording();
-    return;
 
     // TODO:
     const processResult = await appService.processRecording();
@@ -58,8 +57,8 @@
     transcript = processResult.transcript;
     medicalNote = processResult.medicalNote;
 
-    updateStatus("Saving note...");
-    const noteId = await appService.saveNote(
+    updateStatus("Creating note...");
+    const noteId = await appService.createNote(
       firstName,
       lastName,
       dateOfBirth,
