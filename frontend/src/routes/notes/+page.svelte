@@ -7,8 +7,14 @@
   import { goto } from "$app/navigation";
   import TextArea from "$lib/components/TextArea.svelte";
 
+  let originalNote: TauriNote | null = $state(null);
   let note: TauriNote | null = $state(null);
   let showDeleteConfirmation = $state(false);
+  let isDirty = $derived(
+    note &&
+      originalNote &&
+      JSON.stringify(note) !== JSON.stringify(originalNote)
+  );
 
   async function deleteNote() {
     if (note) {
@@ -30,6 +36,14 @@
     deleteNote();
   }
 
+  function saveNote() {
+    console.log("saveNote");
+  }
+
+  function resetNote() {
+    note = { ...originalNote };
+  }
+
   afterNavigate(async () => {
     await appService.syncNotes();
 
@@ -38,6 +52,7 @@
     const maybeNote = appState.notes.find((n) => n.id === noteId);
     if (!!maybeNote) {
       // Make a copy of the note so we can mutate it. And then save it if needed
+      originalNote = { ...maybeNote };
       note = { ...maybeNote };
     }
   });
@@ -55,14 +70,6 @@
       <h2>{note.lastName}, {note.firstName}</h2>
       <small>Note created at: {new Date(note.createdAt).toLocaleString()}</small
       >
-      <div class="grid" data-layout="small-thirds">
-        <button class="button" disabled>Save</button>
-
-        <button class="button" disabled>Reset</button>
-        <button class="button button--danger" onclick={showConfirmDelete}
-          >Delete</button
-        >
-      </div>
 
       <div class="note-form-group">
         <label for="first-name">First Name</label>
@@ -88,15 +95,23 @@
         approval before use in patient care. the ai process can make mistakes.
       </p>
 
-      <h3>Advanced Fields</h3>
-      <details class="flow">
-        <summary>Advanced Fields</summary>
-        <div class="note-form-group">
-          <label for="note-id">Note ID</label>
-          <input type="text" id="note-id" bind:value={note.id} />
-        </div>
+      <!-- <details class="flow">
+        <summary>Transcript</summary>
         <TextArea text={note.transcript} heading="Transcript" headingSmall="" />
-      </details>
+      </details> -->
+
+      <div class="grid" data-layout="small-thirds">
+        <button class="button" disabled={!isDirty} onclick={saveNote}
+          >Save</button
+        >
+
+        <button class="button" disabled={!isDirty} onclick={resetNote}
+          >Reset changes</button
+        >
+        <button class="button button--danger" onclick={showConfirmDelete}
+          >Delete</button
+        >
+      </div>
     </form>
   {/if}
 </main>
