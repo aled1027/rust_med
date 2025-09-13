@@ -185,3 +185,5 @@ class AppService {
 
 // Create a singleton instance
 export const appService = new AppService();
+
+export const tauriService = new TauriService();
