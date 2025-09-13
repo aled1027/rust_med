@@ -1,30 +1,38 @@
-# Medical Note Generator
+# sv
 
-This project allows medical professionals to:
+Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-- Turn on recording during patient visits
-- Record the visit
-- Get a transcription of the visit with whisper
-- Generate a SOAP medical note from the transcription
-- Medical professionals can then navigate their notes.
+## Creating a project
 
-Eventually this project will be migrated to use Tauri and wrapped as an app, but for now, it's a web only project.
+If you're seeing this, you've probably already done this step. Congrats!
+
+```sh
+# create a new project in the current directory
+npx sv create
+
+# create a new project in my-app
+npx sv create my-app
+```
 
 ## Developing
 
-```sh
-# Install dependencies
-npm install
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
-# Run the dev server
+```sh
 npm run dev
 
-# Or start the server and open the app in a new browser tab
+# or start the server and open the app in a new browser tab
 npm run dev -- --open
 ```
 
 ## Building
 
+To create a production version of your app:
+
 ```sh
 npm run build
 ```
+
+You can preview the production build with `npm run preview`.
+
+> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
