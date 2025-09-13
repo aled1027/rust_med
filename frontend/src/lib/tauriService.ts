@@ -1,4 +1,3 @@
-import { appState } from '$lib/state.svelte';
 import { browser } from '$app/environment';
 import type { TauriNote, TauriNoteIn } from '$lib/types';
 
@@ -106,84 +105,5 @@ class TauriService {
     });
   }
 }
-
-class AppService {
-  private tauriService: TauriService;
-
-  constructor() {
-    // Tauri service can be initialized here because it doesn't depend on the browser environment
-    // TauriService itself will handle the browser environment check.
-    this.tauriService = new TauriService();
-  }
-
-  // Tauri service methods - exposed for component use
-  async getAppLocalDataDir(): Promise<string> {
-    return this.tauriService.appLocalDataDir();
-  }
-
-  async joinPath(directory: string, filename: string): Promise<string> {
-    return this.tauriService.joinPath(directory, filename);
-  }
-
-  async transcribeAudio(
-    audioPath: string
-  ): Promise<{ success: boolean; transcript: string; error: string | null }> {
-    return this.tauriService.transcribeAudio(audioPath);
-  }
-
-  async generateMedicalNote(
-    transcript: string,
-    noteType: string
-  ): Promise<{ success: boolean; note: string; error: string | null }> {
-    return this.tauriService.generateMedicalNote(transcript, noteType);
-  }
-
-  async createNote(note: TauriNoteIn): Promise<string> {
-    const result = await this.tauriService.createNote(note);
-    if (!result.success || result.note_id === null) {
-      throw new Error(result.error || 'Failed to create note');
-    }
-
-    return result.note_id;
-  }
-
-  async updateNote(note: TauriNote): Promise<string> {
-    const tauriNoteIn: TauriNoteIn = {
-      firstName: note.firstName,
-      lastName: note.lastName,
-      dateOfBirth: note.dateOfBirth,
-      noteType: note.noteType,
-      transcript: note.transcript,
-      medicalNote: note.medicalNote
-    };
-    const updateResult = await this.tauriService.updateNote(note.id, tauriNoteIn);
-    if (!updateResult.success || updateResult.note_id === null) {
-      throw new Error(updateResult.error || 'Failed to update note');
-    }
-
-    return updateResult.note_id;
-  }
-
-  async loadNotes(): Promise<TauriNote[]> {
-    const loadResult = await this.tauriService.loadNotes();
-    if (loadResult.success) {
-      return loadResult.notes;
-    }
-    return [];
-  }
-
-  async syncNotes() {
-    const notes = await this.loadNotes();
-    appState.notes = notes;
-  }
-
-  async deleteNote(noteId: string) {
-    await this.tauriService.deleteNote(noteId);
-    await this.syncNotes();
-  }
-}
-
-// Create a singleton instance
-export const appService = new AppService();
 
 export const tauriService = new TauriService();

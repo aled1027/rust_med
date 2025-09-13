@@ -11,7 +11,7 @@
   import { Label } from '$lib/components/ui/label';
   import { RadioGroup, RadioGroupItem } from '$lib/components/ui/radio-group';
   import { Separator } from '$lib/components/ui/separator';
-  import { appService } from '$lib/appService';
+  import { tauriService } from '$lib/tauriService';
   import { onMount } from 'svelte';
   import type { RecordingState } from '$lib/types';
 
@@ -518,13 +518,13 @@
       appStatus = 'Audio processed successfully. Starting transcription...';
 
       // Write the audio to a file using Tauri service
-      const appDataDir = await appService.getAppLocalDataDir();
+      const appDataDir = await tauriService.appLocalDataDir();
       const audioFilename = 'debug.wav';
-      const audioPath = await appService.joinPath(appDataDir, audioFilename);
+      const audioPath = await tauriService.joinPath(appDataDir, audioFilename);
 
       appStatus = 'Transcribing audio...';
       console.log('Transcribing audio...');
-      const transcriptionResult = await appService.transcribeAudio(audioPath);
+      const transcriptionResult = await tauriService.transcribeAudio(audioPath);
       if (!transcriptionResult.success) {
         console.error('Transcription failed:', transcriptionResult.error);
         throw new Error(transcriptionResult.error || 'Transcription failed');
@@ -533,7 +533,7 @@
       const transcript = transcriptionResult.transcript;
       appStatus = 'Generating medical note... (this can take about 30 seconds)';
 
-      const noteGenResult = await appService.generateMedicalNote(transcript, formData.noteType);
+      const noteGenResult = await tauriService.generateMedicalNote(transcript, formData.noteType);
 
       if (!noteGenResult.success) {
         throw new Error(noteGenResult.error || 'Failed to generate medical note');
@@ -543,7 +543,7 @@
       appStatus = 'Note generated successfully!';
 
       // Create the note with the processed data
-      await appService.createNote({
+      const createResult = await tauriService.createNote({
         firstName: formData.firstName,
         lastName: formData.lastName,
         dateOfBirth: formData.dateOfBirth,
@@ -551,6 +551,10 @@
         transcript: transcript,
         medicalNote: medicalNote
       });
+
+      if (!createResult.success) {
+        throw new Error(createResult.error || 'Failed to create note');
+      }
 
       // Reset form after successful processing
       formData = {
