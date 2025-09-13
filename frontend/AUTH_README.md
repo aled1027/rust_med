@@ -32,22 +32,22 @@ This project includes a comprehensive authentication system built with Svelte 5 
 
 ```svelte
 <script lang="ts">
-	import { useAuth } from '$lib/hooks/use-auth.svelte.js';
+  import { useAuth } from '$lib/hooks/use-auth.svelte.js';
 
-	const auth = useAuth();
+  const auth = useAuth();
 
-	// Access authentication state
-	let isAuthenticated = $derived(auth.state.isAuthenticated);
-	let user = $derived(auth.state.user);
-	let isLoading = $derived(auth.state.isLoading);
-	let error = $derived(auth.state.error);
+  // Access authentication state
+  let isAuthenticated = $derived(auth.state.isAuthenticated);
+  let user = $derived(auth.state.user);
+  let isLoading = $derived(auth.state.isLoading);
+  let error = $derived(auth.state.error);
 </script>
 
 {#if isAuthenticated}
-	<p>Welcome, {user?.name}!</p>
-	<button onclick={() => auth.logout()}>Logout</button>
+  <p>Welcome, {user?.name}!</p>
+  <button onclick={() => auth.logout()}>Logout</button>
 {:else}
-	<button onclick={() => auth.login({ username: 'test', password: 'test' })}> Login </button>
+  <button onclick={() => auth.login({ username: 'test', password: 'test' })}> Login </button>
 {/if}
 ```
 
@@ -56,8 +56,8 @@ This project includes a comprehensive authentication system built with Svelte 5 
 ```typescript
 // Login with credentials
 await auth.login({
-	username: 'doctor123',
-	password: 'password123'
+  username: 'doctor123',
+  password: 'password123'
 });
 ```
 
@@ -82,10 +82,10 @@ const isDoctor = auth.hasRole('doctor');
 
 ```typescript
 try {
-	await auth.login(credentials);
+  await auth.login(credentials);
 } catch (error) {
-	// Error is automatically stored in auth.state.error
-	console.error('Login failed:', error);
+  // Error is automatically stored in auth.state.error
+  console.error('Login failed:', error);
 }
 ```
 
