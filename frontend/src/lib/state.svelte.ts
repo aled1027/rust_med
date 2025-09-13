@@ -14,32 +14,13 @@ export class AppState {
 	// Error
 	errorMessage = $state('');
 
-	// Utility methods
-	updateStatus(status: string) {
-		this.appStatus = status;
-	}
-
-	showError(message: string) {
-		this.errorMessage = message;
-		setTimeout(() => (this.errorMessage = ''), 5000);
-	}
-
 	reset() {
 		this.recordingTime = 0;
 		this.errorMessage = '';
 		this.recordingState = 'not-ready';
-		this.updateStatus('Ready');
+		this.appStatus = 'Ready';
 	}
 }
 
 // Create a singleton instance
 export const appState = new AppState();
-
-// Utility functions for managing the UI
-export function updateStatus(status: string) {
-	appState.updateStatus(status);
-}
-
-export function showError(message: string) {
-	appState.showError(message);
-}

@@ -1,4 +1,4 @@
-import { appState, updateStatus, showError } from '$lib/state.svelte';
+import { appState } from '$lib/state.svelte';
 import { browser } from '$app/environment';
 import type { TauriNote, TauriNoteIn } from '$lib/types';
 
@@ -463,33 +463,34 @@ class AppService {
 				}
 			}
 			appState.recordingState = 'ready';
-			updateStatus('Ready');
+			appState.appStatus = 'Ready';
 		} catch (error) {
 			console.error('Failed to initialize app:', error);
-			showError('Failed to initialize application');
+			appState.errorMessage = 'Failed to initialize application';
+			setTimeout(() => (appState.errorMessage = ''), 5000);
 		}
 	}
 
 	async startRecording() {
-		updateStatus('Initializing recording...');
+		appState.appStatus = 'Initializing recording...';
 		await audioService.startRecording(appState.selectedMicrophoneId);
 		appState.recordingState = 'recording';
 		appState.recordingTime = 0;
 		this.startTimer();
-		updateStatus('Recording...');
+		appState.appStatus = 'Recording...';
 	}
 
 	pauseResumeRecording() {
 		try {
 			if (appState.recordingState === 'paused') {
 				// Resume recording
-				updateStatus('Resuming recording...');
+				appState.appStatus = 'Resuming recording...';
 				audioService.resumeRecording();
 				appState.recordingState = 'recording';
 				this.startTimer();
 			} else {
 				// Pause recording
-				updateStatus('Pausing recording...');
+				appState.appStatus = 'Pausing recording...';
 				audioService.pauseRecording();
 				appState.recordingState = 'paused';
 				this.stopTimer(true);
@@ -497,19 +498,21 @@ class AppService {
 		} catch (error) {
 			console.error('Error in pauseResumeRecording:', error);
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			showError(`Failed to pause/resume recording: ${errorMessage}`);
+			appState.errorMessage = `Failed to pause/resume recording: ${errorMessage}`;
+			setTimeout(() => (appState.errorMessage = ''), 5000);
 		}
 	}
 
 	stopRecording() {
 		try {
-			updateStatus('Stopping recording...');
+			appState.appStatus = 'Stopping recording...';
 			audioService.stopRecording();
 			appState.recordingState = 'stopped';
 			this.stopTimer();
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			showError(`Failed to stop recording: ${errorMessage}`);
+			appState.errorMessage = `Failed to stop recording: ${errorMessage}`;
+			setTimeout(() => (appState.errorMessage = ''), 5000);
 			appState.recordingState = 'not-ready';
 		}
 	}
@@ -540,7 +543,7 @@ class AppService {
 		let medicalNote = '';
 		const error = false;
 		try {
-			updateStatus('Processing recorded audio...');
+			appState.appStatus = 'Processing recorded audio...';
 
 			// Get the recorded audio blob from audio service
 			const audioBlob = await audioService.getRecordedAudio();
@@ -549,7 +552,7 @@ class AppService {
 				throw new Error('No audio data recorded');
 			}
 
-			updateStatus('Audio processed successfully. Starting transcription...');
+			appState.appStatus = 'Audio processed successfully. Starting transcription...';
 
 			// Write the audio to a file
 			const appDataDir = await this.tauriService.appLocalDataDir();
@@ -566,7 +569,7 @@ class AppService {
 			// console.log("Audio written to file", audioPath);
 			// Save audio to temporary file and transcribe
 
-			updateStatus('Transcribing audio...');
+			appState.appStatus = 'Transcribing audio...';
 			console.log('Transcribing audio...');
 			const transcriptionResult = await this.tauriService.transcribeAudio(audioPath);
 			if (!transcriptionResult.success) {
@@ -575,7 +578,7 @@ class AppService {
 			}
 
 			transcript = transcriptionResult.transcript;
-			updateStatus('Generating medical note... (this can take about 30 seconds)');
+			appState.appStatus = 'Generating medical note... (this can take about 30 seconds)';
 
 			// TODO: hardcoded
 			const noteType = 'soap';
@@ -586,10 +589,11 @@ class AppService {
 			}
 			medicalNote = noteGenResult.note;
 
-			updateStatus('Note generated successfully!');
+			appState.appStatus = 'Note generated successfully!';
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			showError(`Failed to process recording: ${errorMessage}`);
+			appState.errorMessage = `Failed to process recording: ${errorMessage}`;
+			setTimeout(() => (appState.errorMessage = ''), 5000);
 			error = true;
 		}
 		return { transcript, medicalNote, error };
@@ -603,7 +607,7 @@ class AppService {
 		transcript: string,
 		medicalNote: string
 	): Promise<string> {
-		updateStatus('Creating note...');
+		appState.appStatus = 'Creating note...';
 		const tauriNote: TauriNoteIn = {
 			firstName: firstName,
 			lastName: lastName,
@@ -617,12 +621,12 @@ class AppService {
 			throw new Error(result.error || 'Failed to create note');
 		}
 
-		updateStatus('Note created successfully!');
+		appState.appStatus = 'Note created successfully!';
 		return result.note_id;
 	}
 
 	async updateNote(note: TauriNote): Promise<string> {
-		updateStatus('Updating note...');
+		appState.appStatus = 'Updating note...';
 		const tauriNoteIn: TauriNoteIn = {
 			firstName: note.firstName,
 			lastName: note.lastName,
@@ -636,7 +640,7 @@ class AppService {
 			throw new Error(updateResult.error || 'Failed to update note');
 		}
 
-		updateStatus('Note updated successfully!');
+		appState.appStatus = 'Note updated successfully!';
 		return updateResult.note_id;
 	}
 
