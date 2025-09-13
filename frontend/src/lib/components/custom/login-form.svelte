@@ -1,7 +1,13 @@
 <script lang="ts">
 	import { useAuth } from '$lib/hooks/use-auth.svelte.js';
 	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import {
+		Card,
+		CardContent,
+		CardDescription,
+		CardHeader,
+		CardTitle
+	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import type { LoginCredentials } from '$lib/types.js';
@@ -45,7 +51,7 @@
 	 */
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
-		
+
 		if (!validateForm()) {
 			return;
 		}
@@ -71,9 +77,7 @@
 <Card class="w-full max-w-md">
 	<CardHeader>
 		<CardTitle>Login</CardTitle>
-		<CardDescription>
-			Enter your username and password to access the system
-		</CardDescription>
+		<CardDescription>Enter your username and password to access the system</CardDescription>
 	</CardHeader>
 	<CardContent>
 		<form onsubmit={handleSubmit} class="space-y-4">
@@ -111,9 +115,9 @@
 				<div class="rounded-md bg-red-50 p-3">
 					<div class="flex items-center justify-between">
 						<p class="text-sm text-red-800">{error}</p>
-						<Button 
-							variant="ghost" 
-							size="sm" 
+						<Button
+							variant="ghost"
+							size="sm"
 							onclick={handleClearError}
 							class="h-6 w-6 p-0 text-red-600 hover:bg-red-100"
 						>
@@ -123,14 +127,12 @@
 				</div>
 			{/if}
 
-			<Button 
-				type="submit" 
-				class="w-full" 
-				disabled={isLoading}
-			>
+			<Button type="submit" class="w-full" disabled={isLoading}>
 				{#if isLoading}
 					<div class="flex items-center gap-2">
-						<div class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+						<div
+							class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+						></div>
 						<span>Logging in...</span>
 					</div>
 				{:else}

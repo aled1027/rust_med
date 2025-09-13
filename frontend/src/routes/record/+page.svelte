@@ -1,6 +1,12 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import {
+		Card,
+		CardContent,
+		CardDescription,
+		CardHeader,
+		CardTitle
+	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { RadioGroup, RadioGroupItem } from '$lib/components/ui/radio-group';
@@ -19,22 +25,24 @@
 
 	// Computed validation
 	let valid = $derived(() => {
-		return formData.firstName.trim() !== '' && 
-		       formData.lastName.trim() !== '' && 
-		       formData.dateOfBirth !== '';
+		return (
+			formData.firstName.trim() !== '' &&
+			formData.lastName.trim() !== '' &&
+			formData.dateOfBirth !== ''
+		);
 	});
 
 	function validateForm() {
 		errors = {};
-		
+
 		if (!formData.firstName.trim()) {
 			errors.firstName = 'First name is required';
 		}
-		
+
 		if (!formData.lastName.trim()) {
 			errors.lastName = 'Last name is required';
 		}
-		
+
 		if (!formData.dateOfBirth) {
 			errors.dateOfBirth = 'Date of birth is required';
 		} else {
@@ -44,7 +52,7 @@
 				errors.dateOfBirth = 'Date of birth cannot be in the future';
 			}
 		}
-		
+
 		return Object.keys(errors).length === 0;
 	}
 
@@ -52,7 +60,7 @@
 		if (!validateForm()) {
 			return;
 		}
-		
+
 		isRecording = true;
 		// TODO: Implement actual recording functionality
 		console.log('Starting recording with:', {
@@ -75,7 +83,7 @@
 	<meta name="description" content="Record a new medical note for a patient" />
 </svelte:head>
 
-<div class="container mx-auto max-w-2xl py-8 px-4">
+<div class="container mx-auto max-w-2xl px-4 py-8">
 	<Card>
 		<CardHeader>
 			<CardTitle class="text-2xl font-bold">Record Medical Note</CardTitle>
@@ -83,13 +91,13 @@
 				Enter patient information and select the type of note to generate
 			</CardDescription>
 		</CardHeader>
-		
+
 		<CardContent class="space-y-6">
 			<!-- Patient Information Section -->
 			<div class="space-y-4">
 				<h3 class="text-lg font-semibold">Patient Information</h3>
-				
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 					<div class="space-y-2">
 						<Label for="firstName" class="text-sm font-medium">
 							First Name <span class="text-destructive">*</span>
@@ -109,7 +117,7 @@
 							</p>
 						{/if}
 					</div>
-					
+
 					<div class="space-y-2">
 						<Label for="lastName" class="text-sm font-medium">
 							Last Name <span class="text-destructive">*</span>
@@ -130,7 +138,7 @@
 						{/if}
 					</div>
 				</div>
-				
+
 				<div class="space-y-2">
 					<Label for="dateOfBirth" class="text-sm font-medium">
 						Date of Birth <span class="text-destructive">*</span>
@@ -159,7 +167,7 @@
 				<p class="text-sm text-muted-foreground">
 					Select the type of medical note to generate from the recording
 				</p>
-				
+
 				<RadioGroup bind:value={formData.noteType} class="space-y-3">
 					<div class="flex items-center space-x-3">
 						<RadioGroupItem value="soap" id="soap" />
@@ -172,7 +180,7 @@
 							</div>
 						</Label>
 					</div>
-					
+
 					<div class="flex items-center space-x-3">
 						<RadioGroupItem value="full" id="full" />
 						<Label for="full" class="flex-1">
@@ -192,24 +200,14 @@
 			<!-- Recording Section -->
 			<div class="space-y-4">
 				<h3 class="text-lg font-semibold">Recording</h3>
-				
+
 				{#if !isRecording}
-					<div class="text-center space-y-4">
+					<div class="space-y-4 text-center">
 						<p class="text-sm text-muted-foreground">
 							Click the record button to start recording the patient visit
 						</p>
-						<Button
-							onclick={handleRecord}
-							size="lg"
-							class="w-full md:w-auto"
-							disabled={!valid()}
-						>
-							<svg
-								class="w-5 h-5 mr-2"
-								fill="currentColor"
-								viewBox="0 0 24 24"
-								aria-hidden="true"
-							>
+						<Button onclick={handleRecord} size="lg" class="w-full md:w-auto" disabled={!valid()}>
+							<svg class="mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 								<circle cx="12" cy="12" r="10" />
 								<circle cx="12" cy="12" r="6" fill="white" />
 							</svg>
@@ -217,13 +215,16 @@
 						</Button>
 					</div>
 				{:else}
-					<div class="text-center space-y-4">
+					<div class="space-y-4 text-center">
 						<div class="flex items-center justify-center space-x-2">
-							<div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+							<div class="h-3 w-3 animate-pulse rounded-full bg-red-500"></div>
 							<p class="text-sm font-medium">Recording in progress...</p>
 						</div>
 						<p class="text-xs text-muted-foreground">
-							Patient: {formData.firstName} {formData.lastName} | Note Type: {formData.noteType === 'soap' ? 'SOAP Note' : 'Full Note'}
+							Patient: {formData.firstName}
+							{formData.lastName} | Note Type: {formData.noteType === 'soap'
+								? 'SOAP Note'
+								: 'Full Note'}
 						</p>
 						<Button
 							onclick={handleStopRecording}
@@ -231,12 +232,7 @@
 							size="lg"
 							class="w-full md:w-auto"
 						>
-							<svg
-								class="w-5 h-5 mr-2"
-								fill="currentColor"
-								viewBox="0 0 24 24"
-								aria-hidden="true"
-							>
+							<svg class="mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 								<rect x="6" y="6" width="12" height="12" rx="2" />
 							</svg>
 							Stop Recording

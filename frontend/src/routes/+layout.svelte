@@ -7,7 +7,7 @@
 	import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
 
 	let { children } = $props();
-	
+
 	const sidebar = useSidebar();
 </script>
 

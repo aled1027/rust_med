@@ -30,7 +30,7 @@ class AuthContextClass implements AuthContext {
 			// TODO: Replace with actual authentication logic
 			// For now, we'll simulate a login process
 			await this.#simulateLogin(credentials);
-			
+
 			// Create a mock user for now
 			const user: User = {
 				id: '1',
@@ -43,7 +43,7 @@ class AuthContextClass implements AuthContext {
 			};
 
 			this.#user = user;
-			
+
 			// Store in localStorage for persistence
 			localStorage.setItem('auth_user', JSON.stringify(user));
 		} catch (error) {
@@ -115,14 +115,14 @@ class AuthContextClass implements AuthContext {
 	 */
 	async #simulateLogin(credentials: LoginCredentials): Promise<void> {
 		// Simulate network delay
-		await new Promise(resolve => setTimeout(resolve, 1000));
-		
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
 		// For now, accept any username/password combination
 		// TODO: Replace with actual authentication logic
 		if (!credentials.username || !credentials.password) {
 			throw new Error('Username and password are required');
 		}
-		
+
 		// Simulate some validation
 		if (credentials.username.length < 3) {
 			throw new Error('Username must be at least 3 characters long');

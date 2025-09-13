@@ -33,9 +33,9 @@ This project includes a comprehensive authentication system built with Svelte 5 
 ```svelte
 <script lang="ts">
 	import { useAuth } from '$lib/hooks/use-auth.svelte.js';
-	
+
 	const auth = useAuth();
-	
+
 	// Access authentication state
 	let isAuthenticated = $derived(auth.state.isAuthenticated);
 	let user = $derived(auth.state.user);
@@ -47,9 +47,7 @@ This project includes a comprehensive authentication system built with Svelte 5 
 	<p>Welcome, {user?.name}!</p>
 	<button onclick={() => auth.logout()}>Logout</button>
 {:else}
-	<button onclick={() => auth.login({ username: 'test', password: 'test' })}>
-		Login
-	</button>
+	<button onclick={() => auth.login({ username: 'test', password: 'test' })}> Login </button>
 {/if}
 ```
 
@@ -112,12 +110,14 @@ The system includes ready-to-use components:
 ⚠️ **Current Implementation is for Development Only**
 
 The current implementation includes:
+
 - Mock authentication (accepts any valid username/password)
 - Client-side only validation
 - No server-side verification
 - No password hashing
 
 For production, you'll need to:
+
 - Implement server-side authentication
 - Add password hashing (bcrypt, Argon2, etc.)
 - Add JWT tokens or session management
@@ -135,6 +135,7 @@ Visit the main page to see the authentication system in action. You can:
 4. Logout and login again
 
 The system demonstrates:
+
 - Form validation
 - Loading states
 - Error handling

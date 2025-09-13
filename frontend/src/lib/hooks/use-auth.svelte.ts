@@ -8,10 +8,10 @@ import type { AuthContext } from '$lib/types.js';
  */
 export function useAuth(): AuthContext {
 	const auth = getContext<AuthContext>('auth');
-	
+
 	if (!auth) {
 		throw new Error('useAuth must be used within an AuthProvider');
 	}
-	
+
 	return auth;
 }

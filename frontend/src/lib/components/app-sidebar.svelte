@@ -7,7 +7,7 @@
 
 	// Get auth context
 	const auth = getContext<AuthContext>('auth');
-	
+
 	// Handle case where auth context might not be available
 	if (!auth) {
 		console.error('Auth context not found in AppSidebar');
@@ -45,10 +45,10 @@
 	<Sidebar.Header>
 		<Sidebar.Menu class="mt-2">
 			<div class="flex items-center gap-2">
-				<div class="hidden md:flex aspect-square size-8 items-center justify-center rounded-lg">
-					<Sidebar.Trigger class="cursor-pointer justify-center px-2 hidden md:flex" />
+				<div class="hidden aspect-square size-8 items-center justify-center rounded-lg md:flex">
+					<Sidebar.Trigger class="hidden cursor-pointer justify-center px-2 md:flex" />
 				</div>
-				<div class="grid flex-1 text-left text-sm leading-tight px-2 md:px-0">
+				<div class="grid flex-1 px-2 text-left text-sm leading-tight md:px-0">
 					<span class="truncate font-semibold">Medical Notes</span>
 					<span class="truncate text-xs">AI-Powered Documentation</span>
 				</div>

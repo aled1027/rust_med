@@ -14,25 +14,20 @@
 
 <svelte:head>
 	<title>Medical Note Generator - Authentication Demo</title>
-	<meta
-		name="description"
-		content="Medical Note Generator with authentication system demo."
-	/>
+	<meta name="description" content="Medical Note Generator with authentication system demo." />
 </svelte:head>
 
 <!-- Authentication Demo Section -->
-<section class="py-16 bg-muted/30">
+<section class="bg-muted/30 py-16">
 	<div class="container mx-auto px-4 sm:px-6 lg:px-8">
 		<div class="mx-auto max-w-6xl">
-			<div class="text-center mb-12">
-				<h2 class="text-3xl font-bold tracking-tight sm:text-4xl">
-					Authentication System Demo
-				</h2>
+			<div class="mb-12 text-center">
+				<h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Authentication System Demo</h2>
 				<p class="mt-4 text-lg text-muted-foreground">
 					Try the login system with any username and password
 				</p>
 			</div>
-			
+
 			<div class="grid gap-8 md:grid-cols-2">
 				<!-- Login Form -->
 				<div class="flex justify-center">
@@ -41,9 +36,7 @@
 					{:else}
 						<div class="w-full max-w-md">
 							<div class="rounded-lg border bg-card p-6 text-center">
-								<h3 class="text-lg font-semibold text-green-600 mb-2">
-									✓ Successfully Logged In!
-								</h3>
+								<h3 class="mb-2 text-lg font-semibold text-green-600">✓ Successfully Logged In!</h3>
 								<p class="text-sm text-muted-foreground">
 									You are now authenticated. Check the status panel to see your user information.
 								</p>
