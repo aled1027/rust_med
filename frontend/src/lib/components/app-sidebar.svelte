@@ -64,8 +64,9 @@
 					<Sidebar.MenuItem>
 						<Sidebar.MenuButton isActive={isActive(item.url)}>
 							{#snippet child({ props })}
+								{@const IconComponent = item.icon}
 								<a href={item.url} {...props}>
-									<svelte:component this={item.icon} class="size-4" />
+									<IconComponent class="size-4" />
 									<span>{item.title}</span>
 								</a>
 							{/snippet}
