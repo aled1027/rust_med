@@ -136,18 +136,15 @@ class AppService {
 
 
 	async createNote(note: TauriNoteIn): Promise<string> {
-		appState.appStatus = 'Creating note...';
 		const result = await this.tauriService.createNote(note);
 		if (!result.success || result.note_id === null) {
 			throw new Error(result.error || 'Failed to create note');
 		}
 
-		appState.appStatus = 'Note created successfully!';
 		return result.note_id;
 	}
 
 	async updateNote(note: TauriNote): Promise<string> {
-		appState.appStatus = 'Updating note...';
 		const tauriNoteIn: TauriNoteIn = {
 			firstName: note.firstName,
 			lastName: note.lastName,
@@ -161,7 +158,6 @@ class AppService {
 			throw new Error(updateResult.error || 'Failed to update note');
 		}
 
-		appState.appStatus = 'Note updated successfully!';
 		return updateResult.note_id;
 	}
 
