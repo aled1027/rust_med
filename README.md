@@ -62,16 +62,8 @@ The Tauri app uses whatever is in the `frontend/build` directory, so while you c
 
 ## TODOs:
 
-- Make the menu more like Openai. A sidebar that can be closed on narrow viewports
-- Error cases to handle:
-  - no speech detected in audio
-
-For later:
-
-- Should the audio be more managed through the tauri backend? I might have lost that from the prototype
-
-Frontend:
-
-- appState has all the state
-- appService is the main engine for running things
-  - It uses some utility classes: AudioService for audio-related things and TauriService for interacting with tauri
+- Improve UX of recording
+- Improve UI of viewing notes. Maybe a datatable with ability to view notes in detail
+- Re-check if audio is supposed to be in Tauri versus using the browser features
+- Add auth method that's better to set up for encryption
+- Later: Move to sqlite with encryption
