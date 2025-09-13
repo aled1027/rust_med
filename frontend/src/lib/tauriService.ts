@@ -106,4 +106,5 @@ class TauriService {
   }
 }
 
+// Create a singleton instance
 export const tauriService = new TauriService();
