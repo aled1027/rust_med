@@ -31,9 +31,8 @@
   let recordingTime = $state(0);
   let availableMicrophones = $state<MediaDeviceInfo[]>([]);
   let selectedMicrophoneId = $state('');
-  let appStatus = $state('Ready');
+  let appStatus = $state('ready');
   let errorMessage = $state('');
-  let isInitialized = $state(false);
   let isMicrophoneConnected = $state(false);
 
   // Audio recording state
@@ -45,7 +44,7 @@
 
   // Computed validation -- TODO: not great UX
   let areFormInputsValid: boolean = $derived(
-      formData.firstName.trim() !== '' &&
+    formData.firstName.trim() !== '' &&
       formData.lastName.trim() !== '' &&
       formData.dateOfBirth !== ''
   );
@@ -53,10 +52,9 @@
   // Computed recording state
   let isRecording = $derived(() => recordingState === 'recording');
   let isPaused = $derived(() => recordingState === 'paused');
-  let canRecord = $derived(() => recordingState === 'ready' && areFormInputsValid && isMicrophoneConnected);
+  let canRecord = $derived(areFormInputsValid && isMicrophoneConnected);
   let canPauseResume = $derived(() => isRecording() || isPaused());
   let needsMicrophoneConnection = $derived(() => !isMicrophoneConnected);
-  let needsInitialization = $derived(() => !isInitialized);
 
   // Initialize recording functionality on mount - removed auto-initialization
   onMount(async () => {
@@ -76,6 +74,7 @@
       if (availableMicrophones.length > 0) {
         selectedMicrophoneId = availableMicrophones[0].deviceId;
         isMicrophoneConnected = true;
+        recordingState = 'ready';
         console.log('Available microphones:', availableMicrophones);
       } else {
         throw new Error('No microphones found');
@@ -83,28 +82,6 @@
     } catch (error) {
       console.error('Failed to connect microphone:', error);
       errorMessage = `Failed to connect microphone: ${error instanceof Error ? error.message : 'Unknown error'}`;
-      setTimeout(() => (errorMessage = ''), 5000);
-    }
-  }
-
-  // Initialize recording functionality
-  async function initializeRecording() {
-    try {
-      // Check pause/resume support
-      if (typeof MediaRecorder !== 'undefined') {
-        console.log('Browser supports MediaRecorder pause/resume');
-        pauseResumeSupported = true;
-      } else {
-        console.warn('Browser does not support MediaRecorder pause/resume');
-        pauseResumeSupported = false;
-      }
-
-      recordingState = 'ready';
-      appStatus = 'Ready';
-      isInitialized = true;
-    } catch (error) {
-      console.error('Failed to initialize recording:', error);
-      errorMessage = 'Failed to initialize recording';
       setTimeout(() => (errorMessage = ''), 5000);
     }
   }
@@ -447,25 +424,13 @@
     }
   }
 
-  async function handleInitializeRecording() {
-    try {
-      appStatus = 'Initializing recording...';
-      await initializeRecording();
-      appStatus = 'Ready';
-    } catch (error) {
-      console.error('Failed to initialize recording:', error);
-      errorMessage = `Failed to initialize recording: ${error instanceof Error ? error.message : 'Unknown error'}`;
-      setTimeout(() => (errorMessage = ''), 5000);
-    }
-  }
-
   async function handleRecord() {
     if (!validateForm()) {
       return;
     }
 
     try {
-      appStatus = 'Initializing recording...';
+      appStatus = 'Starting recording...';
       await startRecording(selectedMicrophoneId);
       recordingState = 'recording';
       recordingTime = 0;
@@ -738,18 +703,26 @@
         <p class="text-sm text-muted-foreground">
           Connect and configure your microphone for recording
         </p>
-        
+
         {#if needsMicrophoneConnection()}
           <div class="space-y-2">
-            <Label class="text-sm font-medium">Microphone Connection</Label>
             <div class="space-y-3">
               <p class="text-sm text-muted-foreground">
                 Click the button below to connect your microphone and enable recording capabilities
               </p>
               <Button onclick={handleConnectMicrophone} class="w-full md:w-auto">
-                <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                  <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                <svg
+                  class="mr-2 h-4 w-4"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"
+                  />
+                  <path
+                    d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"
+                  />
                 </svg>
                 Connect Microphone
               </Button>
@@ -781,11 +754,6 @@
       <Separator />
 
       <!-- Status Display -->
-      {#if appStatus !== 'Ready'}
-        <div class="rounded-md bg-muted p-3">
-          <p class="text-sm font-medium">{appStatus}</p>
-        </div>
-      {/if}
 
       <!-- Error Display -->
       {#if errorMessage}
@@ -794,7 +762,6 @@
         </div>
       {/if}
 
-
       <!-- Recording Section -->
       <div class="space-y-4">
         <h3 class="text-lg font-semibold">Recording</h3>
@@ -802,52 +769,15 @@
           Record the patient visit using your connected microphone
         </p>
 
-        {#if needsMicrophoneConnection()}
+        {#if recordingState === 'ready'}
           <div class="space-y-2">
-            <div class="rounded-md border border-destructive/20 bg-destructive/5 p-3">
-              <p class="text-sm text-destructive">
-                Please connect your microphone first to enable recording
-              </p>
-            </div>
-          </div>
-        {:else if needsInitialization()}
-          <div class="space-y-2">
-            <Label class="text-sm font-medium">Recording Status</Label>
-            <div class="space-y-3">
-              <p class="text-sm text-muted-foreground">
-                Click the button below to initialize recording capabilities
-              </p>
-              <Button onclick={handleInitializeRecording} class="w-full md:w-auto">
-                <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                  />
-                </svg>
-                Initialize Recording
-              </Button>
-            </div>
-          </div>
-        {:else if recordingState === 'ready'}
-          <div class="space-y-2">
-            <Label class="text-sm font-medium">Recording Status</Label>
-            <div class="space-y-3">
-              <div class="rounded-md border border-green-200 bg-green-50 p-3">
-                <p class="text-sm text-green-800">
-                  ✓ Ready to record. Click the button below to start recording the patient visit.
-                </p>
-              </div>
-              <Button
-                onclick={handleRecord}
-                class="w-full md:w-auto"
-                disabled={!canRecord()}
-              >
-                <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="12" cy="12" r="10" />
-                  <circle cx="12" cy="12" r="6" fill="white" />
-                </svg>
-                Start Recording
-              </Button>
-            </div>
+            <Button onclick={handleRecord} class="w-full md:w-auto" disabled={!canRecord}>
+              <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="12" r="6" fill="white" />
+              </svg>
+              Start Recording
+            </Button>
           </div>
         {:else if isRecording() || isPaused()}
           <div class="space-y-2">
@@ -862,20 +792,19 @@
                 </div>
                 <div class="mt-2 space-y-1">
                   <p class="text-xs text-red-700">
-                    Patient: {formData.firstName} {formData.lastName}
+                    Patient: {formData.firstName}
+                    {formData.lastName}
                   </p>
                   <p class="text-xs text-red-700">
                     Note Type: {formData.noteType === 'soap' ? 'SOAP Note' : 'Full Note'}
                   </p>
-                  <p class="text-sm font-medium text-red-800">Duration: {formatTime(recordingTime)}</p>
+                  <p class="text-sm font-medium text-red-800">
+                    Duration: {formatTime(recordingTime)}
+                  </p>
                 </div>
               </div>
               <div class="flex gap-2">
-                <Button
-                  onclick={handlePauseResume}
-                  variant="outline"
-                  disabled={!canPauseResume()}
-                >
+                <Button onclick={handlePauseResume} variant="outline" disabled={!canPauseResume()}>
                   <svg
                     class="mr-2 h-4 w-4"
                     fill="currentColor"
