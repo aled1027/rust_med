@@ -31,9 +31,14 @@
   let recordingTime = $state(0);
   let availableMicrophones = $state<MediaDeviceInfo[]>([]);
   let selectedMicrophoneId = $state('');
-  let appStatus = $state('ready');
-  let errorMessage = $state('');
   let isMicrophoneConnected = $state(false);
+  
+  // Consolidated status and error management
+  let statusMessage = $state('');
+  let statusType = $state<'info' | 'success' | 'warning' | 'error'>('info');
+  let microphoneError = $state('');
+  let recordingError = $state('');
+  let processingError = $state('');
 
   // Audio recording state
   let mediaRecorder: MediaRecorder | null = null;
@@ -81,8 +86,8 @@
       }
     } catch (error) {
       console.error('Failed to connect microphone:', error);
-      errorMessage = `Failed to connect microphone: ${error instanceof Error ? error.message : 'Unknown error'}`;
-      setTimeout(() => (errorMessage = ''), 5000);
+      microphoneError = `Failed to connect microphone: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      setTimeout(() => (microphoneError = ''), 5000);
     }
   }
 
@@ -419,8 +424,8 @@
       await connectMicrophone();
     } catch (error) {
       console.error('Failed to connect microphone:', error);
-      errorMessage = `Failed to connect microphone: ${error instanceof Error ? error.message : 'Unknown error'}`;
-      setTimeout(() => (errorMessage = ''), 5000);
+      microphoneError = `Failed to connect microphone: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      setTimeout(() => (microphoneError = ''), 5000);
     }
   }
 
@@ -430,16 +435,18 @@
     }
 
     try {
-      appStatus = 'Starting recording...';
+      statusMessage = 'Starting recording...';
+      statusType = 'info';
       await startRecording(selectedMicrophoneId);
       recordingState = 'recording';
       recordingTime = 0;
       startTimer();
-      appStatus = 'Recording...';
+      statusMessage = 'Recording in progress...';
+      statusType = 'info';
     } catch (error) {
       console.error('Failed to start recording:', error);
-      errorMessage = `Failed to start recording: ${error instanceof Error ? error.message : 'Unknown error'}`;
-      setTimeout(() => (errorMessage = ''), 5000);
+      recordingError = `Failed to start recording: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      setTimeout(() => (recordingError = ''), 5000);
     }
   }
 
@@ -447,35 +454,44 @@
     try {
       if (recordingState === 'paused') {
         // Resume recording
-        appStatus = 'Resuming recording...';
+        statusMessage = 'Resuming recording...';
+        statusType = 'info';
         resumeRecording();
         recordingState = 'recording';
         startTimer();
+        statusMessage = 'Recording in progress...';
+        statusType = 'info';
       } else {
         // Pause recording
-        appStatus = 'Pausing recording...';
+        statusMessage = 'Pausing recording...';
+        statusType = 'info';
         pauseRecording();
         recordingState = 'paused';
         stopTimer(true);
+        statusMessage = 'Recording paused...';
+        statusType = 'warning';
       }
     } catch (error) {
       console.error('Error in pauseResumeRecording:', error);
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      errorMessage = `Failed to pause/resume recording: ${errorMsg}`;
-      setTimeout(() => (errorMessage = ''), 5000);
+      recordingError = `Failed to pause/resume recording: ${errorMsg}`;
+      setTimeout(() => (recordingError = ''), 5000);
     }
   }
 
   async function handleStopRecording() {
     try {
-      appStatus = 'Stopping recording...';
+      statusMessage = 'Stopping recording...';
+      statusType = 'info';
       stopRecording();
       recordingState = 'stopped';
       stopTimer();
+      statusMessage = 'Recording completed. Ready to process.';
+      statusType = 'success';
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      errorMessage = `Failed to stop recording: ${errorMsg}`;
-      setTimeout(() => (errorMessage = ''), 5000);
+      recordingError = `Failed to stop recording: ${errorMsg}`;
+      setTimeout(() => (recordingError = ''), 5000);
       recordingState = 'not-ready';
     }
   }
@@ -487,7 +503,8 @@
 
     isProcessing = true;
     try {
-      appStatus = 'Processing recorded audio...';
+      statusMessage = 'Processing recorded audio...';
+      statusType = 'info';
 
       // Get the recorded audio blob
       const audioBlob = await getRecordedAudio();
@@ -496,14 +513,16 @@
         throw new Error('No audio data recorded');
       }
 
-      appStatus = 'Audio processed successfully. Starting transcription...';
+      statusMessage = 'Audio processed successfully. Starting transcription...';
+      statusType = 'info';
 
       // Write the audio to a file using Tauri service
       const appDataDir = await tauriService.appLocalDataDir();
       const audioFilename = 'debug.wav';
       const audioPath = await tauriService.joinPath(appDataDir, audioFilename);
 
-      appStatus = 'Transcribing audio...';
+      statusMessage = 'Transcribing audio...';
+      statusType = 'info';
       console.log('Transcribing audio...');
       const transcriptionResult = await tauriService.transcribeAudio(audioPath);
       if (!transcriptionResult.success) {
@@ -512,7 +531,8 @@
       }
 
       const transcript = transcriptionResult.transcript;
-      appStatus = 'Generating medical note... (this can take about 30 seconds)';
+      statusMessage = 'Generating medical note... (this can take about 30 seconds)';
+      statusType = 'info';
 
       const noteGenResult = await tauriService.generateMedicalNote(transcript, formData.noteType);
 
@@ -521,7 +541,8 @@
       }
       const medicalNote = noteGenResult.note;
 
-      appStatus = 'Note generated successfully!';
+      statusMessage = 'Note generated successfully!';
+      statusType = 'success';
 
       // Create the note with the processed data
       const createResult = await tauriService.createNote({
@@ -550,8 +571,8 @@
     } catch (error) {
       console.error('Failed to process recording:', error);
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      errorMessage = `Failed to process recording: ${errorMsg}`;
-      setTimeout(() => (errorMessage = ''), 5000);
+      processingError = `Failed to process recording: ${errorMsg}`;
+      setTimeout(() => (processingError = ''), 5000);
     } finally {
       isProcessing = false;
     }
@@ -568,6 +589,9 @@
     recordingState = 'ready';
     recordingTime = 0;
     stopTimer();
+    clearStatusMessages();
+    statusMessage = 'Ready to record';
+    statusType = 'info';
     // Note: isInitialized and isMicrophoneConnected remain true after first setup
   }
 
@@ -575,6 +599,14 @@
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  // Helper function to clear status messages
+  function clearStatusMessages() {
+    statusMessage = '';
+    microphoneError = '';
+    recordingError = '';
+    processingError = '';
   }
 </script>
 
@@ -726,6 +758,11 @@
                 </svg>
                 Connect Microphone
               </Button>
+              {#if microphoneError}
+                <div class="rounded-md bg-destructive/10 p-3">
+                  <p class="text-sm text-destructive">{microphoneError}</p>
+                </div>
+              {/if}
             </div>
           </div>
         {:else if availableMicrophones.length > 0}
@@ -753,21 +790,26 @@
 
       <Separator />
 
-      <!-- Status Display -->
-
-      <!-- Error Display -->
-      {#if errorMessage}
-        <div class="rounded-md bg-destructive/10 p-3">
-          <p class="text-sm text-destructive">{errorMessage}</p>
-        </div>
-      {/if}
-
       <!-- Recording Section -->
       <div class="space-y-4">
         <h3 class="text-lg font-semibold">Recording</h3>
         <p class="text-sm text-muted-foreground">
           Record the patient visit using your connected microphone
         </p>
+
+        <!-- Status Display -->
+        {#if statusMessage}
+          <div class="rounded-md p-3 {statusType === 'error' ? 'bg-destructive/10' : statusType === 'warning' ? 'bg-yellow-50 border border-yellow-200' : statusType === 'success' ? 'bg-green-50 border border-green-200' : 'bg-blue-50 border border-blue-200'}">
+            <p class="text-sm {statusType === 'error' ? 'text-destructive' : statusType === 'warning' ? 'text-yellow-800' : statusType === 'success' ? 'text-green-800' : 'text-blue-800'}">{statusMessage}</p>
+          </div>
+        {/if}
+
+        <!-- Recording Errors -->
+        {#if recordingError}
+          <div class="rounded-md bg-destructive/10 p-3">
+            <p class="text-sm text-destructive">{recordingError}</p>
+          </div>
+        {/if}
 
         {#if recordingState === 'ready'}
           <div class="space-y-2">
@@ -783,22 +825,21 @@
           <div class="space-y-2">
             <Label class="text-sm font-medium">Recording Status</Label>
             <div class="space-y-3">
-              <div class="rounded-md border border-red-200 bg-red-50 p-3">
+              <div class="rounded-md border p-3 {isRecording() ? 'border-red-200 bg-red-50' : 'border-yellow-200 bg-yellow-50'}">
                 <div class="flex items-center space-x-2">
-                  <div class="h-3 w-3 animate-pulse rounded-full bg-red-500"></div>
-                  <p class="text-sm font-medium text-red-800">
+                  <div class="h-3 w-3 rounded-full {isRecording() ? 'animate-pulse bg-red-500' : 'bg-yellow-500'}"></div>
+                  <p class="text-sm font-medium {isRecording() ? 'text-red-800' : 'text-yellow-800'}">
                     {isRecording() ? 'Recording in progress...' : 'Recording paused...'}
                   </p>
                 </div>
                 <div class="mt-2 space-y-1">
-                  <p class="text-xs text-red-700">
-                    Patient: {formData.firstName}
-                    {formData.lastName}
+                  <p class="text-xs {isRecording() ? 'text-red-700' : 'text-yellow-700'}">
+                    Patient: {formData.firstName} {formData.lastName}
                   </p>
-                  <p class="text-xs text-red-700">
+                  <p class="text-xs {isRecording() ? 'text-red-700' : 'text-yellow-700'}">
                     Note Type: {formData.noteType === 'soap' ? 'SOAP Note' : 'Full Note'}
                   </p>
-                  <p class="text-sm font-medium text-red-800">
+                  <p class="text-sm font-medium {isRecording() ? 'text-red-800' : 'text-yellow-800'}">
                     Duration: {formatTime(recordingTime)}
                   </p>
                 </div>
@@ -837,11 +878,33 @@
           <div class="space-y-2">
             <Label class="text-sm font-medium">Recording Status</Label>
             <div class="space-y-3">
-              <div class="rounded-md border border-blue-200 bg-blue-50 p-3">
-                <p class="text-sm text-blue-800">
-                  ✓ Recording completed. Process the audio to generate the medical note.
-                </p>
+              <div class="rounded-md border border-green-200 bg-green-50 p-3">
+                <div class="flex items-center space-x-2">
+                  <div class="h-3 w-3 rounded-full bg-green-500"></div>
+                  <p class="text-sm font-medium text-green-800">
+                    ✓ Recording completed. Process the audio to generate the medical note.
+                  </p>
+                </div>
+                <div class="mt-2 space-y-1">
+                  <p class="text-xs text-green-700">
+                    Patient: {formData.firstName} {formData.lastName}
+                  </p>
+                  <p class="text-xs text-green-700">
+                    Note Type: {formData.noteType === 'soap' ? 'SOAP Note' : 'Full Note'}
+                  </p>
+                  <p class="text-sm font-medium text-green-800">
+                    Final Duration: {formatTime(recordingTime)}
+                  </p>
+                </div>
               </div>
+              
+              <!-- Processing Errors -->
+              {#if processingError}
+                <div class="rounded-md bg-destructive/10 p-3">
+                  <p class="text-sm text-destructive">{processingError}</p>
+                </div>
+              {/if}
+              
               <Button
                 onclick={handleProcessRecording}
                 class="w-full md:w-auto"
