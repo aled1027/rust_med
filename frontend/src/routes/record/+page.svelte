@@ -19,7 +19,7 @@
   let formData = $state({
     firstName: '',
     lastName: '',
-    dateOfBirth: '',
+    dateOfBirth: new Date().toISOString().split('T')[0],
     noteType: 'soap' as 'soap' | 'full'
   });
 
