@@ -62,7 +62,6 @@ The Tauri app uses whatever is in the `frontend/build` directory, so while you c
 
 ## TODOs:
 
-- Re-check if audio is supposed to be in Tauri versus using the browser features
 - Improve UX of recording
   - Figure out microphone detection and stuff like that. Maybe add button "connect microphone" if none connects on mount.
     - It's possible we need a user to take an action to get access to the microphone.
@@ -71,3 +70,4 @@ The Tauri app uses whatever is in the `frontend/build` directory, so while you c
 - Merge the UI branch
 - Add auth method that's better to set up for encryption
 - Later: Move to sqlite with encryption
+- Delete frontend2

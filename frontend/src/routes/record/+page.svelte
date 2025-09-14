@@ -43,13 +43,11 @@
   let recordingTimerId: number | null = null;
 
   // Computed validation -- TODO: not great UX
-  let areFormInputsValid: boolean = $derived(() => {
-    return (
+  let areFormInputsValid: boolean = $derived(
       formData.firstName.trim() !== '' &&
       formData.lastName.trim() !== '' &&
       formData.dateOfBirth !== ''
-    );
-  });
+  );
 
   // Computed recording state
   let isRecording = $derived(() => recordingState === 'recording');
@@ -76,6 +74,7 @@
       }
 
       // Request microphone permission first to get proper device IDs
+      // Using { audio: true } should trigger a permission request
       await navigator.mediaDevices.getUserMedia({ audio: true });
 
       // Get available microphones with proper device IDs
