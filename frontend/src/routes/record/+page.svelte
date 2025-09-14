@@ -34,6 +34,7 @@
   let appStatus = $state('Ready');
   let errorMessage = $state('');
   let isInitialized = $state(false);
+  let isMicrophoneConnected = $state(false);
 
   // Audio recording state
   let mediaRecorder: MediaRecorder | null = null;
@@ -52,14 +53,39 @@
   // Computed recording state
   let isRecording = $derived(() => recordingState === 'recording');
   let isPaused = $derived(() => recordingState === 'paused');
-  let canRecord = $derived(() => recordingState === 'ready' && areFormInputsValid);
+  let canRecord = $derived(() => recordingState === 'ready' && areFormInputsValid && isMicrophoneConnected);
   let canPauseResume = $derived(() => isRecording() || isPaused());
+  let needsMicrophoneConnection = $derived(() => !isMicrophoneConnected);
   let needsInitialization = $derived(() => !isInitialized);
 
   // Initialize recording functionality on mount - removed auto-initialization
   onMount(async () => {
     // Recording will be initialized manually via button
   });
+
+  // Connect microphone and get available devices
+  async function connectMicrophone() {
+    try {
+      // Request microphone permission first to get proper device IDs
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // Get available microphones with proper device IDs
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      availableMicrophones = devices.filter((device) => device.kind === 'audioinput');
+
+      if (availableMicrophones.length > 0) {
+        selectedMicrophoneId = availableMicrophones[0].deviceId;
+        isMicrophoneConnected = true;
+        console.log('Available microphones:', availableMicrophones);
+      } else {
+        throw new Error('No microphones found');
+      }
+    } catch (error) {
+      console.error('Failed to connect microphone:', error);
+      errorMessage = `Failed to connect microphone: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      setTimeout(() => (errorMessage = ''), 5000);
+    }
+  }
 
   // Initialize recording functionality
   async function initializeRecording() {
@@ -73,27 +99,8 @@
         pauseResumeSupported = false;
       }
 
-      // Request microphone permission first to get proper device IDs
-      // Using { audio: true } should trigger a permission request
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-
-      // Get available microphones with proper device IDs
-      const ds = await navigator.mediaDevices.enumerateDevices();
-      availableMicrophones = ds.filter((device) => device.kind === 'audioinput');
-
-      if (availableMicrophones.length > 0) {
-        selectedMicrophoneId = availableMicrophones[0].deviceId;
-      } else {
-        console.error('No microphones found');
-      }
-
       recordingState = 'ready';
       appStatus = 'Ready';
-      console.log('ds', ds);
-      console.log('recordingState', recordingState);
-      console.log('selectedMicrophoneId', selectedMicrophoneId);
-      console.log('isInitialized', isInitialized);
-      console.log('availableMicrophones', availableMicrophones);
       isInitialized = true;
     } catch (error) {
       console.error('Failed to initialize recording:', error);
@@ -430,6 +437,16 @@
   }
 
   // Event handlers
+  async function handleConnectMicrophone() {
+    try {
+      await connectMicrophone();
+    } catch (error) {
+      console.error('Failed to connect microphone:', error);
+      errorMessage = `Failed to connect microphone: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      setTimeout(() => (errorMessage = ''), 5000);
+    }
+  }
+
   async function handleInitializeRecording() {
     try {
       appStatus = 'Initializing recording...';
@@ -586,7 +603,7 @@
     recordingState = 'ready';
     recordingTime = 0;
     stopTimer();
-    // Note: isInitialized remains true after first initialization
+    // Note: isInitialized and isMicrophoneConnected remain true after first setup
   }
 
   function formatTime(seconds: number): string {
@@ -715,23 +732,53 @@
 
       <Separator />
 
-      <!-- Microphone Selection -->
-      {#if availableMicrophones.length > 0}
-        <div class="space-y-2">
-          <Label for="microphone" class="text-sm font-medium">Microphone</Label>
-          <select
-            id="microphone"
-            bind:value={selectedMicrophoneId}
-            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
-          >
-            {#each availableMicrophones as microphone}
-              <option value={microphone.deviceId}>
-                {microphone.label || `Microphone ${microphone.deviceId.slice(0, 8)}`}
-              </option>
-            {/each}
-          </select>
-        </div>
-      {/if}
+      <!-- Microphone Setup Section -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold">Microphone Setup</h3>
+        <p class="text-sm text-muted-foreground">
+          Connect and configure your microphone for recording
+        </p>
+        
+        {#if needsMicrophoneConnection()}
+          <div class="space-y-2">
+            <Label class="text-sm font-medium">Microphone Connection</Label>
+            <div class="space-y-3">
+              <p class="text-sm text-muted-foreground">
+                Click the button below to connect your microphone and enable recording capabilities
+              </p>
+              <Button onclick={handleConnectMicrophone} class="w-full md:w-auto">
+                <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                  <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                </svg>
+                Connect Microphone
+              </Button>
+            </div>
+          </div>
+        {:else if availableMicrophones.length > 0}
+          <div class="space-y-2">
+            <Label for="microphone" class="text-sm font-medium">
+              Select Microphone <span class="text-green-600">✓</span>
+            </Label>
+            <select
+              id="microphone"
+              bind:value={selectedMicrophoneId}
+              class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
+              {#each availableMicrophones as microphone}
+                <option value={microphone.deviceId}>
+                  {microphone.label || `Microphone ${microphone.deviceId.slice(0, 8)}`}
+                </option>
+              {/each}
+            </select>
+            <p class="text-xs text-green-600">
+              ✓ Microphone connected successfully. Ready for recording.
+            </p>
+          </div>
+        {/if}
+      </div>
+
+      <Separator />
 
       <!-- Status Display -->
       {#if appStatus !== 'Ready'}
@@ -747,134 +794,162 @@
         </div>
       {/if}
 
+
       <!-- Recording Section -->
       <div class="space-y-4">
         <h3 class="text-lg font-semibold">Recording</h3>
+        <p class="text-sm text-muted-foreground">
+          Record the patient visit using your connected microphone
+        </p>
 
-        {#if needsInitialization()}
-          <div class="space-y-4 text-center">
-            <p class="text-sm text-muted-foreground">
-              Click the button below to initialize recording capabilities
-            </p>
-            <Button onclick={handleInitializeRecording} size="lg" class="w-full md:w-auto">
-              <svg class="mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                />
-              </svg>
-              Initialize Recording
-            </Button>
-          </div>
-        {:else if recordingState === 'ready'}
-          <div class="space-y-4 text-center">
-            <p class="text-sm text-muted-foreground">
-              Click the record button to start recording the patient visit
-            </p>
-            <Button
-              onclick={handleRecord}
-              size="lg"
-              class="w-full md:w-auto"
-              disabled={!canRecord()}
-            >
-              <svg class="mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="12" r="10" />
-                <circle cx="12" cy="12" r="6" fill="white" />
-              </svg>
-              Start Recording
-            </Button>
-          </div>
-        {:else if isRecording() || isPaused()}
-          <div class="space-y-4 text-center">
-            <div class="flex items-center justify-center space-x-2">
-              <div class="h-3 w-3 animate-pulse rounded-full bg-red-500"></div>
-              <p class="text-sm font-medium">
-                {isRecording() ? 'Recording in progress...' : 'Recording paused...'}
+        {#if needsMicrophoneConnection()}
+          <div class="space-y-2">
+            <div class="rounded-md border border-destructive/20 bg-destructive/5 p-3">
+              <p class="text-sm text-destructive">
+                Please connect your microphone first to enable recording
               </p>
             </div>
-            <p class="text-xs text-muted-foreground">
-              Patient: {formData.firstName}
-              {formData.lastName} | Note Type: {formData.noteType === 'soap'
-                ? 'SOAP Note'
-                : 'Full Note'}
-            </p>
-            <p class="text-sm font-medium">Duration: {formatTime(recordingTime)}</p>
-
-            <div class="flex justify-center gap-2">
-              <Button
-                onclick={handlePauseResume}
-                variant="outline"
-                size="lg"
-                disabled={!canPauseResume()}
-              >
-                <svg
-                  class="mr-2 h-5 w-5"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  {#if isPaused()}
-                    <path d="M8 5v14l11-7z" />
-                  {:else}
-                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
-                  {/if}
-                </svg>
-                {isPaused() ? 'Resume' : 'Pause'}
-              </Button>
-              <Button onclick={handleStopRecording} variant="destructive" size="lg">
-                <svg
-                  class="mr-2 h-5 w-5"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <rect x="6" y="6" width="12" height="12" rx="2" />
-                </svg>
-                Stop Recording
-              </Button>
-            </div>
           </div>
-        {:else if recordingState === 'stopped'}
-          <div class="space-y-4 text-center">
-            <p class="text-sm text-muted-foreground">
-              Recording completed. Process the audio to generate the medical note.
-            </p>
-            <Button
-              onclick={handleProcessRecording}
-              size="lg"
-              class="w-full md:w-auto"
-              disabled={isProcessing}
-            >
-              {#if isProcessing}
-                <svg class="mr-2 h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  ></circle>
-                  <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Processing...
-              {:else}
-                <svg
-                  class="mr-2 h-5 w-5"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
+        {:else if needsInitialization()}
+          <div class="space-y-2">
+            <Label class="text-sm font-medium">Recording Status</Label>
+            <div class="space-y-3">
+              <p class="text-sm text-muted-foreground">
+                Click the button below to initialize recording capabilities
+              </p>
+              <Button onclick={handleInitializeRecording} class="w-full md:w-auto">
+                <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path
                     d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
                   />
                 </svg>
-                Process Recording
-              {/if}
-            </Button>
+                Initialize Recording
+              </Button>
+            </div>
+          </div>
+        {:else if recordingState === 'ready'}
+          <div class="space-y-2">
+            <Label class="text-sm font-medium">Recording Status</Label>
+            <div class="space-y-3">
+              <div class="rounded-md border border-green-200 bg-green-50 p-3">
+                <p class="text-sm text-green-800">
+                  ✓ Ready to record. Click the button below to start recording the patient visit.
+                </p>
+              </div>
+              <Button
+                onclick={handleRecord}
+                class="w-full md:w-auto"
+                disabled={!canRecord()}
+              >
+                <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" />
+                  <circle cx="12" cy="12" r="6" fill="white" />
+                </svg>
+                Start Recording
+              </Button>
+            </div>
+          </div>
+        {:else if isRecording() || isPaused()}
+          <div class="space-y-2">
+            <Label class="text-sm font-medium">Recording Status</Label>
+            <div class="space-y-3">
+              <div class="rounded-md border border-red-200 bg-red-50 p-3">
+                <div class="flex items-center space-x-2">
+                  <div class="h-3 w-3 animate-pulse rounded-full bg-red-500"></div>
+                  <p class="text-sm font-medium text-red-800">
+                    {isRecording() ? 'Recording in progress...' : 'Recording paused...'}
+                  </p>
+                </div>
+                <div class="mt-2 space-y-1">
+                  <p class="text-xs text-red-700">
+                    Patient: {formData.firstName} {formData.lastName}
+                  </p>
+                  <p class="text-xs text-red-700">
+                    Note Type: {formData.noteType === 'soap' ? 'SOAP Note' : 'Full Note'}
+                  </p>
+                  <p class="text-sm font-medium text-red-800">Duration: {formatTime(recordingTime)}</p>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <Button
+                  onclick={handlePauseResume}
+                  variant="outline"
+                  disabled={!canPauseResume()}
+                >
+                  <svg
+                    class="mr-2 h-4 w-4"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    {#if isPaused()}
+                      <path d="M8 5v14l11-7z" />
+                    {:else}
+                      <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                    {/if}
+                  </svg>
+                  {isPaused() ? 'Resume' : 'Pause'}
+                </Button>
+                <Button onclick={handleStopRecording} variant="destructive">
+                  <svg
+                    class="mr-2 h-4 w-4"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <rect x="6" y="6" width="12" height="12" rx="2" />
+                  </svg>
+                  Stop Recording
+                </Button>
+              </div>
+            </div>
+          </div>
+        {:else if recordingState === 'stopped'}
+          <div class="space-y-2">
+            <Label class="text-sm font-medium">Recording Status</Label>
+            <div class="space-y-3">
+              <div class="rounded-md border border-blue-200 bg-blue-50 p-3">
+                <p class="text-sm text-blue-800">
+                  ✓ Recording completed. Process the audio to generate the medical note.
+                </p>
+              </div>
+              <Button
+                onclick={handleProcessRecording}
+                class="w-full md:w-auto"
+                disabled={isProcessing}
+              >
+                {#if isProcessing}
+                  <svg class="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Processing...
+                {:else}
+                  <svg
+                    class="mr-2 h-4 w-4"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                    />
+                  </svg>
+                  Process Recording
+                {/if}
+              </Button>
+            </div>
           </div>
         {/if}
       </div>
