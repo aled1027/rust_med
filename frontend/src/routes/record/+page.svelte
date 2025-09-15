@@ -689,9 +689,6 @@
         {#if needsMicrophoneConnection()}
           <div class="space-y-2">
             <div class="space-y-3">
-              <p class="text-sm text-muted-foreground">
-                Click the button below to connect your microphone and enable recording capabilities
-              </p>
               <Button onclick={handleConnectMicrophone} class="w-full md:w-auto">
                 <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
@@ -724,7 +721,7 @@
                 </option>
               {/each}
             </select>
-            <p class="text-xs text-green-600">✓ Microphone connected successfully. Ready for recording.</p>
+            <p class="text-xs text-green-600">✓ Microphone connected.</p>
           </div>
         {/if}
       </div>
@@ -766,7 +763,6 @@
           </div>
         {:else if isRecording() || isPaused()}
           <div class="space-y-2">
-            <Label class="text-sm font-medium">Recording Status</Label>
             <div class="space-y-3">
               <div
                 class="rounded-md border p-3 {isRecording()
