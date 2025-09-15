@@ -4,14 +4,14 @@
   import { Textarea } from '$lib/components/ui/textarea';
   import { Button } from '$lib/components/ui/button';
   import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/custom/table';
-  import * as Sheet from '$lib/components/ui/sheet';
+  import * as Dialog from '$lib/components/ui/dialog';
   import { tauriService } from '$lib/tauriService';
   import type { TauriNote } from '$lib/types';
   import { Trash2, Eye } from 'lucide-svelte';
 
   let notes = $state<TauriNote[]>([]);
   let selectedNote = $state<TauriNote | null>(null);
-  let isSheetOpen = $state(false);
+  let isDialogOpen = $state(false);
 
   async function loadNotes() {
     const result = await tauriService.loadNotes();
@@ -27,9 +27,9 @@
       const result = await tauriService.deleteNote(noteId);
       if (result.success) {
         notes = notes.filter((note) => note.id !== noteId);
-        // Close sheet if the deleted note was selected
+        // Close dialog if the deleted note was selected
         if (selectedNote?.id === noteId) {
-          isSheetOpen = false;
+          isDialogOpen = false;
           selectedNote = null;
         }
       } else {
@@ -42,11 +42,11 @@
 
   function openNoteDetail(note: TauriNote) {
     selectedNote = note;
-    isSheetOpen = true;
+    isDialogOpen = true;
   }
 
-  function closeSheet() {
-    isSheetOpen = false;
+  function closeDialog() {
+    isDialogOpen = false;
     selectedNote = null;
   }
 
@@ -126,15 +126,15 @@
   {/if}
 </div>
 
-<!-- Note Detail Sheet -->
-<Sheet.Root bind:open={isSheetOpen}>
-  <Sheet.Content class="w-[400px] sm:w-[540px]">
-    <Sheet.Header>
-      <Sheet.Title>Medical Note Details</Sheet.Title>
-      <Sheet.Description>
+<!-- Note Detail Dialog -->
+<Dialog.Root bind:open={isDialogOpen}>
+  <Dialog.Content class="w-[400px] sm:w-[540px]">
+    <Dialog.Header>
+      <Dialog.Title>Medical Note Details</Dialog.Title>
+      <Dialog.Description>
         Detailed information for {selectedNote?.firstName} {selectedNote?.lastName}
-      </Sheet.Description>
-    </Sheet.Header>
+      </Dialog.Description>
+    </Dialog.Header>
     
     {#if selectedNote}
       <div class="space-y-6 py-6">
@@ -191,8 +191,8 @@
       </div>
     {/if}
 
-    <Sheet.Footer>
-      <Button variant="outline" onclick={closeSheet}>Close</Button>
-    </Sheet.Footer>
-  </Sheet.Content>
-</Sheet.Root>
+    <Dialog.Footer>
+      <Button variant="outline" onclick={closeDialog}>Close</Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog.Root>
