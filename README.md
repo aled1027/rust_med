@@ -62,12 +62,7 @@ The Tauri app uses whatever is in the `frontend/build` directory, so while you c
 
 ## TODOs:
 
-- Improve UX of recording
-  - Figure out microphone detection and stuff like that. Maybe add button "connect microphone" if none connects on mount.
-    - It's possible we need a user to take an action to get access to the microphone.
-  - After stopping recording, auto process the note
 - Improve UI /notes page. Maybe a datatable with ability to view notes in detail
 - Merge the UI branch
 - Add auth method that's better to set up for encryption
 - Later: Move to sqlite with encryption
-- Delete frontend2
