@@ -34,15 +34,9 @@
   <div class="bg-grid-pattern absolute inset-0 opacity-5"></div>
 
   <!-- Floating Elements -->
-  <div
-    class="animate-float absolute top-20 left-10 h-20 w-20 rounded-full bg-primary/10 blur-xl"
-  ></div>
-  <div
-    class="animate-float-delayed absolute right-10 bottom-20 h-32 w-32 rounded-full bg-primary/5 blur-2xl"
-  ></div>
-  <div
-    class="animate-float-slow absolute top-1/2 left-1/4 h-16 w-16 rounded-full bg-accent/10 blur-lg"
-  ></div>
+  <div class="animate-float absolute top-20 left-10 h-20 w-20 rounded-full bg-primary/10 blur-xl"></div>
+  <div class="animate-float-delayed absolute right-10 bottom-20 h-32 w-32 rounded-full bg-primary/5 blur-2xl"></div>
+  <div class="animate-float-slow absolute top-1/2 left-1/4 h-16 w-16 rounded-full bg-accent/10 blur-lg"></div>
 
   <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
     <div class="mx-auto max-w-5xl text-center">
@@ -57,8 +51,7 @@
           </span>
         </h1>
         <p class="mx-auto max-w-2xl text-xl leading-relaxed text-muted-foreground">
-          Transform patient visits into structured medical notes with AI-powered transcription and
-          SOAP note generation.
+          Transform patient visits into structured medical notes with AI-powered transcription and SOAP note generation.
         </p>
       </div>
 
@@ -90,9 +83,7 @@
           aria-label="Get Started"
         >
           Get Started
-          <ArrowRight
-            class="ml-2 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1"
-          />
+          <ArrowRight class="ml-2 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
         </Button>
 
         {#if isAuthenticated}

@@ -1,12 +1,6 @@
 <script lang="ts">
   import { Button } from '$lib/components/ui/button';
-  import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle
-  } from '$lib/components/ui/card';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
   import { RadioGroup, RadioGroupItem } from '$lib/components/ui/radio-group';
@@ -32,7 +26,7 @@
   let availableMicrophones = $state<MediaDeviceInfo[]>([]);
   let selectedMicrophoneId = $state('');
   let isMicrophoneConnected = $state(false);
-  
+
   // Consolidated status and error management
   let statusMessage = $state('');
   let statusType = $state<'info' | 'success' | 'warning' | 'error'>('info');
@@ -49,9 +43,7 @@
 
   // Computed validation -- TODO: not great UX
   let areFormInputsValid: boolean = $derived(
-    formData.firstName.trim() !== '' &&
-      formData.lastName.trim() !== '' &&
-      formData.dateOfBirth !== ''
+    formData.firstName.trim() !== '' && formData.lastName.trim() !== '' && formData.dateOfBirth !== ''
   );
 
   // Computed recording state
@@ -191,9 +183,7 @@
         resolve();
       });
     } catch (error) {
-      throw new Error(
-        `Failed to start recording: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
+      throw new Error(`Failed to start recording: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -206,9 +196,7 @@
       mediaRecorder.pause();
       recordingState = 'paused';
     } catch (error) {
-      throw new Error(
-        `Failed to pause recording: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
+      throw new Error(`Failed to pause recording: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -221,9 +209,7 @@
       mediaRecorder.resume();
       recordingState = 'recording';
     } catch (error) {
-      throw new Error(
-        `Failed to resume recording: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
+      throw new Error(`Failed to resume recording: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -236,9 +222,7 @@
       mediaRecorder.stop();
       recordingState = 'stopped';
     } catch (error) {
-      throw new Error(
-        `Failed to stop recording: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
+      throw new Error(`Failed to stop recording: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -316,15 +300,7 @@
     const view = new DataView(arrayBuffer);
 
     // Write WAV header
-    writeWavHeader(
-      view,
-      length,
-      targetSampleRate,
-      numberOfChannels,
-      bitDepth,
-      bytesPerSample,
-      blockAlign
-    );
+    writeWavHeader(view, length, targetSampleRate, numberOfChannels, bitDepth, bytesPerSample, blockAlign);
 
     // Convert and write samples
     writeSamples(view, samples, 44);
@@ -332,11 +308,7 @@
     return new Blob([arrayBuffer], { type: 'audio/wav' });
   }
 
-  function resampleAudio(
-    samples: Float32Array,
-    originalSampleRate: number,
-    targetSampleRate: number
-  ): Float32Array {
+  function resampleAudio(samples: Float32Array, originalSampleRate: number, targetSampleRate: number): Float32Array {
     const ratio = originalSampleRate / targetSampleRate;
     const newLength = Math.round(samples.length / ratio);
     const resampled = new Float32Array(newLength);
@@ -619,9 +591,7 @@
   <Card>
     <CardHeader>
       <CardTitle class="text-2xl font-bold">Record Medical Note</CardTitle>
-      <CardDescription>
-        Enter patient information and select the type of note to generate
-      </CardDescription>
+      <CardDescription>Enter patient information and select the type of note to generate</CardDescription>
     </CardHeader>
 
     <CardContent class="space-y-6">
@@ -696,9 +666,7 @@
       <!-- Note Type Selection Section -->
       <div class="space-y-4">
         <h3 class="text-lg font-semibold">Note Type</h3>
-        <p class="text-sm text-muted-foreground">
-          Select the type of medical note to generate from the recording
-        </p>
+        <p class="text-sm text-muted-foreground">Select the type of medical note to generate from the recording</p>
 
         <RadioGroup bind:value={formData.noteType} class="space-y-3">
           <div class="flex items-center space-x-3">
@@ -732,9 +700,7 @@
       <!-- Microphone Setup Section -->
       <div class="space-y-4">
         <h3 class="text-lg font-semibold">Microphone Setup</h3>
-        <p class="text-sm text-muted-foreground">
-          Connect and configure your microphone for recording
-        </p>
+        <p class="text-sm text-muted-foreground">Connect and configure your microphone for recording</p>
 
         {#if needsMicrophoneConnection()}
           <div class="space-y-2">
@@ -743,15 +709,8 @@
                 Click the button below to connect your microphone and enable recording capabilities
               </p>
               <Button onclick={handleConnectMicrophone} class="w-full md:w-auto">
-                <svg
-                  class="mr-2 h-4 w-4"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"
-                  />
+                <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
                   <path
                     d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"
                   />
@@ -781,9 +740,7 @@
                 </option>
               {/each}
             </select>
-            <p class="text-xs text-green-600">
-              ✓ Microphone connected successfully. Ready for recording.
-            </p>
+            <p class="text-xs text-green-600">✓ Microphone connected successfully. Ready for recording.</p>
           </div>
         {/if}
       </div>
@@ -793,21 +750,32 @@
       <!-- Recording Section -->
       <div class="space-y-4">
         <h3 class="text-lg font-semibold">Recording</h3>
-        <p class="text-sm text-muted-foreground">
-          Record the patient visit using your connected microphone
-        </p>
-
         <!-- Status Display -->
-        {#if statusMessage}
-          <div class="rounded-md p-3 {statusType === 'error' ? 'bg-destructive/10' : statusType === 'warning' ? 'bg-yellow-50 border border-yellow-200' : statusType === 'success' ? 'bg-green-50 border border-green-200' : 'bg-blue-50 border border-blue-200'}">
-            <p class="text-sm {statusType === 'error' ? 'text-destructive' : statusType === 'warning' ? 'text-yellow-800' : statusType === 'success' ? 'text-green-800' : 'text-blue-800'}">{statusMessage}</p>
-          </div>
-        {/if}
-
-        <!-- Recording Errors -->
         {#if recordingError}
           <div class="rounded-md bg-destructive/10 p-3">
             <p class="text-sm text-destructive">{recordingError}</p>
+          </div>
+        {:else if statusMessage}
+          <div
+            class="rounded-md p-3 {statusType === 'error'
+              ? 'bg-destructive/10'
+              : statusType === 'warning'
+                ? 'border border-yellow-200 bg-yellow-50'
+                : statusType === 'success'
+                  ? 'border border-green-200 bg-green-50'
+                  : 'border border-blue-200 bg-blue-50'}"
+          >
+            <p
+              class="text-sm {statusType === 'error'
+                ? 'text-destructive'
+                : statusType === 'warning'
+                  ? 'text-yellow-800'
+                  : statusType === 'success'
+                    ? 'text-green-800'
+                    : 'text-blue-800'}"
+            >
+              {statusMessage}
+            </p>
           </div>
         {/if}
 
@@ -825,16 +793,23 @@
           <div class="space-y-2">
             <Label class="text-sm font-medium">Recording Status</Label>
             <div class="space-y-3">
-              <div class="rounded-md border p-3 {isRecording() ? 'border-red-200 bg-red-50' : 'border-yellow-200 bg-yellow-50'}">
+              <div
+                class="rounded-md border p-3 {isRecording()
+                  ? 'border-red-200 bg-red-50'
+                  : 'border-yellow-200 bg-yellow-50'}"
+              >
                 <div class="flex items-center space-x-2">
-                  <div class="h-3 w-3 rounded-full {isRecording() ? 'animate-pulse bg-red-500' : 'bg-yellow-500'}"></div>
+                  <div
+                    class="h-3 w-3 rounded-full {isRecording() ? 'animate-pulse bg-red-500' : 'bg-yellow-500'}"
+                  ></div>
                   <p class="text-sm font-medium {isRecording() ? 'text-red-800' : 'text-yellow-800'}">
                     {isRecording() ? 'Recording in progress...' : 'Recording paused...'}
                   </p>
                 </div>
                 <div class="mt-2 space-y-1">
                   <p class="text-xs {isRecording() ? 'text-red-700' : 'text-yellow-700'}">
-                    Patient: {formData.firstName} {formData.lastName}
+                    Patient: {formData.firstName}
+                    {formData.lastName}
                   </p>
                   <p class="text-xs {isRecording() ? 'text-red-700' : 'text-yellow-700'}">
                     Note Type: {formData.noteType === 'soap' ? 'SOAP Note' : 'Full Note'}
@@ -846,12 +821,7 @@
               </div>
               <div class="flex gap-2">
                 <Button onclick={handlePauseResume} variant="outline" disabled={!canPauseResume()}>
-                  <svg
-                    class="mr-2 h-4 w-4"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
+                  <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     {#if isPaused()}
                       <path d="M8 5v14l11-7z" />
                     {:else}
@@ -861,12 +831,7 @@
                   {isPaused() ? 'Resume' : 'Pause'}
                 </Button>
                 <Button onclick={handleStopRecording} variant="destructive">
-                  <svg
-                    class="mr-2 h-4 w-4"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
+                  <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <rect x="6" y="6" width="12" height="12" rx="2" />
                   </svg>
                   Stop Recording
@@ -887,7 +852,8 @@
                 </div>
                 <div class="mt-2 space-y-1">
                   <p class="text-xs text-green-700">
-                    Patient: {formData.firstName} {formData.lastName}
+                    Patient: {formData.firstName}
+                    {formData.lastName}
                   </p>
                   <p class="text-xs text-green-700">
                     Note Type: {formData.noteType === 'soap' ? 'SOAP Note' : 'Full Note'}
@@ -897,29 +863,18 @@
                   </p>
                 </div>
               </div>
-              
+
               <!-- Processing Errors -->
               {#if processingError}
                 <div class="rounded-md bg-destructive/10 p-3">
                   <p class="text-sm text-destructive">{processingError}</p>
                 </div>
               {/if}
-              
-              <Button
-                onclick={handleProcessRecording}
-                class="w-full md:w-auto"
-                disabled={isProcessing}
-              >
+
+              <Button onclick={handleProcessRecording} class="w-full md:w-auto" disabled={isProcessing}>
                 {#if isProcessing}
                   <svg class="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle
-                      class="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      stroke-width="4"
-                    ></circle>
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path
                       class="opacity-75"
                       fill="currentColor"
@@ -928,12 +883,7 @@
                   </svg>
                   Processing...
                 {:else}
-                  <svg
-                    class="mr-2 h-4 w-4"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
+                  <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path
                       d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
                     />

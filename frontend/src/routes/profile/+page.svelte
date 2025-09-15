@@ -23,9 +23,7 @@
     <div class="mx-auto max-w-6xl">
       <div class="mb-12 text-center">
         <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Authentication System Demo</h2>
-        <p class="mt-4 text-lg text-muted-foreground">
-          Try the login system with any username and password
-        </p>
+        <p class="mt-4 text-lg text-muted-foreground">Try the login system with any username and password</p>
       </div>
 
       <div class="grid gap-8 md:grid-cols-2">

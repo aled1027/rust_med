@@ -1,12 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-    CardContent
-  } from '$lib/components/ui/card';
+  import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
   import { tauriService } from '$lib/tauriService';
   import type { TauriNote } from '$lib/types';
@@ -48,19 +42,14 @@
 <div class="container mx-auto max-w-2xl space-y-6 px-4 py-8">
   <h2 class="text-2xl font-bold">Medical Notes</h2>
   {#each notes as note}
-    <Card key={note.id}>
+    <Card>
       <CardHeader>
         <div class="flex items-start justify-between">
           <div>
             <CardTitle class="text-2xl font-bold">{note.firstName} {note.lastName}</CardTitle>
             <CardDescription>Recorded: {new Date(note.createdAt).toLocaleString()}</CardDescription>
           </div>
-          <Button
-            variant="destructive"
-            class="cursor-pointer"
-            size="sm"
-            onclick={() => deleteNote(note.id)}
-          >
+          <Button variant="destructive" class="cursor-pointer" size="sm" onclick={() => deleteNote(note.id)}>
             Delete
           </Button>
         </div>

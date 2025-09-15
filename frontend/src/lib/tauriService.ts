@@ -48,9 +48,7 @@ class TauriService {
     await this.ensureTauri().fs.writeFile(path, data);
   }
 
-  async transcribeAudio(
-    audioPath: string
-  ): Promise<{ success: boolean; transcript: string; error: string | null }> {
+  async transcribeAudio(audioPath: string): Promise<{ success: boolean; transcript: string; error: string | null }> {
     return this.ensureTauri().core.invoke('transcribe_audio', {
       audioPath: audioPath
     });
@@ -85,9 +83,7 @@ class TauriService {
     return { success: false, notes: [], error: result.error };
   }
 
-  async createNote(
-    note: TauriNoteIn
-  ): Promise<{ success: boolean; note_id: string | null; error: string | null }> {
+  async createNote(note: TauriNoteIn): Promise<{ success: boolean; note_id: string | null; error: string | null }> {
     return await this.ensureTauri().core.invoke('create_patient_note', note);
   }
 

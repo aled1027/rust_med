@@ -1,13 +1,7 @@
 <script lang="ts">
   import { useAuth } from '$lib/hooks/use-auth.svelte.js';
   import { Button } from '$lib/components/ui/button';
-  import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle
-  } from '$lib/components/ui/card';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
 
   // Get authentication context
@@ -43,9 +37,7 @@
   <CardContent class="space-y-4">
     {#if isLoading}
       <div class="flex items-center gap-2">
-        <div
-          class="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"
-        ></div>
+        <div class="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
         <span class="text-sm text-gray-600">Loading...</span>
       </div>
     {:else if isAuthenticated && user}

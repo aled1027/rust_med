@@ -1,13 +1,7 @@
 <script lang="ts">
   import { useAuth } from '$lib/hooks/use-auth.svelte.js';
   import { Button } from '$lib/components/ui/button';
-  import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle
-  } from '$lib/components/ui/card';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
   import type { LoginCredentials } from '$lib/types.js';
@@ -130,9 +124,7 @@
       <Button type="submit" class="w-full" disabled={isLoading}>
         {#if isLoading}
           <div class="flex items-center gap-2">
-            <div
-              class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
-            ></div>
+            <div class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
             <span>Logging in...</span>
           </div>
         {:else}
