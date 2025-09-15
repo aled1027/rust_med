@@ -5,6 +5,7 @@
   import { Label } from '$lib/components/ui/label';
   import { RadioGroup, RadioGroupItem } from '$lib/components/ui/radio-group';
   import { Separator } from '$lib/components/ui/separator';
+  import * as Select from '$lib/components/ui/select';
   import { tauriService } from '$lib/tauriService';
   import { onMount } from 'svelte';
   import type { RecordingState } from '$lib/types';
@@ -708,19 +709,20 @@
         {:else if availableMicrophones.length > 0}
           <div class="space-y-2">
             <Label for="microphone" class="text-sm font-medium">
-              Select Microphone <span class="text-green-600">✓</span>
+              Microphone
             </Label>
-            <select
-              id="microphone"
-              bind:value={selectedMicrophoneId}
-              class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
-            >
-              {#each availableMicrophones as microphone}
-                <option value={microphone.deviceId}>
-                  {microphone.label || `Microphone ${microphone.deviceId.slice(0, 8)}`}
-                </option>
-              {/each}
-            </select>
+            <Select.Root type="single" bind:value={selectedMicrophoneId}>
+              <Select.Trigger class="w-full">
+                {availableMicrophones.find(m => m.deviceId === selectedMicrophoneId)?.label || `Microphone ${selectedMicrophoneId.slice(0, 8)}` || "Select a microphone"}
+              </Select.Trigger>
+              <Select.Content>
+                {#each availableMicrophones as microphone}
+                  <Select.Item value={microphone.deviceId}>
+                    {microphone.label || `Microphone ${microphone.deviceId.slice(0, 8)}`}
+                  </Select.Item>
+                {/each}
+              </Select.Content>
+            </Select.Root>
             <p class="text-xs text-green-600">✓ Microphone connected.</p>
           </div>
         {/if}
