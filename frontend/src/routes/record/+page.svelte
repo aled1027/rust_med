@@ -43,7 +43,10 @@
 
   // Computed validation -- TODO: not great UX
   let areFormInputsValid: boolean = $derived(
-    formData.firstName.trim() !== '' && formData.lastName.trim() !== '' && formData.dateOfBirth !== '' && isMicrophoneConnected
+    formData.firstName.trim() !== '' &&
+      formData.lastName.trim() !== '' &&
+      formData.dateOfBirth !== '' &&
+      isMicrophoneConnected
   );
 
   // Computed recording state
@@ -601,12 +604,7 @@
               aria-describedby={errors.firstName ? 'firstName-error' : undefined}
             />
             {#if errors.firstName}
-              <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-destructive">
-                <AlertCircle class="absolute left-3 top-3 h-4 w-4" />
-                <div class="pl-7">
-                  <p class="text-sm font-medium">{errors.firstName}</p>
-                </div>
-              </div>
+              <p class="text-sm text-destructive">{errors.firstName}</p>
             {/if}
           </div>
 
@@ -624,12 +622,7 @@
               aria-describedby={errors.lastName ? 'lastName-error' : undefined}
             />
             {#if errors.lastName}
-              <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-destructive">
-                <AlertCircle class="absolute left-3 top-3 h-4 w-4" />
-                <div class="pl-7">
-                  <p class="text-sm font-medium">{errors.lastName}</p>
-                </div>
-              </div>
+              <p class="text-sm text-destructive">{errors.lastName}</p>
             {/if}
           </div>
         </div>
@@ -648,26 +641,22 @@
               aria-describedby={errors.dateOfBirth ? 'dateOfBirth-error' : undefined}
             />
             {#if errors.dateOfBirth}
-              <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-destructive">
-                <AlertCircle class="absolute left-3 top-3 h-4 w-4" />
-                <div class="pl-7">
-                  <p class="text-sm font-medium">{errors.dateOfBirth}</p>
-                </div>
-              </div>
+              <p class="text-sm text-destructive">{errors.dateOfBirth}</p>
             {/if}
           </div>
         </div>
 
-
-      <!-- Recording Configuration Section -->
+        <!-- Recording Configuration Section -->
         <!-- Note Type Selection -->
         <div class="space-y-2">
-          <Label for="noteType" class="text-sm font-medium">
-            Note Type
-          </Label>
+          <Label for="noteType" class="text-sm font-medium">Note Type</Label>
           <Select.Root type="single" bind:value={formData.noteType}>
             <Select.Trigger class="w-full">
-              {formData.noteType === 'soap' ? 'SOAP Note' : formData.noteType === 'full' ? 'Full Note' : 'Select note type'}
+              {formData.noteType === 'soap'
+                ? 'SOAP Note'
+                : formData.noteType === 'full'
+                  ? 'Full Note'
+                  : 'Select note type'}
             </Select.Trigger>
             <Select.Content>
               <Select.Item value="soap">
@@ -695,49 +684,37 @@
           <Label class="text-sm font-medium">
             Microphone <span class="text-destructive">*</span>
           </Label>
-          <p class="text-xs text-muted-foreground">
-            Connect and select a microphone to record patient notes
-          </p>
+          <p class="text-xs text-muted-foreground">Connect and select a microphone to record patient notes</p>
 
           {#if needsMicrophoneConnection()}
             <div class="space-y-3">
               <div class="rounded-lg border border-dashed border-muted-foreground/25 p-4 text-center">
-                <Mic class="mx-auto h-8 w-8 text-muted-foreground/50 mb-2" />
-                <p class="text-sm text-muted-foreground mb-3">
-                  No microphone connected
-                </p>
+                <Mic class="mx-auto mb-2 h-8 w-8 text-muted-foreground/50" />
+                <p class="mb-3 text-sm text-muted-foreground">No microphone connected</p>
                 <Button onclick={handleConnectMicrophone} class="w-full md:w-auto">
                   <Mic class="mr-2 h-4 w-4" />
                   Connect Microphone
                 </Button>
               </div>
               {#if errors.microphone}
-                <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-destructive">
-                  <AlertCircle class="absolute left-3 top-3 h-4 w-4" />
-                  <div class="pl-7">
-                    <p class="text-sm font-medium">{errors.microphone}</p>
-                  </div>
-                </div>
+                <p class="text-sm text-destructive">{errors.microphone}</p>
               {/if}
               {#if microphoneError}
-                <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
-                  <AlertCircle class="absolute left-4 top-4 h-4 w-4" />
-                  <div class="pl-7">
-                    <p class="text-sm font-medium">{microphoneError}</p>
-                  </div>
-                </div>
+                <p class="text-sm text-destructive">{microphoneError}</p>
               {/if}
             </div>
           {:else if availableMicrophones.length > 0}
             <div class="space-y-2">
               <div class="rounded-lg border border-green-200 bg-green-50 p-3">
-                <div class="flex items-center space-x-2 mb-2">
+                <div class="mb-2 flex items-center space-x-2">
                   <div class="h-2 w-2 rounded-full bg-green-500"></div>
                   <p class="text-sm font-medium text-green-800">Microphone Connected</p>
                 </div>
                 <Select.Root type="single" bind:value={selectedMicrophoneId}>
                   <Select.Trigger class="w-full">
-                    {availableMicrophones.find(m => m.deviceId === selectedMicrophoneId)?.label || `Microphone ${selectedMicrophoneId.slice(0, 8)}` || "Select a microphone"}
+                    {availableMicrophones.find((m) => m.deviceId === selectedMicrophoneId)?.label ||
+                      `Microphone ${selectedMicrophoneId.slice(0, 8)}` ||
+                      'Select a microphone'}
                   </Select.Trigger>
                   <Select.Content>
                     {#each availableMicrophones as microphone}
@@ -759,12 +736,7 @@
       <div class="space-y-4">
         <!-- Status Display -->
         {#if recordingError}
-          <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
-            <AlertCircle class="absolute left-4 top-4 h-4 w-4" />
-            <div class="pl-7">
-              <p class="text-sm font-medium">{recordingError}</p>
-            </div>
-          </div>
+          <p class="text-sm text-destructive">{recordingError}</p>
         {/if}
 
         {#if recordingState === 'not-ready'}
@@ -831,9 +803,9 @@
             <Label class="text-sm font-medium">Recording Status</Label>
             <div class="space-y-3">
               <div class="relative w-full rounded-lg border border-green-500/50 bg-green-50 p-4 text-green-700">
-                <CheckCircle class="absolute left-4 top-4 h-4 w-4" />
+                <CheckCircle class="absolute top-4 left-4 h-4 w-4" />
                 <div class="pl-7">
-                  <h5 class="mb-1 font-medium leading-none tracking-tight">
+                  <h5 class="mb-1 leading-none font-medium tracking-tight">
                     ✓ Recording completed. Process the audio to generate the medical note.
                   </h5>
                   <div class="mt-2 space-y-1">
@@ -853,12 +825,7 @@
 
               <!-- Processing Errors -->
               {#if processingError}
-                <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
-                  <AlertCircle class="absolute left-4 top-4 h-4 w-4" />
-                  <div class="pl-7">
-                    <p class="text-sm font-medium">{processingError}</p>
-                  </div>
-                </div>
+                <p class="text-sm text-destructive">{processingError}</p>
               {/if}
 
               <Button onclick={handleProcessRecording} class="w-full md:w-auto" disabled={isProcessing}>
