@@ -1,4 +1,0 @@
-.notebook-block__wrapper {
-    width: clamp(250px, 100%, 640px);
-
-}
