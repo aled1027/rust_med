@@ -815,8 +815,8 @@
                     <p class="text-xs text-green-600">
                       Note Type: {formData.noteType === 'soap' ? 'SOAP Note' : 'Full Note'}
                     </p>
-                    <p class="text-sm font-medium text-green-800">
-                      Final Duration: {formatTime(recordingTime)}
+                    <p class="text-xs text-green-600">
+                      Recording duration: {formatTime(recordingTime)}
                     </p>
                   </div>
                 </div>
