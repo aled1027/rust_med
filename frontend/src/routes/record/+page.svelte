@@ -592,7 +592,7 @@
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div class="space-y-2">
             <Label for="firstName" class="text-sm font-medium">
-              First Name <span class="text-destructive">*</span>
+              First Name*
             </Label>
             <Input
               id="firstName"
@@ -602,6 +602,7 @@
               class={errors.firstName ? 'border-destructive' : ''}
               aria-invalid={!!errors.firstName}
               aria-describedby={errors.firstName ? 'firstName-error' : undefined}
+              required
             />
             {#if errors.firstName}
               <p class="text-sm text-destructive">{errors.firstName}</p>
@@ -610,7 +611,7 @@
 
           <div class="space-y-2">
             <Label for="lastName" class="text-sm font-medium">
-              Last Name <span class="text-destructive">*</span>
+              Last Name*
             </Label>
             <Input
               id="lastName"
@@ -620,6 +621,7 @@
               class={errors.lastName ? 'border-destructive' : ''}
               aria-invalid={!!errors.lastName}
               aria-describedby={errors.lastName ? 'lastName-error' : undefined}
+              required
             />
             {#if errors.lastName}
               <p class="text-sm text-destructive">{errors.lastName}</p>
@@ -630,7 +632,7 @@
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div class="space-y-2">
             <Label for="dateOfBirth" class="text-sm font-medium">
-              Date of Birth <span class="text-destructive">*</span>
+              Date of Birth*
             </Label>
             <Input
               id="dateOfBirth"
@@ -639,6 +641,7 @@
               class={errors.dateOfBirth ? 'border-destructive' : ''}
               aria-invalid={!!errors.dateOfBirth}
               aria-describedby={errors.dateOfBirth ? 'dateOfBirth-error' : undefined}
+              required
             />
             {#if errors.dateOfBirth}
               <p class="text-sm text-destructive">{errors.dateOfBirth}</p>
@@ -649,7 +652,7 @@
         <!-- Recording Configuration Section -->
         <!-- Note Type Selection -->
         <div class="space-y-2">
-          <Label for="noteType" class="text-sm font-medium">Note Type</Label>
+          <Label for="noteType" class="text-sm font-medium">Note Type*</Label>
           <Select.Root type="single" bind:value={formData.noteType}>
             <Select.Trigger class="w-full">
               {formData.noteType === 'soap'
@@ -682,7 +685,7 @@
         <!-- Microphone Setup -->
         <div class="space-y-2">
           <Label class="text-sm font-medium">
-            Microphone <span class="text-destructive">*</span>
+            Microphone*
           </Label>
           {#if needsMicrophoneConnection()}
             <div class="space-y-3">
@@ -766,7 +769,7 @@
                     {isRecording() ? 'Recording in progress...' : 'Recording paused...'}
                   </p>
                 </div>
-                <div class="mt-2 space-y-1">
+                <div class="mt-2 pl-6 space-y-1">
                   <p class="text-xs {isRecording() ? 'text-red-700' : 'text-yellow-700'}">
                     Patient: {formData.firstName}
                     {formData.lastName}
@@ -813,7 +816,7 @@
                       Note Type: {formData.noteType === 'soap' ? 'SOAP Note' : 'Full Note'}
                     </p>
                     <p class="text-xs text-green-600">
-                      Recording duration: {formatTime(recordingTime)}
+                      Recording Duration: {formatTime(recordingTime)}
                     </p>
                   </div>
                 </div>
