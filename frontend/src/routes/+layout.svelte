@@ -21,7 +21,7 @@
     <main class="flex-1">
       <!-- Mobile menu trigger -->
       <div class="flex items-center gap-2 p-4 md:hidden">
-        <Sidebar.Trigger class="md:hidden" />
+        <Sidebar.Trigger class="md:hidden cursor-pointer" />
         <h1 class="text-lg font-semibold">Medical Note Generator</h1>
       </div>
       <div class="flex flex-1 flex-col gap-4 p-4">
