@@ -43,7 +43,7 @@
 
   // Computed validation -- TODO: not great UX
   let areFormInputsValid: boolean = $derived(
-    formData.firstName.trim() !== '' && formData.lastName.trim() !== '' && formData.dateOfBirth !== ''
+    formData.firstName.trim() !== '' && formData.lastName.trim() !== '' && formData.dateOfBirth !== '' && isMicrophoneConnected
   );
 
   // Computed recording state
@@ -102,6 +102,10 @@
       if (birthDate > today) {
         errors.dateOfBirth = 'Date of birth cannot be in the future';
       }
+    }
+
+    if (!isMicrophoneConnected) {
+      errors.microphone = 'Microphone must be connected to record';
     }
 
     return Object.keys(errors).length === 0;
@@ -688,14 +692,33 @@
 
         <!-- Microphone Setup -->
         <div class="space-y-2">
-          <Label class="text-sm font-medium">Microphone</Label>
+          <Label class="text-sm font-medium">
+            Microphone <span class="text-destructive">*</span>
+          </Label>
+          <p class="text-xs text-muted-foreground">
+            Connect and select a microphone to record patient notes
+          </p>
 
           {#if needsMicrophoneConnection()}
             <div class="space-y-3">
-              <Button onclick={handleConnectMicrophone} class="w-full md:w-auto">
-                <Mic class="mr-2 h-4 w-4" />
-                Connect Microphone
-              </Button>
+              <div class="rounded-lg border border-dashed border-muted-foreground/25 p-4 text-center">
+                <Mic class="mx-auto h-8 w-8 text-muted-foreground/50 mb-2" />
+                <p class="text-sm text-muted-foreground mb-3">
+                  No microphone connected
+                </p>
+                <Button onclick={handleConnectMicrophone} class="w-full md:w-auto">
+                  <Mic class="mr-2 h-4 w-4" />
+                  Connect Microphone
+                </Button>
+              </div>
+              {#if errors.microphone}
+                <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-destructive">
+                  <AlertCircle class="absolute left-3 top-3 h-4 w-4" />
+                  <div class="pl-7">
+                    <p class="text-sm font-medium">{errors.microphone}</p>
+                  </div>
+                </div>
+              {/if}
               {#if microphoneError}
                 <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
                   <AlertCircle class="absolute left-4 top-4 h-4 w-4" />
@@ -707,19 +730,24 @@
             </div>
           {:else if availableMicrophones.length > 0}
             <div class="space-y-2">
-              <Select.Root type="single" bind:value={selectedMicrophoneId}>
-                <Select.Trigger class="w-full">
-                  {availableMicrophones.find(m => m.deviceId === selectedMicrophoneId)?.label || `Microphone ${selectedMicrophoneId.slice(0, 8)}` || "Select a microphone"}
-                </Select.Trigger>
-                <Select.Content>
-                  {#each availableMicrophones as microphone}
-                    <Select.Item value={microphone.deviceId}>
-                      {microphone.label || `Microphone ${microphone.deviceId.slice(0, 8)}`}
-                    </Select.Item>
-                  {/each}
-                </Select.Content>
-              </Select.Root>
-              <p class="text-xs text-green-600">✓ Microphone connected.</p>
+              <div class="rounded-lg border border-green-200 bg-green-50 p-3">
+                <div class="flex items-center space-x-2 mb-2">
+                  <div class="h-2 w-2 rounded-full bg-green-500"></div>
+                  <p class="text-sm font-medium text-green-800">Microphone Connected</p>
+                </div>
+                <Select.Root type="single" bind:value={selectedMicrophoneId}>
+                  <Select.Trigger class="w-full">
+                    {availableMicrophones.find(m => m.deviceId === selectedMicrophoneId)?.label || `Microphone ${selectedMicrophoneId.slice(0, 8)}` || "Select a microphone"}
+                  </Select.Trigger>
+                  <Select.Content>
+                    {#each availableMicrophones as microphone}
+                      <Select.Item value={microphone.deviceId}>
+                        {microphone.label || `Microphone ${microphone.deviceId.slice(0, 8)}`}
+                      </Select.Item>
+                    {/each}
+                  </Select.Content>
+                </Select.Root>
+              </div>
             </div>
           {/if}
         </div>
@@ -741,14 +769,14 @@
 
         {#if recordingState === 'not-ready'}
           <div class="space-y-4">
-            <Button disabled={true} variant="outline" class="w-full md:w-auto">
+            <Button onclick={handleRecord} class="w-full md:w-auto">
               <Play class="mr-2 h-4 w-4" />
               Start Recording
             </Button>
           </div>
         {:else if recordingState === 'ready'}
           <div class="space-y-2">
-            <Button onclick={handleRecord} class="w-full md:w-auto" disabled={!canRecord}>
+            <Button onclick={handleRecord} class="w-full md:w-auto">
               <Play class="mr-2 h-4 w-4" />
               Start Recording
             </Button>
