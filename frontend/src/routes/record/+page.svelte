@@ -9,6 +9,7 @@
   import { tauriService } from '$lib/tauriService';
   import { onMount } from 'svelte';
   import type { RecordingState } from '$lib/types';
+  import { Mic, Play, Pause, Square, Loader2, Star } from 'lucide-svelte';
 
   // Form state
   let formData = $state({
@@ -691,12 +692,7 @@
           <div class="space-y-2">
             <div class="space-y-3">
               <Button onclick={handleConnectMicrophone} class="w-full md:w-auto">
-                <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
-                  <path
-                    d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"
-                  />
-                </svg>
+                <Mic class="mr-2 h-4 w-4" />
                 Connect Microphone
               </Button>
               {#if microphoneError}
@@ -745,21 +741,15 @@
             <p class="text-sm text-muted-foreground">
               Fill out the patient information and connect a microphone above to record.
             </p>
-            <Button disabled={true} class="w-full md:w-auto">
-              <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="12" r="10" />
-                <circle cx="12" cy="12" r="6" fill="white" />
-              </svg>
+            <Button disabled={true} variant="outline" class="w-full md:w-auto">
+              <Play class="mr-2 h-4 w-4" />
               Start Recording
             </Button>
           </div>
         {:else if recordingState === 'ready'}
           <div class="space-y-2">
             <Button onclick={handleRecord} class="w-full md:w-auto" disabled={!canRecord}>
-              <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="12" r="10" />
-                <circle cx="12" cy="12" r="6" fill="white" />
-              </svg>
+              <Play class="mr-2 h-4 w-4" />
               Start Recording
             </Button>
           </div>
@@ -794,19 +784,15 @@
               </div>
               <div class="flex gap-2">
                 <Button onclick={handlePauseResume} variant="outline" disabled={!canPauseResume()}>
-                  <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    {#if isPaused()}
-                      <path d="M8 5v14l11-7z" />
-                    {:else}
-                      <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
-                    {/if}
-                  </svg>
+                  {#if isPaused()}
+                    <Play class="mr-2 h-4 w-4" />
+                  {:else}
+                    <Pause class="mr-2 h-4 w-4" />
+                  {/if}
                   {isPaused() ? 'Resume' : 'Pause'}
                 </Button>
                 <Button onclick={handleStopRecording} variant="destructive">
-                  <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <rect x="6" y="6" width="12" height="12" rx="2" />
-                  </svg>
+                  <Square class="mr-2 h-4 w-4" />
                   Stop Recording
                 </Button>
               </div>
@@ -846,21 +832,10 @@
 
               <Button onclick={handleProcessRecording} class="w-full md:w-auto" disabled={isProcessing}>
                 {#if isProcessing}
-                  <svg class="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path
-                      class="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
+                  <Loader2 class="mr-2 h-4 w-4 animate-spin" />
                   Processing...
                 {:else}
-                  <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                    />
-                  </svg>
+                  <Star class="mr-2 h-4 w-4" />
                   Process Recording
                 {/if}
               </Button>
