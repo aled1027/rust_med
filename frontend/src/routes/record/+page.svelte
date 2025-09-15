@@ -582,8 +582,6 @@
     <CardContent class="space-y-6">
       <!-- Patient Information Section -->
       <div class="space-y-4">
-        <h3 class="text-lg font-semibold">Patient Information</h3>
-
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div class="space-y-2">
             <Label for="firstName" class="text-sm font-medium">
@@ -653,15 +651,10 @@
             </div>
           {/if}
         </div>
-      </div>
 
-      <Separator />
 
-      <!-- Note Type Selection Section -->
-      <div class="space-y-4">
-        <h3 class="text-lg font-semibold">Note Type</h3>
-        <p class="text-sm text-muted-foreground">Select the type of medical note to generate from the recording</p>
-
+      <!-- Recording Configuration Section -->
+        <!-- Note Type Selection -->
         <div class="space-y-2">
           <Label for="noteType" class="text-sm font-medium">
             Note Type
@@ -690,17 +683,12 @@
             </Select.Content>
           </Select.Root>
         </div>
-      </div>
 
-      <Separator />
+        <!-- Microphone Setup -->
+        <div class="space-y-2">
+          <Label class="text-sm font-medium">Microphone</Label>
 
-      <!-- Microphone Setup Section -->
-      <div class="space-y-4">
-        <h3 class="text-lg font-semibold">Microphone Setup</h3>
-        <p class="text-sm text-muted-foreground">Connect and configure your microphone for recording</p>
-
-        {#if needsMicrophoneConnection()}
-          <div class="space-y-2">
+          {#if needsMicrophoneConnection()}
             <div class="space-y-3">
               <Button onclick={handleConnectMicrophone} class="w-full md:w-auto">
                 <Mic class="mr-2 h-4 w-4" />
@@ -715,27 +703,24 @@
                 </div>
               {/if}
             </div>
-          </div>
-        {:else if availableMicrophones.length > 0}
-          <div class="space-y-2">
-            <Label for="microphone" class="text-sm font-medium">
-              Microphone
-            </Label>
-            <Select.Root type="single" bind:value={selectedMicrophoneId}>
-              <Select.Trigger class="w-full">
-                {availableMicrophones.find(m => m.deviceId === selectedMicrophoneId)?.label || `Microphone ${selectedMicrophoneId.slice(0, 8)}` || "Select a microphone"}
-              </Select.Trigger>
-              <Select.Content>
-                {#each availableMicrophones as microphone}
-                  <Select.Item value={microphone.deviceId}>
-                    {microphone.label || `Microphone ${microphone.deviceId.slice(0, 8)}`}
-                  </Select.Item>
-                {/each}
-              </Select.Content>
-            </Select.Root>
-            <p class="text-xs text-green-600">✓ Microphone connected.</p>
-          </div>
-        {/if}
+          {:else if availableMicrophones.length > 0}
+            <div class="space-y-2">
+              <Select.Root type="single" bind:value={selectedMicrophoneId}>
+                <Select.Trigger class="w-full">
+                  {availableMicrophones.find(m => m.deviceId === selectedMicrophoneId)?.label || `Microphone ${selectedMicrophoneId.slice(0, 8)}` || "Select a microphone"}
+                </Select.Trigger>
+                <Select.Content>
+                  {#each availableMicrophones as microphone}
+                    <Select.Item value={microphone.deviceId}>
+                      {microphone.label || `Microphone ${microphone.deviceId.slice(0, 8)}`}
+                    </Select.Item>
+                  {/each}
+                </Select.Content>
+              </Select.Root>
+              <p class="text-xs text-green-600">✓ Microphone connected.</p>
+            </div>
+          {/if}
+        </div>
       </div>
 
       <Separator />
