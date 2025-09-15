@@ -6,7 +6,6 @@
   import { Separator } from '$lib/components/ui/separator';
   import * as Select from '$lib/components/ui/select';
   import { tauriService } from '$lib/tauriService';
-  import { onMount } from 'svelte';
   import type { RecordingState } from '$lib/types';
   import { Mic, Play, Pause, Square, Loader2, Star, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-svelte';
 
@@ -38,28 +37,13 @@
   let mediaRecorder: MediaRecorder | null = null;
   let audioChunks: Blob[] = [];
   let stream: MediaStream | null = null;
-  let pauseResumeSupported = false;
   let recordingTimerId: number | null = null;
 
-  // Computed validation -- TODO: not great UX
-  let areFormInputsValid: boolean = $derived(
-    formData.firstName.trim() !== '' &&
-      formData.lastName.trim() !== '' &&
-      formData.dateOfBirth !== '' &&
-      isMicrophoneConnected
-  );
-
   // Computed recording state
-  let isRecording = $derived(() => recordingState === 'recording');
-  let isPaused = $derived(() => recordingState === 'paused');
-  let canRecord = $derived(areFormInputsValid && isMicrophoneConnected);
-  let canPauseResume = $derived(() => isRecording() || isPaused());
-  let needsMicrophoneConnection = $derived(() => !isMicrophoneConnected);
-
-  // Initialize recording functionality on mount - removed auto-initialization
-  onMount(async () => {
-    // Recording will be initialized manually via button
-  });
+  let isRecording = $derived(recordingState === 'recording');
+  let isPaused = $derived(recordingState === 'paused');
+  let canPauseResume = $derived(isRecording || isPaused);
+  let needsMicrophoneConnection = $derived(!isMicrophoneConnected);
 
   // Connect microphone and get available devices
   async function connectMicrophone() {
@@ -195,8 +179,8 @@
   }
 
   function pauseRecording(): void {
-    if (!mediaRecorder || !pauseResumeSupported) {
-      throw new Error('Pause/resume not supported');
+    if (!mediaRecorder) {
+      throw new Error('No active recording');
     }
 
     try {
@@ -208,8 +192,8 @@
   }
 
   function resumeRecording(): void {
-    if (!mediaRecorder || !pauseResumeSupported) {
-      throw new Error('Pause/resume not supported');
+    if (!mediaRecorder) {
+      throw new Error('No active recording');
     }
 
     try {
@@ -687,7 +671,7 @@
           <Label class="text-sm font-medium">
             Microphone*
           </Label>
-          {#if needsMicrophoneConnection()}
+          {#if needsMicrophoneConnection}
             <div class="space-y-3">
               <div class="rounded-lg border border-dashed border-muted-foreground/25 p-4 text-center">
                 <Mic class="mx-auto mb-2 h-8 w-8 text-muted-foreground/50" />
@@ -754,42 +738,42 @@
               Start Recording
             </Button>
           </div>
-        {:else if isRecording() || isPaused()}
+        {:else if isRecording || isPaused}
           <div class="space-y-2">
             <div class="space-y-3">
-              <div class="relative w-full rounded-lg border p-4 {isRecording()
+              <div class="relative w-full rounded-lg border p-4 {isRecording
                 ? 'border-red-200 bg-red-50 text-red-700'
                 : 'border-yellow-200 bg-yellow-50 text-yellow-700'}"
               >
                 <div class="flex items-center space-x-2">
                   <div
-                    class="h-4 w-4 rounded-full {isRecording() ? 'animate-pulse bg-red-500' : 'bg-yellow-500'}"
+                    class="h-4 w-4 rounded-full {isRecording ? 'animate-pulse bg-red-500' : 'bg-yellow-500'}"
                   ></div>
-                  <p class="text-sm font-medium {isRecording() ? 'text-red-800' : 'text-yellow-800'}">
-                    {isRecording() ? 'Recording in progress...' : 'Recording paused...'}
+                  <p class="text-sm font-medium {isRecording ? 'text-red-800' : 'text-yellow-800'}">
+                    {isRecording ? 'Recording in progress...' : 'Recording paused...'}
                   </p>
                 </div>
                 <div class="mt-2 pl-6 space-y-1">
-                  <p class="text-xs {isRecording() ? 'text-red-700' : 'text-yellow-700'}">
+                  <p class="text-xs {isRecording ? 'text-red-700' : 'text-yellow-700'}">
                     Patient: {formData.firstName}
                     {formData.lastName}
                   </p>
-                  <p class="text-xs {isRecording() ? 'text-red-700' : 'text-yellow-700'}">
+                  <p class="text-xs {isRecording ? 'text-red-700' : 'text-yellow-700'}">
                     Note Type: {formData.noteType === 'soap' ? 'SOAP Note' : 'Full Note'}
                   </p>
-                  <p class="text-sm font-medium {isRecording() ? 'text-red-800' : 'text-yellow-800'}">
+                  <p class="text-sm font-medium {isRecording ? 'text-red-800' : 'text-yellow-800'}">
                     Duration: {formatTime(recordingTime)}
                   </p>
                 </div>
               </div>
               <div class="flex gap-2">
-                <Button onclick={handlePauseResume} variant="outline" disabled={!canPauseResume()}>
-                  {#if isPaused()}
+                <Button onclick={handlePauseResume} variant="outline" disabled={!canPauseResume}>
+                  {#if isPaused}
                     <Play class="mr-2 h-4 w-4" />
                   {:else}
                     <Pause class="mr-2 h-4 w-4" />
                   {/if}
-                  {isPaused() ? 'Resume' : 'Pause'}
+                  {isPaused ? 'Resume' : 'Pause'}
                 </Button>
                 <Button onclick={handleStopRecording} variant="destructive">
                   <Square class="mr-2 h-4 w-4" />
