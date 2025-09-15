@@ -9,6 +9,8 @@
   import type { RecordingState } from '$lib/types';
   import { Mic, Play, Pause, Square, Loader2, Star, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-svelte';
 
+  // TODO: handle the processing UI and post-processing UI
+
   // Form state
   let formData = $state({
     firstName: '',
@@ -18,7 +20,6 @@
   });
 
   let errors = $state<Record<string, string>>({});
-  let isProcessing = $state(false);
 
   // Recording state - moved from global state to component level
   let recordingState = $state<RecordingState>('not-ready');
@@ -370,16 +371,13 @@
     }, 1000);
   }
 
-  function stopTimer(pause = false) {
+  function stopTimer() {
     if (recordingTimerId) {
       clearInterval(recordingTimerId);
       recordingTimerId = null;
     }
-
-    if (!pause) {
-      recordingTime = 0;
-    }
   }
+  
 
   // Event handlers
   async function handleConnectMicrophone() {
@@ -425,7 +423,7 @@
         statusType = 'info';
         pauseRecording();
         recordingState = 'paused';
-        stopTimer(true);
+        stopTimer();
         statusType = 'warning';
       }
     } catch (error) {
@@ -449,14 +447,16 @@
       setTimeout(() => (recordingError = ''), 5000);
       recordingState = 'not-ready';
     }
+
+    // Start the processing
+    processRecording();
   }
 
-  async function handleProcessRecording() {
+  async function processRecording() {
     if (!validateForm()) {
       return;
     }
 
-    isProcessing = true;
     try {
       statusType = 'info';
 
@@ -523,8 +523,6 @@
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       processingError = `Failed to process recording: ${errorMsg}`;
       setTimeout(() => (processingError = ''), 5000);
-    } finally {
-      isProcessing = false;
     }
   }
 
@@ -810,16 +808,6 @@
               {#if processingError}
                 <p class="text-sm text-destructive">{processingError}</p>
               {/if}
-
-              <Button onclick={handleProcessRecording} class="w-full md:w-auto" disabled={isProcessing}>
-                {#if isProcessing}
-                  <Loader2 class="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
-                {:else}
-                  <Star class="mr-2 h-4 w-4" />
-                  Process Recording
-                {/if}
-              </Button>
             </div>
           </div>
         {/if}
