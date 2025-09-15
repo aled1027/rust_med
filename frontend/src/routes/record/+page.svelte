@@ -630,26 +630,28 @@
           </div>
         </div>
 
-        <div class="space-y-2">
-          <Label for="dateOfBirth" class="text-sm font-medium">
-            Date of Birth <span class="text-destructive">*</span>
-          </Label>
-          <Input
-            id="dateOfBirth"
-            type="date"
-            bind:value={formData.dateOfBirth}
-            class={errors.dateOfBirth ? 'border-destructive' : ''}
-            aria-invalid={!!errors.dateOfBirth}
-            aria-describedby={errors.dateOfBirth ? 'dateOfBirth-error' : undefined}
-          />
-          {#if errors.dateOfBirth}
-            <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-destructive">
-              <AlertCircle class="absolute left-3 top-3 h-4 w-4" />
-              <div class="pl-7">
-                <p class="text-sm font-medium">{errors.dateOfBirth}</p>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div class="space-y-2">
+            <Label for="dateOfBirth" class="text-sm font-medium">
+              Date of Birth <span class="text-destructive">*</span>
+            </Label>
+            <Input
+              id="dateOfBirth"
+              type="date"
+              bind:value={formData.dateOfBirth}
+              class={errors.dateOfBirth ? 'border-destructive' : ''}
+              aria-invalid={!!errors.dateOfBirth}
+              aria-describedby={errors.dateOfBirth ? 'dateOfBirth-error' : undefined}
+            />
+            {#if errors.dateOfBirth}
+              <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-destructive">
+                <AlertCircle class="absolute left-3 top-3 h-4 w-4" />
+                <div class="pl-7">
+                  <p class="text-sm font-medium">{errors.dateOfBirth}</p>
+                </div>
               </div>
-            </div>
-          {/if}
+            {/if}
+          </div>
         </div>
 
 
@@ -727,7 +729,6 @@
 
       <!-- Recording Section -->
       <div class="space-y-4">
-        <h3 class="text-lg font-semibold">Recording</h3>
         <!-- Status Display -->
         {#if recordingError}
           <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
@@ -740,9 +741,6 @@
 
         {#if recordingState === 'not-ready'}
           <div class="space-y-4">
-            <p class="text-sm text-muted-foreground">
-              Fill out the patient information and connect a microphone above to record.
-            </p>
             <Button disabled={true} variant="outline" class="w-full md:w-auto">
               <Play class="mr-2 h-4 w-4" />
               Start Recording
