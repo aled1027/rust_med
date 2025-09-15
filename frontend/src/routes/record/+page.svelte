@@ -377,7 +377,6 @@
       recordingTimerId = null;
     }
   }
-  
 
   // Event handlers
   async function handleConnectMicrophone() {
@@ -573,9 +572,7 @@
       <div class="space-y-4">
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div class="space-y-2">
-            <Label for="firstName" class="text-sm font-medium">
-              First Name*
-            </Label>
+            <Label for="firstName" class="text-sm font-medium">First Name*</Label>
             <Input
               id="firstName"
               type="text"
@@ -592,9 +589,7 @@
           </div>
 
           <div class="space-y-2">
-            <Label for="lastName" class="text-sm font-medium">
-              Last Name*
-            </Label>
+            <Label for="lastName" class="text-sm font-medium">Last Name*</Label>
             <Input
               id="lastName"
               type="text"
@@ -613,9 +608,7 @@
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div class="space-y-2">
-            <Label for="dateOfBirth" class="text-sm font-medium">
-              Date of Birth*
-            </Label>
+            <Label for="dateOfBirth" class="text-sm font-medium">Date of Birth*</Label>
             <Input
               id="dateOfBirth"
               type="date"
@@ -666,9 +659,7 @@
 
         <!-- Microphone Setup -->
         <div class="space-y-2">
-          <Label class="text-sm font-medium">
-            Microphone*
-          </Label>
+          <Label class="text-sm font-medium">Microphone*</Label>
           {#if needsMicrophoneConnection}
             <div class="space-y-3">
               <div class="rounded-lg border border-dashed border-muted-foreground/25 p-4 text-center">
@@ -739,19 +730,18 @@
         {:else if isRecording || isPaused}
           <div class="space-y-2">
             <div class="space-y-3">
-              <div class="relative w-full rounded-lg border p-4 {isRecording
-                ? 'border-red-200 bg-red-50 text-red-700'
-                : 'border-yellow-200 bg-yellow-50 text-yellow-700'}"
+              <div
+                class="relative w-full rounded-lg border p-4 {isRecording
+                  ? 'border-red-200 bg-red-50 text-red-700'
+                  : 'border-yellow-200 bg-yellow-50 text-yellow-700'}"
               >
                 <div class="flex items-center space-x-2">
-                  <div
-                    class="h-4 w-4 rounded-full {isRecording ? 'animate-pulse bg-red-500' : 'bg-yellow-500'}"
-                  ></div>
+                  <div class="h-4 w-4 rounded-full {isRecording ? 'animate-pulse bg-red-500' : 'bg-yellow-500'}"></div>
                   <p class="text-sm font-medium {isRecording ? 'text-red-800' : 'text-yellow-800'}">
                     {isRecording ? 'Recording in progress...' : 'Recording paused...'}
                   </p>
                 </div>
-                <div class="mt-2 pl-6 space-y-1">
+                <div class="mt-2 space-y-1 pl-6">
                   <p class="text-xs {isRecording ? 'text-red-700' : 'text-yellow-700'}">
                     Patient: {formData.firstName}
                     {formData.lastName}
@@ -786,9 +776,7 @@
               <div class="relative w-full rounded-lg border border-green-500/50 bg-green-50 p-4 text-green-700">
                 <CheckCircle class="absolute top-4 left-4 h-4 w-4" />
                 <div class="pl-7">
-                  <h5 class="mb-1 leading-none font-medium tracking-tight">
-                    Recording completed.
-                  </h5>
+                  <h5 class="mb-1 leading-none font-medium tracking-tight">Recording completed.</h5>
                   <div class="mt-2 space-y-1">
                     <p class="text-xs text-green-600">
                       Patient: {formData.firstName}

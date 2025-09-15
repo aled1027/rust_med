@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '$lib/components/ui/card';
+  import { Card, CardHeader, CardTitle, CardDescription, CardContent, Textarea } from '$lib/components/ui/card';
   import { Button } from '$lib/components/ui/button';
   import { tauriService } from '$lib/tauriService';
   import type { TauriNote } from '$lib/types';
@@ -55,7 +55,7 @@
         </div>
       </CardHeader>
       <CardContent>
-        <textarea class="h-full w-full" readonly>{note.medicalNote}</textarea>
+        <Textarea>{note.medicalNote}</Textarea>
       </CardContent>
     </Card>
   {/each}
