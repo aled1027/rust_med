@@ -684,8 +684,6 @@
           <Label class="text-sm font-medium">
             Microphone <span class="text-destructive">*</span>
           </Label>
-          <p class="text-xs text-muted-foreground">Connect and select a microphone to record patient notes</p>
-
           {#if needsMicrophoneConnection()}
             <div class="space-y-3">
               <div class="rounded-lg border border-dashed border-muted-foreground/25 p-4 text-center">
@@ -756,14 +754,13 @@
         {:else if isRecording() || isPaused()}
           <div class="space-y-2">
             <div class="space-y-3">
-              <div
-                class="rounded-md border p-3 {isRecording()
-                  ? 'border-red-200 bg-red-50'
-                  : 'border-yellow-200 bg-yellow-50'}"
+              <div class="relative w-full rounded-lg border p-4 {isRecording()
+                ? 'border-red-200 bg-red-50 text-red-700'
+                : 'border-yellow-200 bg-yellow-50 text-yellow-700'}"
               >
                 <div class="flex items-center space-x-2">
                   <div
-                    class="h-3 w-3 rounded-full {isRecording() ? 'animate-pulse bg-red-500' : 'bg-yellow-500'}"
+                    class="h-4 w-4 rounded-full {isRecording() ? 'animate-pulse bg-red-500' : 'bg-yellow-500'}"
                   ></div>
                   <p class="text-sm font-medium {isRecording() ? 'text-red-800' : 'text-yellow-800'}">
                     {isRecording() ? 'Recording in progress...' : 'Recording paused...'}
