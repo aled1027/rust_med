@@ -28,7 +28,6 @@
   let isMicrophoneConnected = $state(false);
 
   // Consolidated status and error management
-  let statusMessage = $state('');
   let statusType = $state<'info' | 'success' | 'warning' | 'error'>('info');
   let microphoneError = $state('');
   let recordingError = $state('');
@@ -407,13 +406,11 @@
     }
 
     try {
-      statusMessage = 'Starting recording...';
       statusType = 'info';
       await startRecording(selectedMicrophoneId);
       recordingState = 'recording';
       recordingTime = 0;
       startTimer();
-      statusMessage = 'Recording in progress...';
       statusType = 'info';
     } catch (error) {
       console.error('Failed to start recording:', error);
@@ -426,21 +423,17 @@
     try {
       if (recordingState === 'paused') {
         // Resume recording
-        statusMessage = 'Resuming recording...';
         statusType = 'info';
         resumeRecording();
         recordingState = 'recording';
         startTimer();
-        statusMessage = 'Recording in progress...';
         statusType = 'info';
       } else {
         // Pause recording
-        statusMessage = 'Pausing recording...';
         statusType = 'info';
         pauseRecording();
         recordingState = 'paused';
         stopTimer(true);
-        statusMessage = 'Recording paused...';
         statusType = 'warning';
       }
     } catch (error) {
@@ -453,12 +446,10 @@
 
   async function handleStopRecording() {
     try {
-      statusMessage = 'Stopping recording...';
       statusType = 'info';
       stopRecording();
       recordingState = 'stopped';
       stopTimer();
-      statusMessage = 'Recording completed. Ready to process.';
       statusType = 'success';
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
@@ -475,7 +466,6 @@
 
     isProcessing = true;
     try {
-      statusMessage = 'Processing recorded audio...';
       statusType = 'info';
 
       // Get the recorded audio blob
@@ -485,7 +475,6 @@
         throw new Error('No audio data recorded');
       }
 
-      statusMessage = 'Audio processed successfully. Starting transcription...';
       statusType = 'info';
 
       // Write the audio to a file using Tauri service
@@ -493,7 +482,6 @@
       const audioFilename = 'debug.wav';
       const audioPath = await tauriService.joinPath(appDataDir, audioFilename);
 
-      statusMessage = 'Transcribing audio...';
       statusType = 'info';
       console.log('Transcribing audio...');
       const transcriptionResult = await tauriService.transcribeAudio(audioPath);
@@ -503,7 +491,6 @@
       }
 
       const transcript = transcriptionResult.transcript;
-      statusMessage = 'Generating medical note... (this can take about 30 seconds)';
       statusType = 'info';
 
       const noteGenResult = await tauriService.generateMedicalNote(transcript, formData.noteType);
@@ -513,7 +500,6 @@
       }
       const medicalNote = noteGenResult.note;
 
-      statusMessage = 'Note generated successfully!';
       statusType = 'success';
 
       // Create the note with the processed data
@@ -562,7 +548,6 @@
     recordingTime = 0;
     stopTimer();
     clearStatusMessages();
-    statusMessage = 'Ready to record';
     statusType = 'info';
     // Note: isInitialized and isMicrophoneConnected remain true after first setup
   }
@@ -575,7 +560,6 @@
 
   // Helper function to clear status messages
   function clearStatusMessages() {
-    statusMessage = '';
     microphoneError = '';
     recordingError = '';
     processingError = '';
@@ -755,31 +739,22 @@
           <div class="rounded-md bg-destructive/10 p-3">
             <p class="text-sm text-destructive">{recordingError}</p>
           </div>
-        {:else if statusMessage}
-          <div
-            class="rounded-md p-3 {statusType === 'error'
-              ? 'bg-destructive/10'
-              : statusType === 'warning'
-                ? 'border border-yellow-200 bg-yellow-50'
-                : statusType === 'success'
-                  ? 'border border-green-200 bg-green-50'
-                  : 'border border-blue-200 bg-blue-50'}"
-          >
-            <p
-              class="text-sm {statusType === 'error'
-                ? 'text-destructive'
-                : statusType === 'warning'
-                  ? 'text-yellow-800'
-                  : statusType === 'success'
-                    ? 'text-green-800'
-                    : 'text-blue-800'}"
-            >
-              {statusMessage}
-            </p>
-          </div>
         {/if}
 
-        {#if recordingState === 'ready'}
+        {#if recordingState === 'not-ready'}
+          <div class="space-y-4">
+            <p class="text-sm text-muted-foreground">
+              Fill out the patient information and connect a microphone above to record.
+            </p>
+            <Button disabled={true} class="w-full md:w-auto">
+              <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="12" r="6" fill="white" />
+              </svg>
+              Start Recording
+            </Button>
+          </div>
+        {:else if recordingState === 'ready'}
           <div class="space-y-2">
             <Button onclick={handleRecord} class="w-full md:w-auto" disabled={!canRecord}>
               <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
