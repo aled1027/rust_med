@@ -130,10 +130,7 @@
 <Dialog.Root bind:open={isDialogOpen}>
   <Dialog.Content class="w-[400px] sm:w-[540px]">
     <Dialog.Header>
-      <Dialog.Title>Medical Note Details</Dialog.Title>
-      <Dialog.Description>
-        Detailed information for {selectedNote?.firstName} {selectedNote?.lastName}
-      </Dialog.Description>
+      <Dialog.Title>{selectedNote?.firstName} {selectedNote?.lastName}</Dialog.Title>
     </Dialog.Header>
     
     {#if selectedNote}
