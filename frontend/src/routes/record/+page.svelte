@@ -705,10 +705,10 @@
             </div>
           {:else if availableMicrophones.length > 0}
             <div class="space-y-2">
-              <div class="rounded-lg border border-green-200 bg-green-50 p-3">
+              <div class="rounded-lg border border-muted-foreground/25 bg-muted/10 p-3">
                 <div class="mb-2 flex items-center space-x-2">
                   <div class="h-2 w-2 rounded-full bg-green-500"></div>
-                  <p class="text-sm font-medium text-green-800">Microphone Connected</p>
+                  <p class="text-sm font-medium text-foreground">Microphone Connected</p>
                 </div>
                 <Select.Root type="single" bind:value={selectedMicrophoneId}>
                   <Select.Trigger class="w-full">
@@ -800,13 +800,12 @@
           </div>
         {:else if recordingState === 'stopped'}
           <div class="space-y-2">
-            <Label class="text-sm font-medium">Recording Status</Label>
             <div class="space-y-3">
               <div class="relative w-full rounded-lg border border-green-500/50 bg-green-50 p-4 text-green-700">
                 <CheckCircle class="absolute top-4 left-4 h-4 w-4" />
                 <div class="pl-7">
                   <h5 class="mb-1 leading-none font-medium tracking-tight">
-                    ✓ Recording completed. Process the audio to generate the medical note.
+                    Recording completed.
                   </h5>
                   <div class="mt-2 space-y-1">
                     <p class="text-xs text-green-600">
