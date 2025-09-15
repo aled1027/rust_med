@@ -3,13 +3,12 @@
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
-  import { RadioGroup, RadioGroupItem } from '$lib/components/ui/radio-group';
   import { Separator } from '$lib/components/ui/separator';
   import * as Select from '$lib/components/ui/select';
   import { tauriService } from '$lib/tauriService';
   import { onMount } from 'svelte';
   import type { RecordingState } from '$lib/types';
-  import { Mic, Play, Pause, Square, Loader2, Star } from 'lucide-svelte';
+  import { Mic, Play, Pause, Square, Loader2, Star, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-svelte';
 
   // Form state
   let formData = $state({
@@ -600,9 +599,12 @@
               aria-describedby={errors.firstName ? 'firstName-error' : undefined}
             />
             {#if errors.firstName}
-              <p id="firstName-error" class="text-sm text-destructive" role="alert">
-                {errors.firstName}
-              </p>
+              <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-destructive">
+                <AlertCircle class="absolute left-3 top-3 h-4 w-4" />
+                <div class="pl-7">
+                  <p class="text-sm font-medium">{errors.firstName}</p>
+                </div>
+              </div>
             {/if}
           </div>
 
@@ -620,9 +622,12 @@
               aria-describedby={errors.lastName ? 'lastName-error' : undefined}
             />
             {#if errors.lastName}
-              <p id="lastName-error" class="text-sm text-destructive" role="alert">
-                {errors.lastName}
-              </p>
+              <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-destructive">
+                <AlertCircle class="absolute left-3 top-3 h-4 w-4" />
+                <div class="pl-7">
+                  <p class="text-sm font-medium">{errors.lastName}</p>
+                </div>
+              </div>
             {/if}
           </div>
         </div>
@@ -640,9 +645,12 @@
             aria-describedby={errors.dateOfBirth ? 'dateOfBirth-error' : undefined}
           />
           {#if errors.dateOfBirth}
-            <p id="dateOfBirth-error" class="text-sm text-destructive" role="alert">
-              {errors.dateOfBirth}
-            </p>
+            <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-destructive">
+              <AlertCircle class="absolute left-3 top-3 h-4 w-4" />
+              <div class="pl-7">
+                <p class="text-sm font-medium">{errors.dateOfBirth}</p>
+              </div>
+            </div>
           {/if}
         </div>
       </div>
@@ -654,31 +662,34 @@
         <h3 class="text-lg font-semibold">Note Type</h3>
         <p class="text-sm text-muted-foreground">Select the type of medical note to generate from the recording</p>
 
-        <RadioGroup bind:value={formData.noteType} class="space-y-3">
-          <div class="flex items-center space-x-3">
-            <RadioGroupItem value="soap" id="soap" />
-            <Label for="soap" class="flex-1">
-              <div>
-                <div class="text-sm font-medium">SOAP Note</div>
-                <div class="text-xs text-muted-foreground">
-                  Structured format with Subjective, Objective, Assessment, and Plan sections
+        <div class="space-y-2">
+          <Label for="noteType" class="text-sm font-medium">
+            Note Type
+          </Label>
+          <Select.Root type="single" bind:value={formData.noteType}>
+            <Select.Trigger class="w-full">
+              {formData.noteType === 'soap' ? 'SOAP Note' : formData.noteType === 'full' ? 'Full Note' : 'Select note type'}
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value="soap">
+                <div class="flex flex-col">
+                  <div class="text-sm font-medium">SOAP Note</div>
+                  <div class="text-xs text-muted-foreground">
+                    Structured format with Subjective, Objective, Assessment, and Plan sections
+                  </div>
                 </div>
-              </div>
-            </Label>
-          </div>
-
-          <div class="flex items-center space-x-3">
-            <RadioGroupItem value="full" id="full" />
-            <Label for="full" class="flex-1">
-              <div>
-                <div class="text-sm font-medium">Full Note</div>
-                <div class="text-xs text-muted-foreground">
-                  Comprehensive narrative note with detailed documentation
+              </Select.Item>
+              <Select.Item value="full">
+                <div class="flex flex-col">
+                  <div class="text-sm font-medium">Full Note</div>
+                  <div class="text-xs text-muted-foreground">
+                    Comprehensive narrative note with detailed documentation
+                  </div>
                 </div>
-              </div>
-            </Label>
-          </div>
-        </RadioGroup>
+              </Select.Item>
+            </Select.Content>
+          </Select.Root>
+        </div>
       </div>
 
       <Separator />
@@ -696,8 +707,11 @@
                 Connect Microphone
               </Button>
               {#if microphoneError}
-                <div class="rounded-md bg-destructive/10 p-3">
-                  <p class="text-sm text-destructive">{microphoneError}</p>
+                <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
+                  <AlertCircle class="absolute left-4 top-4 h-4 w-4" />
+                  <div class="pl-7">
+                    <p class="text-sm font-medium">{microphoneError}</p>
+                  </div>
                 </div>
               {/if}
             </div>
@@ -731,8 +745,11 @@
         <h3 class="text-lg font-semibold">Recording</h3>
         <!-- Status Display -->
         {#if recordingError}
-          <div class="rounded-md bg-destructive/10 p-3">
-            <p class="text-sm text-destructive">{recordingError}</p>
+          <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
+            <AlertCircle class="absolute left-4 top-4 h-4 w-4" />
+            <div class="pl-7">
+              <p class="text-sm font-medium">{recordingError}</p>
+            </div>
           </div>
         {/if}
 
@@ -802,31 +819,34 @@
           <div class="space-y-2">
             <Label class="text-sm font-medium">Recording Status</Label>
             <div class="space-y-3">
-              <div class="rounded-md border border-green-200 bg-green-50 p-3">
-                <div class="flex items-center space-x-2">
-                  <div class="h-3 w-3 rounded-full bg-green-500"></div>
-                  <p class="text-sm font-medium text-green-800">
+              <div class="relative w-full rounded-lg border border-green-500/50 bg-green-50 p-4 text-green-700">
+                <CheckCircle class="absolute left-4 top-4 h-4 w-4" />
+                <div class="pl-7">
+                  <h5 class="mb-1 font-medium leading-none tracking-tight">
                     ✓ Recording completed. Process the audio to generate the medical note.
-                  </p>
-                </div>
-                <div class="mt-2 space-y-1">
-                  <p class="text-xs text-green-700">
-                    Patient: {formData.firstName}
-                    {formData.lastName}
-                  </p>
-                  <p class="text-xs text-green-700">
-                    Note Type: {formData.noteType === 'soap' ? 'SOAP Note' : 'Full Note'}
-                  </p>
-                  <p class="text-sm font-medium text-green-800">
-                    Final Duration: {formatTime(recordingTime)}
-                  </p>
+                  </h5>
+                  <div class="mt-2 space-y-1">
+                    <p class="text-xs text-green-600">
+                      Patient: {formData.firstName}
+                      {formData.lastName}
+                    </p>
+                    <p class="text-xs text-green-600">
+                      Note Type: {formData.noteType === 'soap' ? 'SOAP Note' : 'Full Note'}
+                    </p>
+                    <p class="text-sm font-medium text-green-800">
+                      Final Duration: {formatTime(recordingTime)}
+                    </p>
+                  </div>
                 </div>
               </div>
 
               <!-- Processing Errors -->
               {#if processingError}
-                <div class="rounded-md bg-destructive/10 p-3">
-                  <p class="text-sm text-destructive">{processingError}</p>
+                <div class="relative w-full rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
+                  <AlertCircle class="absolute left-4 top-4 h-4 w-4" />
+                  <div class="pl-7">
+                    <p class="text-sm font-medium">{processingError}</p>
+                  </div>
                 </div>
               {/if}
 
