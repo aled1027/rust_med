@@ -62,7 +62,6 @@ The Tauri app uses whatever is in the `frontend/build` directory, so while you c
 
 ## TODOs:
 
-- Improve UI /notes page. Maybe a datatable with ability to view notes in detail
 - Merge the UI branch
 - Add auth method that's better to set up for encryption
 - Later: Move to sqlite with encryption
