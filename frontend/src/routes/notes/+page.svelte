@@ -5,6 +5,7 @@
   import { Button } from '$lib/components/ui/button';
   import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/custom/table';
   import * as Dialog from '$lib/components/ui/dialog';
+  import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import { tauriService } from '$lib/tauriService';
   import type { TauriNote } from '$lib/types';
   import { Trash2, Eye } from 'lucide-svelte';
@@ -12,6 +13,8 @@
   let notes = $state<TauriNote[]>([]);
   let selectedNote = $state<TauriNote | null>(null);
   let isDialogOpen = $state(false);
+  let isDeleteDialogOpen = $state(false);
+  let noteToDelete = $state<TauriNote | null>(null);
 
   async function loadNotes() {
     const result = await tauriService.loadNotes();
@@ -20,15 +23,20 @@
     }
   }
 
-  async function deleteNote(noteId: string) {
-    // TODO: add confirmation
+  function confirmDelete(note: TauriNote) {
+    noteToDelete = note;
+    isDeleteDialogOpen = true;
+  }
+
+  async function deleteNote() {
+    if (!noteToDelete) return;
+    notes = notes.filter((note) => note.id !== noteToDelete!.id);
+
     try {
-      // TODO: Seems like the return type might be messed up here
-      const result = await tauriService.deleteNote(noteId);
+      const result = await tauriService.deleteNote(noteToDelete.id);
       if (result.success) {
-        notes = notes.filter((note) => note.id !== noteId);
         // Close dialog if the deleted note was selected
-        if (selectedNote?.id === noteId) {
+        if (selectedNote?.id === noteToDelete.id) {
           isDialogOpen = false;
           selectedNote = null;
         }
@@ -37,6 +45,9 @@
       }
     } catch (error) {
       console.error('Failed to delete note:', error);
+    } finally {
+      isDeleteDialogOpen = false;
+      noteToDelete = null;
     }
   }
 
@@ -110,7 +121,7 @@
                       size="sm"
                       onclick={(e) => {
                         e.stopPropagation();
-                        deleteNote(note.id);
+                        confirmDelete(note);
                       }}
                     >
                       <Trash2 class="h-4 w-4" />
@@ -193,3 +204,24 @@
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>
+
+<!-- Delete Confirmation Dialog -->
+<AlertDialog.Root bind:open={isDeleteDialogOpen}>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title>Delete Medical Note</AlertDialog.Title>
+      <AlertDialog.Description>
+        Are you sure you want to delete the medical note for {noteToDelete?.firstName} {noteToDelete?.lastName}? 
+        This action cannot be undone.
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      <AlertDialog.Cancel onclick={() => { isDeleteDialogOpen = false; noteToDelete = null; }}>
+        Cancel
+      </AlertDialog.Cancel>
+      <AlertDialog.Action onclick={deleteNote} class="bg-destructive text-white hover:bg-destructive/90">
+        Delete
+      </AlertDialog.Action>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>
