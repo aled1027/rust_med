@@ -1,14 +1,15 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Card, CardContent } from '$lib/components/ui/card';
+  import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Textarea } from '$lib/components/ui/textarea';
   import { Button } from '$lib/components/ui/button';
+  import { Badge } from '$lib/components/ui/badge';
   import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/custom/table';
   import * as Dialog from '$lib/components/ui/dialog';
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import { tauriService } from '$lib/tauriService';
   import type { TauriNote } from '$lib/types';
-  import { Trash2, Eye } from 'lucide-svelte';
+  import { Trash2, Eye, Calendar, User, FileText } from 'lucide-svelte';
 
   let notes = $state<TauriNote[]>([]);
   let selectedNote = $state<TauriNote | null>(null);
@@ -81,59 +82,128 @@
       </CardContent>
     </Card>
   {:else}
-    <Card>
-      <CardContent class="p-0">
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeader>Patient Name</TableHeader>
-              <TableHeader>Date of Birth</TableHeader>
-              <TableHeader>Note Type</TableHeader>
-              <TableHeader>Created</TableHeader>
-              <TableHeader class="w-[100px]">Actions</TableHeader>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {#each notes as note (note.id)}
-              <TableRow class="cursor-pointer hover:bg-muted/50" on:click={() => openNoteDetail(note)}>
-                <TableCell class="font-medium">{note.firstName} {note.lastName}</TableCell>
-                <TableCell>{new Date(note.dateOfBirth).toLocaleDateString()}</TableCell>
-                <TableCell>
-                  <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                    {note.noteType === 'soap' ? 'SOAP Note' : 'Full Note'}
-                  </span>
-                </TableCell>
-                <TableCell>{new Date(note.createdAt).toLocaleString()}</TableCell>
-                <TableCell>
-                  <div class="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onclick={(e) => {
-                        e.stopPropagation();
-                        openNoteDetail(note);
-                      }}
-                    >
-                      <Eye class="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onclick={(e) => {
-                        e.stopPropagation();
-                        confirmDelete(note);
-                      }}
-                    >
-                      <Trash2 class="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
+    <!-- Desktop Table View (hidden on mobile) -->
+    <div class="hidden md:block">
+      <Card>
+        <CardContent class="p-0">
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableHeader>Patient Name</TableHeader>
+                <TableHeader>Date of Birth</TableHeader>
+                <TableHeader>Note Type</TableHeader>
+                <TableHeader>Created</TableHeader>
+                <TableHeader class="w-[100px]">Actions</TableHeader>
               </TableRow>
-            {/each}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+            </TableHead>
+            <TableBody>
+              {#each notes as note (note.id)}
+                <TableRow class="cursor-pointer hover:bg-muted/50" on:click={() => openNoteDetail(note)}>
+                  <TableCell class="font-medium">{note.firstName} {note.lastName}</TableCell>
+                  <TableCell>{new Date(note.dateOfBirth).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary">
+                      {note.noteType === 'soap' ? 'SOAP Note' : 'Full Note'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{new Date(note.createdAt).toLocaleString()}</TableCell>
+                  <TableCell>
+                    <div class="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onclick={(e) => {
+                          e.stopPropagation();
+                          openNoteDetail(note);
+                        }}
+                      >
+                        <Eye class="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onclick={(e) => {
+                          e.stopPropagation();
+                          confirmDelete(note);
+                        }}
+                      >
+                        <Trash2 class="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              {/each}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+
+    <!-- Mobile Card View (visible on mobile) -->
+    <div class="block md:hidden space-y-4">
+      {#each notes as note (note.id)}
+        <div 
+          class="cursor-pointer" 
+          role="button"
+          tabindex="0"
+          onclick={() => openNoteDetail(note)}
+          onkeydown={(e) => e.key === 'Enter' && openNoteDetail(note)}
+        >
+          <Card class="hover:shadow-md transition-shadow">
+            <CardHeader class="pb-3">
+              <div class="flex items-start justify-between">
+                <div class="flex-1 min-w-0">
+                  <CardTitle class="text-lg font-semibold truncate">
+                    {note.firstName} {note.lastName}
+                  </CardTitle>
+                  <div class="flex items-center gap-2 mt-1">
+                    <Badge variant="secondary" class="text-xs">
+                      {note.noteType === 'soap' ? 'SOAP Note' : 'Full Note'}
+                    </Badge>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1 ml-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onclick={(e) => {
+                      e.stopPropagation();
+                      openNoteDetail(note);
+                    }}
+                    class="h-8 w-8 p-0"
+                  >
+                    <Eye class="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onclick={(e) => {
+                      e.stopPropagation();
+                      confirmDelete(note);
+                    }}
+                    class="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                  >
+                    <Trash2 class="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent class="pt-0">
+              <div class="space-y-3">
+                <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar class="h-4 w-4 flex-shrink-0" />
+                  <span>DOB: {new Date(note.dateOfBirth).toLocaleDateString()}</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                  <FileText class="h-4 w-4 flex-shrink-0" />
+                  <span>Created: {new Date(note.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      {/each}
+    </div>
   {/if}
 </div>
 
