@@ -139,13 +139,13 @@
 
 <!-- Note Detail Dialog -->
 <Dialog.Root bind:open={isDialogOpen}>
-  <Dialog.Content class="w-[400px] sm:w-[540px]">
+  <Dialog.Content class="w-[95vw] max-w-[540px] max-h-[90vh] overflow-hidden flex flex-col">
     <Dialog.Header>
       <Dialog.Title>{selectedNote?.firstName} {selectedNote?.lastName}</Dialog.Title>
     </Dialog.Header>
     
     {#if selectedNote}
-      <div class="space-y-6 py-6">
+      <div class="space-y-6 py-6 overflow-y-auto flex-1">
         <!-- Patient Information -->
         <div class="space-y-4">
           <h3 class="text-lg font-semibold">Patient Information</h3>
