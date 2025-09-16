@@ -16,13 +16,8 @@
   // Menu items for medical note generator
   const menuItems = [
     {
-      title: 'Dashboard',
-      url: '/',
-      icon: House
-    },
-    {
       title: 'Record Visit',
-      url: '/record',
+      url: '/',
       icon: Mic
     },
     {

@@ -269,7 +269,15 @@
       </div>
     {/if}
 
-    <Dialog.Footer>
+    <Dialog.Footer class="flex justify-between">
+      <Button 
+        variant="destructive" 
+        onclick={() => confirmDelete(selectedNote!)}
+        class="flex items-center gap-2"
+      >
+        <Trash2 class="h-4 w-4" />
+        Delete Note
+      </Button>
       <Button variant="outline" onclick={closeDialog}>Close</Button>
     </Dialog.Footer>
   </Dialog.Content>
